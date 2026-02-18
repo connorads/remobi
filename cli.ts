@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { homedir } from 'node:os'
+import { join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
 import { defaultConfig, defineConfig } from './src/config'
 import type { DeepPartial, WebmuxConfig } from './src/types'
@@ -31,14 +32,21 @@ Usage:
 async function loadConfig(configPath: string | undefined): Promise<WebmuxConfig> {
 	let resolved = configPath
 	if (!resolved) {
-		// Look for default config file
-		const defaultPaths = ['webmux.config.ts', 'webmux.config.js']
-		for (const p of defaultPaths) {
-			const full = resolve(process.cwd(), p)
-			if (existsSync(full)) {
-				resolved = full
-				break
+		// Search order: cwd → XDG config dir (~/.config/webmux/)
+		const names = ['webmux.config.ts', 'webmux.config.js']
+		const searchDirs = [
+			process.cwd(),
+			join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'webmux'),
+		]
+		for (const dir of searchDirs) {
+			for (const name of names) {
+				const full = join(dir, name)
+				if (existsSync(full)) {
+					resolved = full
+					break
+				}
 			}
+			if (resolved) break
 		}
 	}
 
