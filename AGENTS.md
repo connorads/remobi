@@ -1,10 +1,10 @@
 # webmux
 
-Mobile-friendly terminal overlay for ttyd + tmux.
+Mobile-friendly terminal overlay for ttyd + tmux. Published as `webmux` on npm (Bun-only).
 
 ## Architecture
 
-Pure TypeScript + DOM API — no framework. Produces a single `index.html` for ttyd's `--index` flag.
+Pure TypeScript + DOM API — no framework. Ships TypeScript source directly (no transpilation). Produces a single `index.html` for ttyd's `--index` flag via `Bun.build()`.
 
 ## Stack
 
@@ -42,10 +42,19 @@ bun run build         # Build dist/index.html
 - `cli.ts` — CLI: build, inject, init, --version
 - `build.ts` — build pipeline: bundle → inject → output
 
+## Publishing
+
+- Ships TypeScript source: `bin` → `cli.ts`, `exports` → `.ts` files
+- `files` array controls what's published: `src/`, `styles/`, `cli.ts`, `build.ts`, `README.md`, `LICENSE`
+- CI: `.github/workflows/ci.yml` — bun test + biome check
+- Publish: `.github/workflows/publish.yml` — triggered on `v*` tags → npm publish
+- `bun link` for local development (CLI available globally, changes immediate)
+
 ## Conventions
 
 - Button actions use discriminated unions (`type: 'send' | 'ctrl-modifier' | 'paste' | 'drawer-toggle'`)
 - Config via `defineConfig()` — typed, with sensible defaults
+- Config resolution: `--config` flag → cwd → `~/.config/webmux/` (XDG fallback)
 - Drawer takes a flat `readonly DrawerCommand[]` — rendered as a single grid
 - All DOM creation in `util/dom.ts` helpers
 - Keyboard state preserved: capture `isKeyboardOpen()` before action, use `conditionalFocus()` after
