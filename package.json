@@ -8,13 +8,25 @@
 	},
 	"exports": {
 		".": "./src/index.ts",
-		"./config": "./src/config.ts"
+		"./config": "./src/config.ts",
+		"./types": "./src/types.ts"
 	},
+	"files": ["src/", "styles/", "cli.ts", "build.ts", "README.md", "LICENSE"],
+	"engines": {
+		"bun": ">=1.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/connorads/webmux.git"
+	},
+	"homepage": "https://github.com/connorads/webmux",
+	"bugs": "https://github.com/connorads/webmux/issues",
 	"scripts": {
 		"build": "bun run cli.ts build",
 		"check": "biome check .",
 		"check:fix": "biome check --fix .",
-		"test": "bun test"
+		"test": "bun test",
+		"prepublishOnly": "bun test && bun run check"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.0",
@@ -25,6 +37,6 @@
 	},
 	"license": "MIT",
 	"author": "Connor",
-	"keywords": ["ttyd", "tmux", "terminal", "mobile", "overlay"],
+	"keywords": ["ttyd", "tmux", "terminal", "mobile", "overlay", "touch", "bun"],
 	"trustedDependencies": ["@biomejs/biome"]
 }
