@@ -18,7 +18,7 @@ describe('defaultRow1', () => {
 		const sTabIdx = defaultRow1.findIndex((b) => b.label === 'S-Tab')
 		expect(tabIdx).toBeGreaterThanOrEqual(0)
 		expect(sTabIdx).toBe(tabIdx + 1)
-		expect(defaultRow1[sTabIdx]?.action).toEqual({ type: 'send', data: '\x1b[Z' })
+		expect(defaultRow1[sTabIdx]?.action).toMatchObject({ type: 'send', data: '\x1b[Z' })
 	})
 
 	test('has arrow keys', () => {

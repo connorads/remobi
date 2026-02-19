@@ -127,8 +127,8 @@ export default defineConfig({
   //   mobileSizeDefault: 16,
   //   sizeRange: [8, 32],
   // },
-  // toolbar: { row1: [...], row2: [...] },
-  // drawer: { commands: [...] },
+  // toolbar: { row1: [{ id, label, description, action }], row2: [...] },
+  // drawer: { buttons: [{ id, label, description, action }] },
   // gestures: {
   //   swipe: { enabled: true },
   //   pinch: { enabled: true },

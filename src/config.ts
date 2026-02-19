@@ -1,5 +1,5 @@
 import { catppuccinMocha } from './theme/catppuccin-mocha'
-import type { DeepPartial, DrawerCommand, WebmuxConfig } from './types'
+import type { ControlButton, DeepPartial, WebmuxConfig } from './types'
 
 /** Default font configuration */
 const defaultFont: WebmuxConfig['font'] = {
@@ -19,43 +19,173 @@ const defaultGestures: WebmuxConfig['gestures'] = {
 
 /** Default row 1 buttons (modifiers + nav) */
 const defaultRow1: WebmuxConfig['toolbar']['row1'] = [
-	{ label: 'Esc', action: { type: 'send', data: '\x1b' } },
-	{ label: 'Ctrl', action: { type: 'ctrl-modifier' } },
-	{ label: 'Tab', action: { type: 'send', data: '\t' } },
-	{ label: 'S-Tab', action: { type: 'send', data: '\x1b[Z' } },
-	{ label: '\u2190', action: { type: 'send', data: '\x1b[D' } },
-	{ label: '\u2191', action: { type: 'send', data: '\x1b[A' } },
-	{ label: '\u2193', action: { type: 'send', data: '\x1b[B' } },
-	{ label: '\u2192', action: { type: 'send', data: '\x1b[C' } },
-	{ label: 'C-c', action: { type: 'send', data: '\x03' } },
-	{ label: '\u23CE', action: { type: 'send', data: '\r' } },
+	{
+		id: 'esc',
+		label: 'Esc',
+		description: 'Send Escape key',
+		action: { type: 'send', data: '\x1b' },
+	},
+	{
+		id: 'ctrl-mod',
+		label: 'Ctrl',
+		description: 'Sticky Ctrl modifier for the next typed key',
+		action: { type: 'ctrl-modifier' },
+	},
+	{ id: 'tab', label: 'Tab', description: 'Send Tab key', action: { type: 'send', data: '\t' } },
+	{
+		id: 'shift-tab',
+		label: 'S-Tab',
+		description: 'Send Shift+Tab key',
+		action: { type: 'send', data: '\x1b[Z', keyLabel: 'Shift+Tab' },
+	},
+	{
+		id: 'left',
+		label: '\u2190',
+		description: 'Send Left arrow key',
+		action: { type: 'send', data: '\x1b[D', keyLabel: 'Left' },
+	},
+	{
+		id: 'up',
+		label: '\u2191',
+		description: 'Send Up arrow key',
+		action: { type: 'send', data: '\x1b[A', keyLabel: 'Up' },
+	},
+	{
+		id: 'down',
+		label: '\u2193',
+		description: 'Send Down arrow key',
+		action: { type: 'send', data: '\x1b[B', keyLabel: 'Down' },
+	},
+	{
+		id: 'right',
+		label: '\u2192',
+		description: 'Send Right arrow key',
+		action: { type: 'send', data: '\x1b[C', keyLabel: 'Right' },
+	},
+	{
+		id: 'ctrl-c',
+		label: 'C-c',
+		description: 'Send Ctrl-C interrupt',
+		action: { type: 'send', data: '\x03' },
+	},
+	{
+		id: 'enter',
+		label: '\u23CE',
+		description: 'Send Enter/Return key',
+		action: { type: 'send', data: '\r' },
+	},
 ]
 
 /** Default row 2 buttons */
 const defaultRow2: WebmuxConfig['toolbar']['row2'] = [
-	{ label: 'q', action: { type: 'send', data: 'q' } },
-	{ label: 'C-d', action: { type: 'send', data: '\x04' } },
-	{ label: '\u2630 More', action: { type: 'drawer-toggle' } },
-	{ label: 'Paste', action: { type: 'paste' } },
-	{ label: 'Space', action: { type: 'send', data: ' ' } },
+	{ id: 'q', label: 'q', description: 'Send q key', action: { type: 'send', data: 'q' } },
+	{
+		id: 'ctrl-d',
+		label: 'C-d',
+		description: 'Send Ctrl-D key',
+		action: { type: 'send', data: '\x04' },
+	},
+	{
+		id: 'drawer-toggle',
+		label: '\u2630 More',
+		description: 'Open command drawer',
+		action: { type: 'drawer-toggle' },
+	},
+	{ id: 'paste', label: 'Paste', description: 'Paste from clipboard', action: { type: 'paste' } },
+	{
+		id: 'space',
+		label: 'Space',
+		description: 'Send Space key',
+		action: { type: 'send', data: ' ' },
+	},
 ]
 
 /** Default drawer commands */
-export const defaultDrawerCommands: readonly DrawerCommand[] = [
-	{ label: '+ Win', seq: '\x02c' },
-	{ label: 'Split |', seq: '\x02|' },
-	{ label: 'Split \u2014', seq: '\x02-' },
-	{ label: 'Zoom', seq: '\x02z' },
-	{ label: 'Sessions', seq: '\x02S' },
-	{ label: 'Windows', seq: '\x02W' },
-	{ label: 'Git', seq: '\x02g' },
-	{ label: 'Files', seq: '\x02y' },
-	{ label: 'Links', seq: '\x02u' },
-	{ label: 'PgUp', seq: '\x1b[5~' },
-	{ label: 'PgDn', seq: '\x1b[6~' },
-	{ label: 'Copy', seq: '\x02 ' },
-	{ label: 'Help', seq: '\x02?' },
-	{ label: 'Kill', seq: '\x02x' },
+export const defaultDrawerButtons: readonly ControlButton[] = [
+	{
+		id: 'tmux-new-window',
+		label: '+ Win',
+		description: 'Create tmux window',
+		action: { type: 'send', data: '\x02c' },
+	},
+	{
+		id: 'tmux-split-vertical',
+		label: 'Split |',
+		description: 'Split pane vertically',
+		action: { type: 'send', data: '\x02|' },
+	},
+	{
+		id: 'tmux-split-horizontal',
+		label: 'Split \u2014',
+		description: 'Split pane horizontally',
+		action: { type: 'send', data: '\x02-' },
+	},
+	{
+		id: 'tmux-zoom',
+		label: 'Zoom',
+		description: 'Toggle pane zoom',
+		action: { type: 'send', data: '\x02z' },
+	},
+	{
+		id: 'tmux-sessions',
+		label: 'Sessions',
+		description: 'Open tmux sessions picker',
+		action: { type: 'send', data: '\x02S' },
+	},
+	{
+		id: 'tmux-windows',
+		label: 'Windows',
+		description: 'Open tmux windows picker',
+		action: { type: 'send', data: '\x02W' },
+	},
+	{
+		id: 'tmux-git',
+		label: 'Git',
+		description: 'Open Lazygit popup',
+		action: { type: 'send', data: '\x02g' },
+	},
+	{
+		id: 'tmux-files',
+		label: 'Files',
+		description: 'Open file browser popup',
+		action: { type: 'send', data: '\x02y' },
+	},
+	{
+		id: 'tmux-links',
+		label: 'Links',
+		description: 'Open links picker',
+		action: { type: 'send', data: '\x02u' },
+	},
+	{
+		id: 'page-up',
+		label: 'PgUp',
+		description: 'Send Page Up key',
+		action: { type: 'send', data: '\x1b[5~', keyLabel: 'Page Up' },
+	},
+	{
+		id: 'page-down',
+		label: 'PgDn',
+		description: 'Send Page Down key',
+		action: { type: 'send', data: '\x1b[6~', keyLabel: 'Page Down' },
+	},
+	{
+		id: 'tmux-copy',
+		label: 'Copy',
+		description: 'Start tmux copy mode helper',
+		action: { type: 'send', data: '\x02 ' },
+	},
+	{
+		id: 'tmux-help',
+		label: 'Help',
+		description: 'Open tmux help',
+		action: { type: 'send', data: '\x02?' },
+	},
+	{
+		id: 'tmux-kill-pane',
+		label: 'Kill',
+		description: 'Kill current pane (with confirm)',
+		action: { type: 'send', data: '\x02x' },
+	},
 ]
 
 /** Complete default configuration */
@@ -63,7 +193,7 @@ export const defaultConfig: WebmuxConfig = {
 	theme: catppuccinMocha,
 	font: defaultFont,
 	toolbar: { row1: defaultRow1, row2: defaultRow2 },
-	drawer: { commands: defaultDrawerCommands },
+	drawer: { buttons: defaultDrawerButtons },
 	gestures: defaultGestures,
 }
 

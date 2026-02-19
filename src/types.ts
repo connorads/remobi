@@ -1,20 +1,16 @@
-/** Action types for toolbar buttons — discriminated union, no boolean flags */
+/** Action types for control buttons — discriminated union, no boolean flags */
 export type ButtonAction =
-	| { readonly type: 'send'; readonly data: string }
+	| { readonly type: 'send'; readonly data: string; readonly keyLabel?: string }
 	| { readonly type: 'ctrl-modifier' }
 	| { readonly type: 'paste' }
 	| { readonly type: 'drawer-toggle' }
 
-/** A toolbar button definition */
-export interface ButtonDef {
+/** A generic control button definition used by toolbar and drawer */
+export interface ControlButton {
+	readonly id: string
 	readonly label: string
+	readonly description: string
 	readonly action: ButtonAction
-}
-
-/** A tmux drawer command */
-export interface DrawerCommand {
-	readonly label: string
-	readonly seq: string
 }
 
 /** xterm.js theme colours */
@@ -85,11 +81,11 @@ export interface WebmuxConfig {
 	readonly theme: TermTheme
 	readonly font: FontConfig
 	readonly toolbar: {
-		readonly row1: readonly ButtonDef[]
-		readonly row2: readonly ButtonDef[]
+		readonly row1: readonly ControlButton[]
+		readonly row2: readonly ControlButton[]
 	}
 	readonly drawer: {
-		readonly commands: readonly DrawerCommand[]
+		readonly buttons: readonly ControlButton[]
 	}
 	readonly gestures: GestureConfig
 }

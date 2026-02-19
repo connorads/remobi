@@ -1,1 +1,1 @@
-export { defaultDrawerCommands } from '../config'
+export { defaultDrawerButtons } from '../config'

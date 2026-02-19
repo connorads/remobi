@@ -30,7 +30,14 @@ describe('defineConfig', () => {
 	})
 
 	test('replaces arrays entirely (toolbar row1)', () => {
-		const customRow = [{ label: 'A', action: { type: 'send' as const, data: 'a' } }]
+		const customRow = [
+			{
+				id: 'a',
+				label: 'A',
+				description: 'Send a',
+				action: { type: 'send' as const, data: 'a' },
+			},
+		]
 		const config = defineConfig({
 			toolbar: { row1: customRow },
 		})
@@ -39,12 +46,19 @@ describe('defineConfig', () => {
 		expect(config.toolbar.row2.length).toBeGreaterThan(0)
 	})
 
-	test('replaces drawer commands array', () => {
-		const customCommands = [{ label: 'Test', seq: '\x02t' }]
+	test('replaces drawer buttons array', () => {
+		const customButtons = [
+			{
+				id: 'test',
+				label: 'Test',
+				description: 'Run test command',
+				action: { type: 'send' as const, data: '\x02t' },
+			},
+		]
 		const config = defineConfig({
-			drawer: { commands: customCommands },
+			drawer: { buttons: customButtons },
 		})
-		expect(config.drawer.commands).toEqual(customCommands)
+		expect(config.drawer.buttons).toEqual(customButtons)
 	})
 })
 
@@ -62,8 +76,8 @@ describe('defaultConfig', () => {
 		expect(defaultConfig.toolbar.row2).toHaveLength(5)
 	})
 
-	test('has 14 drawer commands', () => {
-		expect(defaultConfig.drawer.commands).toHaveLength(14)
+	test('has 14 drawer buttons', () => {
+		expect(defaultConfig.drawer.buttons).toHaveLength(14)
 	})
 
 	test('row1 includes S-Tab after Tab', () => {

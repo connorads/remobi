@@ -2,12 +2,12 @@
 
 Mobile-friendly terminal overlay for [ttyd](https://github.com/tsl0922/ttyd) + [tmux](https://github.com/tmux/tmux).
 
-Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gesture support, and context-aware command drawers. Produces a single `index.html` for `ttyd --index`.
+Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gesture support, and a command drawer. Produces a single `index.html` for `ttyd --index`.
 
 ## Features
 
 - **Two-row toolbar** — Esc, Ctrl (sticky modifier), Tab, arrows, C-c, Enter, tmux prev/next, paste, drawer toggle
-- **Context-aware drawers** — tab-based command drawer (tmux, custom contexts) with title-based auto-switching
+- **Config-driven controls** — unified button model across toolbar + drawer with ids and descriptions
 - **Swipe gestures** — swipe left/right to switch tmux windows
 - **Touch scrolling modes** — default wheel scrolling for broad app compatibility, optional key paging
 - **Pinch-to-zoom** — adjust font size with two-finger pinch
@@ -78,20 +78,20 @@ export default defineConfig({
   },
   toolbar: {
     row1: [
-      { label: 'Esc', action: { type: 'send', data: '\x1b' } },
-      { label: 'Ctrl', action: { type: 'ctrl-modifier' } },
+      { id: 'esc', label: 'Esc', description: 'Send Escape key', action: { type: 'send', data: '\x1b' } },
+      { id: 'ctrl-mod', label: 'Ctrl', description: 'Sticky Ctrl modifier', action: { type: 'ctrl-modifier' } },
       // ...
     ],
     row2: [
-      { label: '☰ More', action: { type: 'drawer-toggle' } },
-      { label: 'Paste', action: { type: 'paste' } },
+      { id: 'drawer-toggle', label: '☰ More', description: 'Open command drawer', action: { type: 'drawer-toggle' } },
+      { id: 'paste', label: 'Paste', description: 'Paste from clipboard', action: { type: 'paste' } },
       // ...
     ],
   },
   drawer: {
-    commands: [
-      { label: '+ Win', seq: '\x02c' },
-      { label: 'Split |', seq: '\x02|' },
+    buttons: [
+      { id: 'tmux-new-window', label: '+ Win', description: 'Create tmux window', action: { type: 'send', data: '\x02c' } },
+      { id: 'tmux-split-vertical', label: 'Split |', description: 'Split pane vertically', action: { type: 'send', data: '\x02|' } },
       // ...
     ],
   },
@@ -119,7 +119,7 @@ All fields are optional — defaults are filled in via `defineConfig()`.
 
 ```typescript
 import { defineConfig, serialiseThemeForTtyd } from 'webmux/config'
-import type { WebmuxConfig, ButtonDef, DrawerCommand } from 'webmux/types'
+import type { WebmuxConfig, ControlButton } from 'webmux/types'
 ```
 
 ## Deployment guides

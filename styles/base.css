@@ -1,3 +1,16 @@
+html,
+body {
+	margin: 0;
+	overflow: hidden;
+	overscroll-behavior: none;
+}
+
+@media (pointer: coarse) {
+	.xterm-screen {
+		overscroll-behavior: none;
+	}
+}
+
 /* Toolbar: two-row layout */
 #wt-toolbar {
 	display: none;

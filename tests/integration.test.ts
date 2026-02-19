@@ -29,7 +29,7 @@ afterEach(() => {
 describe('toolbar integration', () => {
 	test('creates toolbar with two rows', () => {
 		const term = mockTerminal()
-		const drawer = createDrawer(term, defaultConfig.drawer.commands)
+		const drawer = createDrawer(term, defaultConfig.drawer.buttons)
 		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open)
 
 		document.body.appendChild(toolbar)
@@ -41,7 +41,7 @@ describe('toolbar integration', () => {
 
 	test('row1 has correct number of buttons', () => {
 		const term = mockTerminal()
-		const drawer = createDrawer(term, defaultConfig.drawer.commands)
+		const drawer = createDrawer(term, defaultConfig.drawer.buttons)
 		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open)
 
 		document.body.appendChild(toolbar)
@@ -53,7 +53,7 @@ describe('toolbar integration', () => {
 
 	test('row2 has correct number of buttons', () => {
 		const term = mockTerminal()
-		const drawer = createDrawer(term, defaultConfig.drawer.commands)
+		const drawer = createDrawer(term, defaultConfig.drawer.buttons)
 		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open)
 
 		document.body.appendChild(toolbar)
@@ -68,18 +68,18 @@ describe('toolbar integration', () => {
 describe('drawer integration', () => {
 	test('renders all commands as buttons', () => {
 		const term = mockTerminal()
-		const { drawer } = createDrawer(term, defaultConfig.drawer.commands)
+		const { drawer } = createDrawer(term, defaultConfig.drawer.buttons)
 
 		document.body.appendChild(drawer)
 
 		const grid = drawer.querySelector('#wt-drawer-grid')
 		const buttons = grid?.querySelectorAll('button')
-		expect(buttons?.length).toBe(defaultConfig.drawer.commands.length)
+		expect(buttons?.length).toBe(defaultConfig.drawer.buttons.length)
 	})
 
 	test('open/close toggles state', () => {
 		const term = mockTerminal()
-		const result = createDrawer(term, defaultConfig.drawer.commands)
+		const result = createDrawer(term, defaultConfig.drawer.buttons)
 
 		document.body.appendChild(result.backdrop)
 		document.body.appendChild(result.drawer)
@@ -97,7 +97,7 @@ describe('drawer integration', () => {
 
 	test('has no tab bar', () => {
 		const term = mockTerminal()
-		const { drawer } = createDrawer(term, defaultConfig.drawer.commands)
+		const { drawer } = createDrawer(term, defaultConfig.drawer.buttons)
 
 		document.body.appendChild(drawer)
 
@@ -128,13 +128,37 @@ describe('help overlay integration', () => {
 	test('creates help overlay', () => {
 		const term = mockTerminal()
 		const { helpButton } = createFontControls(term, defaultConfig.font)
-		const { element } = createHelpOverlay(term, helpButton)
+		const { element } = createHelpOverlay(term, helpButton, defaultConfig)
 
 		document.body.appendChild(element)
 
 		expect(element.id).toBe('wt-help')
-		expect(element.innerHTML).toContain('Toolbar')
+		expect(element.innerHTML).toContain('Drawer Buttons')
 		expect(element.innerHTML).toContain('Gestures')
+	})
+
+	test('renders configured button descriptions and no stale Claude section', () => {
+		const term = mockTerminal()
+		const { helpButton } = createFontControls(term, defaultConfig.font)
+		const config = {
+			...defaultConfig,
+			toolbar: {
+				...defaultConfig.toolbar,
+				row1: [
+					{
+						id: 'custom-esc',
+						label: '<Esc>',
+						description: 'Custom escape label',
+						action: { type: 'send' as const, data: '\x1b' },
+					},
+				],
+			},
+		}
+		const { element } = createHelpOverlay(term, helpButton, config)
+
+		expect(element.innerHTML).toContain('Custom escape label')
+		expect(element.innerHTML).toContain('&lt;Esc&gt;')
+		expect(element.innerHTML).not.toContain('Claude Drawer Commands')
 	})
 })
 

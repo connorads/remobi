@@ -29,7 +29,7 @@ bun run build         # Build dist/index.html
 - `src/types.ts` — all shared types
 - `src/toolbar/` — toolbar DOM + button definitions
 - `src/drawer/drawer.ts` — command drawer with flat grid
-- `src/drawer/commands.ts` — re-exports defaultDrawerCommands from config
+- `src/drawer/commands.ts` — re-exports defaultDrawerButtons from config
 - `src/gestures/` — swipe + pinch detection
 - `src/controls/` — font size, help overlay
 - `src/theme/` — catppuccin-mocha + apply
@@ -55,7 +55,7 @@ bun run build         # Build dist/index.html
 - Button actions use discriminated unions (`type: 'send' | 'ctrl-modifier' | 'paste' | 'drawer-toggle'`)
 - Config via `defineConfig()` — typed, with sensible defaults
 - Config resolution: `--config` flag → cwd → `~/.config/webmux/` (XDG fallback)
-- Drawer takes a flat `readonly DrawerCommand[]` — rendered as a single grid
+- Drawer takes a flat `readonly ControlButton[]` — rendered as a single grid
 - All DOM creation in `util/dom.ts` helpers
 - Keyboard state preserved: capture `isKeyboardOpen()` before action, use `conditionalFocus()` after
 - Tests use happy-dom for DOM environment

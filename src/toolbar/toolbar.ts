@@ -1,4 +1,4 @@
-import type { ButtonDef, WebmuxConfig, XTerminal } from '../types'
+import type { ControlButton, WebmuxConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
@@ -52,7 +52,7 @@ function deactivateCtrl(state: CtrlState, theme: WebmuxConfig['theme']): void {
 /** Wire up a single button's click handler based on its action type */
 function wireButton(
 	button: HTMLButtonElement,
-	def: ButtonDef,
+	def: ControlButton,
 	term: XTerminal,
 	ctrlState: CtrlState,
 	config: WebmuxConfig,
@@ -113,7 +113,7 @@ function wireButton(
 
 /** Build a row of buttons */
 function buildRow(
-	buttons: readonly ButtonDef[],
+	buttons: readonly ControlButton[],
 	term: XTerminal,
 	ctrlState: CtrlState,
 	config: WebmuxConfig,

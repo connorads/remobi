@@ -15,7 +15,7 @@ import { initHeightManager } from './viewport/height'
 
 // Re-export for package consumers
 export { defineConfig } from './config'
-export type { WebmuxConfig, ButtonAction, ButtonDef, DrawerCommand, TermTheme } from './types'
+export type { WebmuxConfig, ButtonAction, ControlButton, TermTheme } from './types'
 
 /** Detect touch device */
 function isMobile(): boolean {
@@ -45,7 +45,7 @@ export function init(config: WebmuxConfig = defaultConfig): void {
 		// CSS is injected as a <style> tag by the build script (build.ts)
 
 		// Create drawer (needed by toolbar for toggle)
-		const drawer = createDrawer(term, config.drawer.commands)
+		const drawer = createDrawer(term, config.drawer.buttons)
 		document.body.appendChild(drawer.backdrop)
 		document.body.appendChild(drawer.drawer)
 
@@ -56,9 +56,6 @@ export function init(config: WebmuxConfig = defaultConfig): void {
 		// Font controls + help
 		const { element: fontControls, helpButton } = createFontControls(term, config.font)
 		document.body.appendChild(fontControls)
-
-		const { element: helpOverlay } = createHelpOverlay(term, helpButton)
-		document.body.appendChild(helpOverlay)
 
 		// Scroll buttons
 		const { element: scrollButtons } = createScrollButtons(term, config.gestures.scroll)
@@ -79,5 +76,13 @@ export function init(config: WebmuxConfig = defaultConfig): void {
 
 		// Height management
 		initHeightManager(toolbar)
+
+		// Help overlay should never break core controls.
+		try {
+			const { element: helpOverlay } = createHelpOverlay(term, helpButton, config)
+			document.body.appendChild(helpOverlay)
+		} catch (error) {
+			console.error('webmux: failed to initialise help overlay', error)
+		}
 	})
 }
