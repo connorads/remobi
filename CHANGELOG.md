@@ -1,18 +1,12 @@
 # Changelog
 
-## 0.1.0
+## Unreleased
 
-Initial release — extracted from dotfiles into standalone npm package.
+This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
-- Two-row touch toolbar with sticky Ctrl modifier
-- Context-aware command drawer with tab switching
-- Swipe gestures for tmux window navigation
-- Pinch-to-zoom font sizing
-- Font size +/- controls
-- Help overlay
-- Scroll buttons for touch devices
-- Catppuccin Mocha default theme
-- Landscape keyboard detection
-- CLI: `build`, `inject`, `init` commands
-- XDG config fallback (`~/.config/webmux/`)
-- Ships TypeScript source (Bun-only, no transpilation)
+- Breaking: unified toolbar/drawer model to `ControlButton` (`id`, `label`, `description`, `action`) and renamed `drawer.commands` to `drawer.buttons`.
+- Changed: touch scrolling defaults to wheel semantics for better behaviour across OpenCode, Claude Code, and plain tmux shells.
+- Added: dynamic help overlay rendered from current config (no stale hardcoded sections).
+- Fixed: help overlay is now fail-safe and cannot block core overlay init.
+- Fixed: viewport/keyboard height handling and document scroll lock to reduce white-gap/rubber-band issues on mobile.
+- Tests: expanded integration/config/height coverage for the new config model and viewport logic.
