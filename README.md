@@ -9,6 +9,7 @@ Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gestu
 - **Two-row toolbar** — Esc, Ctrl (sticky modifier), Tab, arrows, C-c, Enter, tmux prev/next, paste, drawer toggle
 - **Context-aware drawers** — tab-based command drawer (tmux, custom contexts) with title-based auto-switching
 - **Swipe gestures** — swipe left/right to switch tmux windows
+- **Touch scrolling modes** — default wheel scrolling for broad app compatibility, optional key paging
 - **Pinch-to-zoom** — adjust font size with two-finger pinch
 - **Font controls** — dedicated +/- buttons, top-right overlay
 - **Help overlay** — in-app reference for all controls and gestures
@@ -96,12 +97,23 @@ export default defineConfig({
   },
   gestures: {
     swipe: { enabled: true, threshold: 80, maxDuration: 400 },
+    scroll: {
+      enabled: true,
+      strategy: 'wheel',
+      sensitivity: 40,
+      wheelIntervalMs: 24,
+    },
     pinch: { enabled: true },
   },
 })
 ```
 
 All fields are optional — defaults are filled in via `defineConfig()`.
+
+`gestures.scroll.strategy` controls touch scroll behaviour:
+
+- `wheel` (default): sends SGR mouse wheel events with touch-mapped terminal coordinates.
+- `keys`: sends `PageUp` / `PageDown` for app-level paging when preferred.
 
 ### Programmatic API
 

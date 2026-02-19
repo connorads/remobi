@@ -9,8 +9,52 @@ export function averageY(t0: { clientY: number }, t1: { clientY: number }): numb
 }
 
 /** SGR mouse wheel escape sequence for a given direction */
-export function scrollSeq(direction: 'up' | 'down'): string {
-	return direction === 'up' ? '\x1b[\x3c64;1;1M' : '\x1b[\x3c65;1;1M'
+export function scrollSeq(direction: 'up' | 'down', x: number, y: number): string {
+	const code = direction === 'up' ? 64 : 65
+	return `\x1b[\x3c${code};${x};${y}M`
+}
+
+/** Page navigation key sequence for a given direction */
+export function pageSeq(direction: 'up' | 'down'): string {
+	return direction === 'up' ? '\x1b[5~' : '\x1b[6~'
+}
+
+function clamp(value: number, min: number, max: number): number {
+	return Math.min(max, Math.max(min, value))
+}
+
+function terminalGrid(screenRect: DOMRect, term: XTerminal): { cols: number; rows: number } {
+	const colsFromTerm = term.cols
+	const rowsFromTerm = term.rows
+	if (typeof colsFromTerm === 'number' && typeof rowsFromTerm === 'number') {
+		if (colsFromTerm > 0 && rowsFromTerm > 0) {
+			return { cols: Math.round(colsFromTerm), rows: Math.round(rowsFromTerm) }
+		}
+	}
+
+	const measure = document.querySelector('.xterm-char-measure-element')
+	if (measure instanceof HTMLElement) {
+		const measureRect = measure.getBoundingClientRect()
+		if (measureRect.width > 0 && measureRect.height > 0) {
+			const cols = Math.max(1, Math.round(screenRect.width / measureRect.width))
+			const rows = Math.max(1, Math.round(screenRect.height / measureRect.height))
+			return { cols, rows }
+		}
+	}
+
+	return { cols: 80, rows: 24 }
+}
+
+function touchToCell(touch: Touch, screen: HTMLElement, term: XTerminal): { x: number; y: number } {
+	const rect = screen.getBoundingClientRect()
+	const { cols, rows } = terminalGrid(rect, term)
+	const width = Math.max(1, rect.width)
+	const height = Math.max(1, rect.height)
+	const relX = clamp(touch.clientX - rect.left, 0, width)
+	const relY = clamp(touch.clientY - rect.top, 0, height)
+	const x = clamp(Math.floor((relX / width) * cols) + 1, 1, cols)
+	const y = clamp(Math.floor((relY / height) * rows) + 1, 1, rows)
+	return { x, y }
 }
 
 /** Attach single-finger vertical scroll to the xterm screen */
@@ -23,8 +67,11 @@ export function attachScrollGesture(
 	let startY = 0
 	let lastY = 0
 	let accDelta = 0
+	let lastWheelAt = 0
+	let screenEl: HTMLElement | null = null
 
-	function onTouchStart(e: TouchEvent): void {
+	function onTouchStart(e: Event): void {
+		if (!(e instanceof TouchEvent)) return
 		if (e.touches.length === 1) {
 			const t = e.touches[0]
 			if (!t) return
@@ -34,7 +81,8 @@ export function attachScrollGesture(
 		}
 	}
 
-	function onTouchMove(e: TouchEvent): void {
+	function onTouchMove(e: Event): void {
+		if (!(e instanceof TouchEvent)) return
 		if (e.touches.length !== 1 || isDrawerOpen()) return
 		const t = e.touches[0]
 		if (!t) return
@@ -56,15 +104,29 @@ export function attachScrollGesture(
 		lastY = y
 		accDelta += moveDy
 
-		// Send one wheel event per sensitivity-worth of pixels
+		// Send one scroll action per sensitivity-worth of pixels
 		while (Math.abs(accDelta) >= config.sensitivity) {
 			const dir = accDelta < 0 ? 'down' : 'up'
-			sendData(term, scrollSeq(dir))
+
+			if (config.strategy === 'keys') {
+				sendData(term, pageSeq(dir))
+			} else {
+				const now = Date.now()
+				if (now - lastWheelAt < config.wheelIntervalMs) break
+				lastWheelAt = now
+
+				const screen = screenEl
+				if (!screen) break
+				const { x, y: row } = touchToCell(t, screen, term)
+				sendData(term, scrollSeq(dir, x, row))
+			}
+
 			accDelta -= (accDelta < 0 ? -1 : 1) * config.sensitivity
 		}
 	}
 
-	function onTouchEnd(): void {
+	function onTouchEnd(e: Event): void {
+		if (!(e instanceof TouchEvent)) return
 		if (lock.current === 'scroll') {
 			resetLock(lock)
 		}
@@ -72,17 +134,20 @@ export function attachScrollGesture(
 
 	function attach(): void {
 		const screen = document.querySelector('.xterm-screen')
-		if (!screen) {
+		if (!(screen instanceof HTMLElement)) {
 			setTimeout(attach, 200)
 			return
 		}
-		screen.addEventListener('touchstart', (e: Event) => onTouchStart(e as TouchEvent), {
+
+		screenEl = screen
+		screen.addEventListener('touchstart', onTouchStart, {
 			passive: true,
 		})
-		screen.addEventListener('touchmove', (e: Event) => onTouchMove(e as TouchEvent), {
+		screen.addEventListener('touchmove', onTouchMove, {
 			passive: false,
 		})
-		screen.addEventListener('touchend', () => onTouchEnd(), { passive: true })
+		screen.addEventListener('touchend', onTouchEnd, { passive: true })
+		screen.addEventListener('touchcancel', onTouchEnd, { passive: true })
 	}
 
 	attach()

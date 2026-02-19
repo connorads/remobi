@@ -1,17 +1,18 @@
-import type { XTerminal } from '../types'
+import { pageSeq, scrollSeq } from '../gestures/scroll'
+import type { ScrollConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
 import { sendData } from '../util/terminal'
-
-const PGUP_SEQ = '\x02\x1b[5~'
-const PGDN_SEQ = '\x1b[6~'
 
 const LONG_PRESS_DELAY = 300
 const REPEAT_INTERVAL = 100
 const FADE_TIMEOUT = 2000
 
 /** Create floating scroll buttons (PgUp ▲ / PgDn ▼) */
-export function createScrollButtons(term: XTerminal): { element: HTMLDivElement } {
+export function createScrollButtons(
+	term: XTerminal,
+	config: ScrollConfig,
+): { element: HTMLDivElement } {
 	const container = el('div', { id: 'wt-scroll-buttons' })
 
 	const upBtn = el('button', { 'aria-label': 'Page Up' }, '\u25B2')
@@ -20,13 +21,31 @@ export function createScrollButtons(term: XTerminal): { element: HTMLDivElement 
 	container.appendChild(upBtn)
 	container.appendChild(downBtn)
 
-	function wireButton(button: HTMLButtonElement, seq: string): void {
+	function terminalCenterCell(): { x: number; y: number } {
+		const cols = typeof term.cols === 'number' && term.cols > 0 ? Math.round(term.cols) : 80
+		const rows = typeof term.rows === 'number' && term.rows > 0 ? Math.round(term.rows) : 24
+		return {
+			x: Math.max(1, Math.floor((cols + 1) / 2)),
+			y: Math.max(1, Math.floor((rows + 1) / 2)),
+		}
+	}
+
+	function sequence(direction: 'up' | 'down'): string {
+		if (config.strategy === 'keys') {
+			return pageSeq(direction)
+		}
+
+		const { x, y } = terminalCenterCell()
+		return scrollSeq(direction, x, y)
+	}
+
+	function wireButton(button: HTMLButtonElement, direction: 'up' | 'down'): void {
 		let repeatTimer: ReturnType<typeof setInterval> | undefined
 		let delayTimer: ReturnType<typeof setTimeout> | undefined
 
 		function send(): void {
 			const kbWasOpen = isKeyboardOpen()
-			sendData(term, seq)
+			sendData(term, sequence(direction))
 			conditionalFocus(term, kbWasOpen)
 		}
 
@@ -65,8 +84,8 @@ export function createScrollButtons(term: XTerminal): { element: HTMLDivElement 
 		})
 	}
 
-	wireButton(upBtn, PGUP_SEQ)
-	wireButton(downBtn, PGDN_SEQ)
+	wireButton(upBtn, 'up')
+	wireButton(downBtn, 'down')
 
 	// Auto-fade logic
 	let fadeTimer: ReturnType<typeof setTimeout> | undefined

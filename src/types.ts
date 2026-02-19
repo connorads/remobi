@@ -63,9 +63,14 @@ export interface PinchConfig {
 }
 
 /** Scroll gesture configuration */
+export type ScrollStrategy = 'keys' | 'wheel'
+
+/** Scroll gesture configuration */
 export interface ScrollConfig {
 	readonly enabled: boolean
 	readonly sensitivity: number
+	readonly strategy: ScrollStrategy
+	readonly wheelIntervalMs: number
 }
 
 /** Gesture configuration */
@@ -99,6 +104,8 @@ export type DeepPartial<T> = {
  * Avoids importing the full xterm package.
  */
 export interface XTerminal {
+	cols?: number
+	rows?: number
 	options: {
 		fontSize: number
 		theme?: Record<string, string>

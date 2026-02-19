@@ -13,10 +13,10 @@ describe('defaultDrawerCommands', () => {
 		}
 	})
 
-	test('all seqs except PgDn start with tmux prefix (Ctrl-b)', () => {
+	test('all non-scroll command seqs start with tmux prefix (Ctrl-b)', () => {
 		for (const cmd of defaultDrawerCommands) {
-			if (cmd.label === 'PgDn') {
-				// PgDn sends raw escape — works inside copy mode without prefix
+			if (cmd.label === 'PgUp' || cmd.label === 'PgDn') {
+				// Scroll keys are app-level by default for better cross-app compatibility.
 				expect(cmd.seq.startsWith('\x02')).toBe(false)
 			} else {
 				expect(cmd.seq.startsWith('\x02')).toBe(true)

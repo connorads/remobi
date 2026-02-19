@@ -129,7 +129,11 @@ export default defineConfig({
   // },
   // toolbar: { row1: [...], row2: [...] },
   // drawer: { commands: [...] },
-  // gestures: { swipe: { enabled: true }, pinch: { enabled: true } },
+  // gestures: {
+  //   swipe: { enabled: true },
+  //   pinch: { enabled: true },
+  //   scroll: { strategy: 'wheel', sensitivity: 40 },
+  // },
 })
 `
 			await Bun.write(targetPath, template)

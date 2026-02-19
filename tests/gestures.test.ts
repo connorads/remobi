@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { createGestureLock, resetLock, tryLock } from '../src/gestures/lock'
 import { clampFontSize, touchDistance } from '../src/gestures/pinch'
-import { averageY, scrollSeq } from '../src/gestures/scroll'
+import { averageY, pageSeq, scrollSeq } from '../src/gestures/scroll'
 import { isValidSwipe } from '../src/gestures/swipe'
 
 describe('isValidSwipe', () => {
@@ -135,11 +135,21 @@ describe('averageY', () => {
 
 describe('scrollSeq', () => {
 	test('returns SGR mouse wheel up sequence', () => {
-		expect(scrollSeq('up')).toBe('\x1b[<64;1;1M')
+		expect(scrollSeq('up', 12, 8)).toBe('\x1b[<64;12;8M')
 	})
 
 	test('returns SGR mouse wheel down sequence', () => {
-		expect(scrollSeq('down')).toBe('\x1b[<65;1;1M')
+		expect(scrollSeq('down', 2, 3)).toBe('\x1b[<65;2;3M')
+	})
+})
+
+describe('pageSeq', () => {
+	test('returns page up sequence', () => {
+		expect(pageSeq('up')).toBe('\x1b[5~')
+	})
+
+	test('returns page down sequence', () => {
+		expect(pageSeq('down')).toBe('\x1b[6~')
 	})
 
 	test('uses natural scroll direction (negative delta → down)', async () => {
@@ -156,7 +166,6 @@ describe('scrollSeq', () => {
 		const source = readFileSync(resolve(import.meta.dir, '../src/gestures/scroll.ts'), 'utf-8')
 		// Source must use \x3c (hex escape) not literal < in SGR sequences
 		// to avoid breaking HTML parsing when bundled into inline <script>
-		expect(source).toContain('\\x3c64;1;1M')
-		expect(source).toContain('\\x3c65;1;1M')
+		expect(source).toContain('\\x3c${code};${x};${y}M')
 	})
 })

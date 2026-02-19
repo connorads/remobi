@@ -61,7 +61,7 @@ export function init(config: WebmuxConfig = defaultConfig): void {
 		document.body.appendChild(helpOverlay)
 
 		// Scroll buttons
-		const { element: scrollButtons } = createScrollButtons(term)
+		const { element: scrollButtons } = createScrollButtons(term, config.gestures.scroll)
 		document.body.appendChild(scrollButtons)
 
 		// Gestures

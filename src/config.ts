@@ -14,7 +14,7 @@ const defaultFont: WebmuxConfig['font'] = {
 const defaultGestures: WebmuxConfig['gestures'] = {
 	swipe: { enabled: true, threshold: 80, maxDuration: 400 },
 	pinch: { enabled: false },
-	scroll: { enabled: true, sensitivity: 40 },
+	scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },
 }
 
 /** Default row 1 buttons (modifiers + nav) */
@@ -51,7 +51,7 @@ export const defaultDrawerCommands: readonly DrawerCommand[] = [
 	{ label: 'Git', seq: '\x02g' },
 	{ label: 'Files', seq: '\x02y' },
 	{ label: 'Links', seq: '\x02u' },
-	{ label: 'PgUp', seq: '\x02\x1b[5~' },
+	{ label: 'PgUp', seq: '\x1b[5~' },
 	{ label: 'PgDn', seq: '\x1b[6~' },
 	{ label: 'Copy', seq: '\x02 ' },
 	{ label: 'Help', seq: '\x02?' },
