@@ -6,8 +6,12 @@ import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
 import { parseCliArgs } from './src/cli/args'
 import { defaultConfig, defineConfig } from './src/config'
-import { ConfigValidationError, assertValidConfigOverrides } from './src/config-validate'
-import type { WebmuxConfig } from './src/types'
+import {
+	ConfigValidationError,
+	assertValidConfigOverrides,
+	assertValidResolvedConfig,
+} from './src/config-validate'
+import type { DeepPartial, WebmuxConfig } from './src/types'
 
 const VERSION = '0.1.0'
 
@@ -91,6 +95,35 @@ function resolvePluginSpecifiers(
 	return specifiers.map((specifier) => resolvePluginSpecifier(specifier, baseDir))
 }
 
+function throwConfigValidationError(source: string, error: ConfigValidationError): never {
+	throw new Error(`Config validation failed for ${source}\n${error.message}`)
+}
+
+function assertValidOverridesOrThrow(
+	value: unknown,
+	source: string,
+): asserts value is DeepPartial<WebmuxConfig> {
+	try {
+		assertValidConfigOverrides(value)
+	} catch (error) {
+		if (error instanceof ConfigValidationError) {
+			throwConfigValidationError(source, error)
+		}
+		throw error
+	}
+}
+
+function assertValidResolvedOrThrow(value: unknown, source: string): asserts value is WebmuxConfig {
+	try {
+		assertValidResolvedConfig(value)
+	} catch (error) {
+		if (error instanceof ConfigValidationError) {
+			throwConfigValidationError(source, error)
+		}
+		throw error
+	}
+}
+
 async function loadConfig(configPath: string | undefined): Promise<LoadedConfig> {
 	let resolved = configPath
 	if (!resolved) {
@@ -120,18 +153,14 @@ async function loadConfig(configPath: string | undefined): Promise<LoadedConfig>
 			throw new Error(`Config file has no default export: ${abs}`)
 		}
 
-		try {
-			assertValidConfigOverrides(defaultExport)
-		} catch (error) {
-			if (error instanceof ConfigValidationError) {
-				throw new Error(`Config validation failed for ${abs}\n${error.message}`)
-			}
-			throw error
-		}
+		assertValidOverridesOrThrow(defaultExport, abs)
 		const config = defineConfig(defaultExport)
+		assertValidResolvedOrThrow(config, abs)
 		const pluginImports = resolvePluginSpecifiers(config.plugins, dirname(abs))
 		return { config, source: abs, pluginImports }
 	}
+
+	assertValidResolvedOrThrow(defaultConfig, 'built-in defaults')
 
 	return {
 		config: defaultConfig,

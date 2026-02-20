@@ -10,6 +10,7 @@ This project has not been published yet. On first release, rename this section t
 - Fixed: help overlay is now fail-safe and cannot block core overlay init.
 - Fixed: viewport/keyboard height handling and document scroll lock to reduce white-gap/rubber-band issues on mobile.
 - Added: runtime config validation with path-based errors and unknown-key checks at CLI load boundaries.
+- Changed: config validation errors now include received-value previews, and CLI validates merged resolved config before build/inject execution.
 - Added: stricter CLI parsing (`-c`/`-o`/`-n`, unknown-flag errors) plus `--dry-run` for `build` and `inject`.
 - Changed: toolbar/drawer button handling now runs through a shared action registry abstraction.
 - Added: typed hook registry for overlay lifecycle and terminal send pipeline with ordered execution and error isolation.

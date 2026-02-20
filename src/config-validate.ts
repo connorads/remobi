@@ -64,6 +64,59 @@ function kindOf(value: unknown): string {
 	return typeof value
 }
 
+function truncate(value: string, maxLength: number): string {
+	if (value.length <= maxLength) {
+		return value
+	}
+	return `${value.slice(0, maxLength - 3)}...`
+}
+
+function describeReceived(value: unknown): string {
+	if (value === null) {
+		return 'null'
+	}
+
+	if (Array.isArray(value)) {
+		return `array(len=${value.length})`
+	}
+
+	if (typeof value === 'string') {
+		return `string(${JSON.stringify(truncate(value, 80))})`
+	}
+
+	if (typeof value === 'number') {
+		return `number(${String(value)})`
+	}
+
+	if (typeof value === 'boolean') {
+		return `boolean(${String(value)})`
+	}
+
+	if (typeof value === 'bigint') {
+		return `bigint(${String(value)})`
+	}
+
+	if (typeof value === 'undefined') {
+		return 'undefined'
+	}
+
+	if (typeof value === 'function') {
+		return value.name.length > 0 ? `function(${value.name})` : 'function'
+	}
+
+	if (isRecord(value)) {
+		const keys = Object.keys(value)
+		if (keys.length === 0) {
+			return 'object(empty)'
+		}
+		const shown = keys.slice(0, 3).join(', ')
+		const suffix = keys.length > 3 ? ', ...' : ''
+		return `object(keys: ${shown}${suffix})`
+	}
+
+	return kindOf(value)
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -74,7 +127,11 @@ function pushIssue(
 	expected: string,
 	receivedValue: unknown,
 ): void {
-	issues.push({ path, expected, received: kindOf(receivedValue) })
+	issues.push({ path, expected, received: describeReceived(receivedValue) })
+}
+
+function hasDefinedKey(value: Record<string, unknown>, key: string): boolean {
+	return key in value && value[key] !== undefined
 }
 
 function checkUnknownKeys(
@@ -371,6 +428,202 @@ function validateGestures(value: unknown, path: string, issues: ValidationIssue[
 	}
 }
 
+function validateThemeResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, THEME_KEYS, path, issues)
+
+	for (const key of THEME_KEYS) {
+		if (!hasDefinedKey(value, key)) {
+			pushIssue(issues, `${path}.${key}`, 'string', undefined)
+			continue
+		}
+		validateString(value[key], `${path}.${key}`, issues)
+	}
+}
+
+function validateFontResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, FONT_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'family')) {
+		pushIssue(issues, `${path}.family`, 'string', undefined)
+	} else {
+		validateString(value.family, `${path}.family`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'cdnUrl')) {
+		pushIssue(issues, `${path}.cdnUrl`, 'string', undefined)
+	} else {
+		validateString(value.cdnUrl, `${path}.cdnUrl`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'mobileSizeDefault')) {
+		pushIssue(issues, `${path}.mobileSizeDefault`, 'finite number', undefined)
+	} else {
+		validateNumber(value.mobileSizeDefault, `${path}.mobileSizeDefault`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'sizeRange')) {
+		pushIssue(issues, `${path}.sizeRange`, 'tuple [min, max]', undefined)
+		return
+	}
+
+	const sizeRange = value.sizeRange
+	if (!Array.isArray(sizeRange) || sizeRange.length !== 2) {
+		pushIssue(issues, `${path}.sizeRange`, 'tuple [min, max]', sizeRange)
+		return
+	}
+
+	validateNumber(sizeRange[0], `${path}.sizeRange[0]`, issues)
+	validateNumber(sizeRange[1], `${path}.sizeRange[1]`, issues)
+}
+
+function validateSwipeResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, SWIPE_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'enabled')) {
+		pushIssue(issues, `${path}.enabled`, 'boolean', undefined)
+	} else {
+		validateBoolean(value.enabled, `${path}.enabled`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'threshold')) {
+		pushIssue(issues, `${path}.threshold`, 'finite number', undefined)
+	} else {
+		validateNumber(value.threshold, `${path}.threshold`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'maxDuration')) {
+		pushIssue(issues, `${path}.maxDuration`, 'finite number', undefined)
+	} else {
+		validateNumber(value.maxDuration, `${path}.maxDuration`, issues)
+	}
+}
+
+function validatePinchResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, PINCH_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'enabled')) {
+		pushIssue(issues, `${path}.enabled`, 'boolean', undefined)
+	} else {
+		validateBoolean(value.enabled, `${path}.enabled`, issues)
+	}
+}
+
+function validateScrollResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, SCROLL_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'enabled')) {
+		pushIssue(issues, `${path}.enabled`, 'boolean', undefined)
+	} else {
+		validateBoolean(value.enabled, `${path}.enabled`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'sensitivity')) {
+		pushIssue(issues, `${path}.sensitivity`, 'finite number', undefined)
+	} else {
+		validateNumber(value.sensitivity, `${path}.sensitivity`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'strategy')) {
+		pushIssue(issues, `${path}.strategy`, `'keys' | 'wheel'`, undefined)
+	} else if (value.strategy !== 'keys' && value.strategy !== 'wheel') {
+		pushIssue(issues, `${path}.strategy`, `'keys' | 'wheel'`, value.strategy)
+	}
+
+	if (!hasDefinedKey(value, 'wheelIntervalMs')) {
+		pushIssue(issues, `${path}.wheelIntervalMs`, 'finite number', undefined)
+	} else {
+		validateNumber(value.wheelIntervalMs, `${path}.wheelIntervalMs`, issues)
+	}
+}
+
+function validateGesturesResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, GESTURES_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'swipe')) {
+		pushIssue(issues, `${path}.swipe`, 'object', undefined)
+	} else {
+		validateSwipeResolved(value.swipe, `${path}.swipe`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'pinch')) {
+		pushIssue(issues, `${path}.pinch`, 'object', undefined)
+	} else {
+		validatePinchResolved(value.pinch, `${path}.pinch`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'scroll')) {
+		pushIssue(issues, `${path}.scroll`, 'object', undefined)
+	} else {
+		validateScrollResolved(value.scroll, `${path}.scroll`, issues)
+	}
+}
+
+function validateToolbarResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, TOOLBAR_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'row1')) {
+		pushIssue(issues, `${path}.row1`, 'array of control buttons', undefined)
+	} else {
+		validateButtonsArray(value.row1, `${path}.row1`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'row2')) {
+		pushIssue(issues, `${path}.row2`, 'array of control buttons', undefined)
+	} else {
+		validateButtonsArray(value.row2, `${path}.row2`, issues)
+	}
+}
+
+function validateDrawerResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, DRAWER_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'buttons')) {
+		pushIssue(issues, `${path}.buttons`, 'array of control buttons', undefined)
+	} else {
+		validateButtonsArray(value.buttons, `${path}.buttons`, issues)
+	}
+}
+
 export function assertValidConfigOverrides(
 	value: unknown,
 ): asserts value is DeepPartial<WebmuxConfig> {
@@ -398,6 +651,56 @@ export function assertValidConfigOverrides(
 		}
 		if ('gestures' in value && value.gestures !== undefined) {
 			validateGestures(value.gestures, 'config.gestures', issues)
+		}
+	}
+
+	if (issues.length > 0) {
+		throw new ConfigValidationError(issues)
+	}
+}
+
+export function assertValidResolvedConfig(value: unknown): asserts value is WebmuxConfig {
+	const issues: ValidationIssue[] = []
+
+	if (!isRecord(value)) {
+		pushIssue(issues, 'config', 'object', value)
+	} else {
+		checkUnknownKeys(value, ROOT_KEYS, 'config', issues)
+
+		if (!hasDefinedKey(value, 'theme')) {
+			pushIssue(issues, 'config.theme', 'object', undefined)
+		} else {
+			validateThemeResolved(value.theme, 'config.theme', issues)
+		}
+
+		if (!hasDefinedKey(value, 'font')) {
+			pushIssue(issues, 'config.font', 'object', undefined)
+		} else {
+			validateFontResolved(value.font, 'config.font', issues)
+		}
+
+		if (!hasDefinedKey(value, 'plugins')) {
+			pushIssue(issues, 'config.plugins', 'array of plugin specifiers', undefined)
+		} else {
+			validatePlugins(value.plugins, 'config.plugins', issues)
+		}
+
+		if (!hasDefinedKey(value, 'toolbar')) {
+			pushIssue(issues, 'config.toolbar', 'object', undefined)
+		} else {
+			validateToolbarResolved(value.toolbar, 'config.toolbar', issues)
+		}
+
+		if (!hasDefinedKey(value, 'drawer')) {
+			pushIssue(issues, 'config.drawer', 'object', undefined)
+		} else {
+			validateDrawerResolved(value.drawer, 'config.drawer', issues)
+		}
+
+		if (!hasDefinedKey(value, 'gestures')) {
+			pushIssue(issues, 'config.gestures', 'object', undefined)
+		} else {
+			validateGesturesResolved(value.gestures, 'config.gestures', issues)
 		}
 	}
 
