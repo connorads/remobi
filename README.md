@@ -43,11 +43,11 @@ Open `http://localhost:7681` on your phone.
 ## CLI reference
 
 ```
-webmux build [--config <path>] [--output <path>]
+webmux build [--config <path>] [--output <path>] [--dry-run]
   Build patched index.html. Starts temp ttyd, fetches base HTML, injects overlay.
   Default output: dist/index.html
 
-webmux inject [--config <path>]
+webmux inject [--config <path>] [--dry-run]
   Pipe mode: reads ttyd HTML from stdin, outputs patched HTML to stdout.
   Example: curl -s http://localhost:7681/ | webmux inject > patched.html
 
@@ -57,6 +57,8 @@ webmux init
 webmux --version
 webmux --help
 ```
+
+Short flags: `-c` (`--config`), `-o` (`--output`), `-n` (`--dry-run`).
 
 ### Config resolution
 
@@ -78,6 +80,10 @@ export default defineConfig({
     mobileSizeDefault: 16,
     sizeRange: [8, 32],
   },
+  plugins: [
+    './plugins/logger.ts',
+    'webmux-plugin-demo',
+  ],
   toolbar: {
     row1: [
       { id: 'esc', label: 'Esc', description: 'Send Escape key', action: { type: 'send', data: '\x1b' } },
@@ -112,6 +118,8 @@ export default defineConfig({
 
 All fields are optional — defaults are filled in via `defineConfig()`.
 
+At runtime, webmux validates the config object shape and rejects unknown keys with clear path-based errors.
+
 ### Beta migration note
 
 - Drawer config key is `drawer.buttons` (previously `drawer.commands`).
@@ -128,7 +136,24 @@ All fields are optional — defaults are filled in via `defineConfig()`.
 ```typescript
 import { defineConfig, serialiseThemeForTtyd } from 'webmux/config'
 import type { WebmuxConfig, ControlButton } from 'webmux/types'
+import { init } from 'webmux'
+import type { WebmuxPlugin } from 'webmux'
 ```
+
+Advanced consumers can use hook registry primitives to observe lifecycle and terminal-send events:
+
+```typescript
+import { createHookRegistry, init } from 'webmux'
+
+const hooks = createHookRegistry()
+hooks.on('beforeSendData', (ctx) => {
+  if (ctx.data.includes('rm -rf /')) return { block: true }
+})
+
+init(undefined, hooks)
+```
+
+You can also pass plugins to `init(config, hooks, plugins)`. Plugin setup/dispose failures are isolated and logged.
 
 ## Deployment guides
 

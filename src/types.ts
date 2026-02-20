@@ -80,6 +80,7 @@ export interface GestureConfig {
 export interface WebmuxConfig {
 	readonly theme: TermTheme
 	readonly font: FontConfig
+	readonly plugins: readonly string[]
 	readonly toolbar: {
 		readonly row1: readonly ControlButton[]
 		readonly row2: readonly ControlButton[]

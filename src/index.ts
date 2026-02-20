@@ -1,3 +1,4 @@
+import { createDefaultActionRegistry } from './actions/registry'
 import { defaultConfig } from './config'
 import { createFontControls } from './controls/font-size'
 import { createHelpOverlay } from './controls/help'
@@ -7,6 +8,10 @@ import { createGestureLock } from './gestures/lock'
 import { attachPinchGestures } from './gestures/pinch'
 import { attachScrollGesture } from './gestures/scroll'
 import { attachSwipeGestures } from './gestures/swipe'
+import { createHookRegistry } from './hooks/registry'
+import type { HookRegistry } from './hooks/registry'
+import { createPluginManager } from './plugins/manager'
+import type { WebmuxPlugin } from './plugins/manager'
 import { applyTheme } from './theme/apply'
 import { createToolbar } from './toolbar/toolbar'
 import type { WebmuxConfig } from './types'
@@ -15,7 +20,10 @@ import { initHeightManager } from './viewport/height'
 
 // Re-export for package consumers
 export { defineConfig } from './config'
+export { createHookRegistry }
 export type { WebmuxConfig, ButtonAction, ControlButton, TermTheme } from './types'
+export type { HookRegistry } from './hooks/registry'
+export type { WebmuxPlugin } from './plugins/manager'
 
 /** Detect touch device */
 function isMobile(): boolean {
@@ -27,62 +35,121 @@ function isMobile(): boolean {
  * Called automatically when loaded in a browser (via the IIFE in build output).
  * Config is embedded at build time.
  */
-export function init(config: WebmuxConfig = defaultConfig): void {
-	waitForTerm().then((term) => {
-		// Resize after fonts load
-		document.fonts.ready.then(() => resizeTerm())
+export function init(
+	config: WebmuxConfig = defaultConfig,
+	hooks: HookRegistry = createHookRegistry(),
+	plugins: readonly WebmuxPlugin[] = [],
+): void {
+	void waitForTerm()
+		.then(async (term) => {
+			const mobile = isMobile()
+			const actions = createDefaultActionRegistry()
+			const pluginsManager = createPluginManager(plugins)
+			let disposed = false
 
-		document.title = `webmux · ${location.hostname.replace(/\..*/, '')}`
+			function disposePlugins(): void {
+				if (disposed) return
+				disposed = true
+				window.removeEventListener('pagehide', onPageHide)
+				void pluginsManager.dispose()
+			}
 
-		if (!isMobile()) return
+			function onPageHide(event: PageTransitionEvent): void {
+				if (event.persisted) return
+				disposePlugins()
+			}
 
-		// Apply theme and font
-		applyTheme(term, config.theme)
-		term.options.fontSize = config.font.mobileSizeDefault
-		term.options.fontFamily = config.font.family
-		resizeTerm()
+			window.addEventListener('beforeunload', disposePlugins, { once: true })
+			window.addEventListener('pagehide', onPageHide)
 
-		// CSS is injected as a <style> tag by the build script (build.ts)
+			await pluginsManager.init({
+				term,
+				config,
+				hooks,
+				actions,
+				mobile,
+			})
 
-		// Create drawer (needed by toolbar for toggle)
-		const drawer = createDrawer(term, config.drawer.buttons)
-		document.body.appendChild(drawer.backdrop)
-		document.body.appendChild(drawer.drawer)
+			try {
+				await hooks.runOverlayInitStart({ term, config, mobile })
 
-		// Create toolbar
-		const { element: toolbar } = createToolbar(term, config, drawer.open)
-		document.body.appendChild(toolbar)
+				// Resize after fonts load
+				document.fonts.ready.then(() => resizeTerm())
 
-		// Font controls + help
-		const { element: fontControls, helpButton } = createFontControls(term, config.font)
-		document.body.appendChild(fontControls)
+				document.title = `webmux · ${location.hostname.replace(/\..*/, '')}`
 
-		// Scroll buttons
-		const { element: scrollButtons } = createScrollButtons(term, config.gestures.scroll)
-		document.body.appendChild(scrollButtons)
+				if (!mobile) {
+					await hooks.runOverlayReady({ term, config, mobile })
+					return
+				}
 
-		// Gestures
-		const gestureLock = createGestureLock()
-		if (config.gestures.swipe.enabled) {
-			const indicator = attachSwipeGestures(term, config.gestures.swipe, drawer.isOpen)
-			document.body.appendChild(indicator)
-		}
-		if (config.gestures.pinch.enabled) {
-			attachPinchGestures(term, config.font, gestureLock)
-		}
-		if (config.gestures.scroll.enabled) {
-			attachScrollGesture(term, config.gestures.scroll, gestureLock, drawer.isOpen)
-		}
+				// Apply theme and font
+				applyTheme(term, config.theme)
+				term.options.fontSize = config.font.mobileSizeDefault
+				term.options.fontFamily = config.font.family
+				resizeTerm()
 
-		// Height management
-		initHeightManager(toolbar)
+				// CSS is injected as a <style> tag by the build script (build.ts)
 
-		// Help overlay should never break core controls.
-		try {
-			const { element: helpOverlay } = createHelpOverlay(term, helpButton, config)
-			document.body.appendChild(helpOverlay)
-		} catch (error) {
-			console.error('webmux: failed to initialise help overlay', error)
-		}
-	})
+				// Create drawer (needed by toolbar for toggle)
+				const drawer = createDrawer(term, config.drawer.buttons, {
+					hooks,
+					appConfig: config,
+					actions,
+				})
+				document.body.appendChild(drawer.backdrop)
+				document.body.appendChild(drawer.drawer)
+				await hooks.runDrawerCreated({
+					term,
+					config,
+					drawer: drawer.drawer,
+					backdrop: drawer.backdrop,
+				})
+
+				// Create toolbar
+				const { element: toolbar } = createToolbar(term, config, drawer.open, hooks, actions)
+				document.body.appendChild(toolbar)
+				await hooks.runToolbarCreated({ term, config, toolbar })
+
+				// Font controls + help
+				const { element: fontControls, helpButton } = createFontControls(term, config.font)
+				document.body.appendChild(fontControls)
+
+				// Scroll buttons
+				const { element: scrollButtons } = createScrollButtons(term, config.gestures.scroll)
+				document.body.appendChild(scrollButtons)
+
+				// Gestures
+				const gestureLock = createGestureLock()
+				if (config.gestures.swipe.enabled) {
+					const indicator = attachSwipeGestures(term, config.gestures.swipe, drawer.isOpen)
+					document.body.appendChild(indicator)
+				}
+				if (config.gestures.pinch.enabled) {
+					attachPinchGestures(term, config.font, gestureLock)
+				}
+				if (config.gestures.scroll.enabled) {
+					attachScrollGesture(term, config.gestures.scroll, gestureLock, drawer.isOpen)
+				}
+
+				// Height management
+				initHeightManager(toolbar)
+
+				// Help overlay should never break core controls.
+				try {
+					const { element: helpOverlay } = createHelpOverlay(term, helpButton, config)
+					document.body.appendChild(helpOverlay)
+				} catch (error) {
+					console.error('webmux: failed to initialise help overlay', error)
+				}
+
+				await hooks.runOverlayReady({ term, config, mobile })
+			} catch (error) {
+				disposePlugins()
+				throw error
+			}
+		})
+		.catch((error) => {
+			console.error('webmux: failed to initialise overlay', error)
+		})
 }

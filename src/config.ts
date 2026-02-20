@@ -192,6 +192,7 @@ export const defaultDrawerButtons: readonly ControlButton[] = [
 export const defaultConfig: WebmuxConfig = {
 	theme: catppuccinMocha,
 	font: defaultFont,
+	plugins: [],
 	toolbar: { row1: defaultRow1, row2: defaultRow2 },
 	drawer: { buttons: defaultDrawerButtons },
 	gestures: defaultGestures,

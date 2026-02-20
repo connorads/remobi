@@ -4,6 +4,7 @@ import { defaultConfig } from '../src/config'
 import { createFontControls } from '../src/controls/font-size'
 import { createHelpOverlay } from '../src/controls/help'
 import { createDrawer } from '../src/drawer/drawer'
+import { createHookRegistry } from '../src/hooks/registry'
 import { createToolbar } from '../src/toolbar/toolbar'
 import type { XTerminal } from '../src/types'
 
@@ -29,8 +30,12 @@ afterEach(() => {
 describe('toolbar integration', () => {
 	test('creates toolbar with two rows', () => {
 		const term = mockTerminal()
-		const drawer = createDrawer(term, defaultConfig.drawer.buttons)
-		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open)
+		const hooks = createHookRegistry()
+		const drawer = createDrawer(term, defaultConfig.drawer.buttons, {
+			hooks,
+			appConfig: defaultConfig,
+		})
+		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open, hooks)
 
 		document.body.appendChild(toolbar)
 
@@ -41,8 +46,12 @@ describe('toolbar integration', () => {
 
 	test('row1 has correct number of buttons', () => {
 		const term = mockTerminal()
-		const drawer = createDrawer(term, defaultConfig.drawer.buttons)
-		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open)
+		const hooks = createHookRegistry()
+		const drawer = createDrawer(term, defaultConfig.drawer.buttons, {
+			hooks,
+			appConfig: defaultConfig,
+		})
+		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open, hooks)
 
 		document.body.appendChild(toolbar)
 
@@ -53,8 +62,12 @@ describe('toolbar integration', () => {
 
 	test('row2 has correct number of buttons', () => {
 		const term = mockTerminal()
-		const drawer = createDrawer(term, defaultConfig.drawer.buttons)
-		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open)
+		const hooks = createHookRegistry()
+		const drawer = createDrawer(term, defaultConfig.drawer.buttons, {
+			hooks,
+			appConfig: defaultConfig,
+		})
+		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open, hooks)
 
 		document.body.appendChild(toolbar)
 
@@ -68,7 +81,10 @@ describe('toolbar integration', () => {
 describe('drawer integration', () => {
 	test('renders all commands as buttons', () => {
 		const term = mockTerminal()
-		const { drawer } = createDrawer(term, defaultConfig.drawer.buttons)
+		const { drawer } = createDrawer(term, defaultConfig.drawer.buttons, {
+			hooks: createHookRegistry(),
+			appConfig: defaultConfig,
+		})
 
 		document.body.appendChild(drawer)
 
@@ -79,7 +95,10 @@ describe('drawer integration', () => {
 
 	test('open/close toggles state', () => {
 		const term = mockTerminal()
-		const result = createDrawer(term, defaultConfig.drawer.buttons)
+		const result = createDrawer(term, defaultConfig.drawer.buttons, {
+			hooks: createHookRegistry(),
+			appConfig: defaultConfig,
+		})
 
 		document.body.appendChild(result.backdrop)
 		document.body.appendChild(result.drawer)
@@ -97,7 +116,10 @@ describe('drawer integration', () => {
 
 	test('has no tab bar', () => {
 		const term = mockTerminal()
-		const { drawer } = createDrawer(term, defaultConfig.drawer.buttons)
+		const { drawer } = createDrawer(term, defaultConfig.drawer.buttons, {
+			hooks: createHookRegistry(),
+			appConfig: defaultConfig,
+		})
 
 		document.body.appendChild(drawer)
 

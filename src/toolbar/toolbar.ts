@@ -1,3 +1,6 @@
+import { createDefaultActionRegistry } from '../actions/registry'
+import type { ActionRegistry } from '../actions/registry'
+import type { HookRegistry } from '../hooks/registry'
 import type { ControlButton, WebmuxConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
@@ -56,6 +59,8 @@ function wireButton(
 	term: XTerminal,
 	ctrlState: CtrlState,
 	config: WebmuxConfig,
+	registry: ActionRegistry,
+	hooks: HookRegistry,
 	openDrawer: () => void,
 ): void {
 	button.addEventListener('click', (e: Event) => {
@@ -63,51 +68,82 @@ function wireButton(
 		const kbWasOpen = isKeyboardOpen()
 		haptic()
 
-		switch (def.action.type) {
-			case 'ctrl-modifier':
-				if (ctrlState.active) {
-					deactivateCtrl(ctrlState, config.theme)
-				} else {
-					activateCtrl(ctrlState, term, config.theme)
-				}
-				conditionalFocus(term, kbWasOpen)
-				break
+		async function sendWithCtrlAware(data: string): Promise<void> {
+			const before = await hooks.runBeforeSendData({
+				term,
+				config,
+				source: 'toolbar',
+				actionType: def.action.type,
+				kbWasOpen,
+				data,
+			})
+			if (before.blocked) return
 
-			case 'paste':
-				if (navigator.clipboard && typeof navigator.clipboard.readText === 'function') {
-					navigator.clipboard
-						.readText()
-						.then((text: string) => {
-							if (text) sendData(term, text)
-							conditionalFocus(term, kbWasOpen)
-						})
-						.catch(() => conditionalFocus(term, kbWasOpen))
-				} else {
-					conditionalFocus(term, kbWasOpen)
-				}
-				break
-
-			case 'drawer-toggle':
-				openDrawer()
-				break
-
-			case 'send': {
-				if (ctrlState.active && ctrlState.buttonEl) {
-					deactivateCtrl(ctrlState, config.theme)
-					if (def.action.data.length === 1) {
-						const code = def.action.data.charCodeAt(0)
-						if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
-							sendData(term, String.fromCharCode(code & 0x1f))
-							conditionalFocus(term, kbWasOpen)
-							return
-						}
+			let nextData = before.data
+			if (ctrlState.active && ctrlState.buttonEl) {
+				deactivateCtrl(ctrlState, config.theme)
+				if (nextData.length === 1) {
+					const code = nextData.charCodeAt(0)
+					if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
+						nextData = String.fromCharCode(code & 0x1f)
 					}
 				}
-				sendData(term, def.action.data)
-				conditionalFocus(term, kbWasOpen)
-				break
 			}
+
+			sendData(term, nextData)
+			await hooks.runAfterSendData({
+				term,
+				config,
+				source: 'toolbar',
+				actionType: def.action.type,
+				kbWasOpen,
+				data: nextData,
+			})
 		}
+
+		async function sendRaw(data: string): Promise<void> {
+			const before = await hooks.runBeforeSendData({
+				term,
+				config,
+				source: 'toolbar',
+				actionType: def.action.type,
+				kbWasOpen,
+				data,
+			})
+			if (before.blocked) return
+
+			sendData(term, before.data)
+			await hooks.runAfterSendData({
+				term,
+				config,
+				source: 'toolbar',
+				actionType: def.action.type,
+				kbWasOpen,
+				data: before.data,
+			})
+		}
+
+		void registry
+			.execute(def.action, {
+				term,
+				kbWasOpen,
+				focusIfNeeded: () => conditionalFocus(term, kbWasOpen),
+				sendText: sendWithCtrlAware,
+				sendRawText: sendRaw,
+				openDrawer,
+				toggleCtrlModifier: () => {
+					if (ctrlState.active) {
+						deactivateCtrl(ctrlState, config.theme)
+					} else {
+						activateCtrl(ctrlState, term, config.theme)
+					}
+					conditionalFocus(term, kbWasOpen)
+				},
+			})
+			.catch((error) => {
+				console.error('webmux: toolbar action execution failed', error)
+				conditionalFocus(term, kbWasOpen)
+			})
 	})
 }
 
@@ -117,6 +153,8 @@ function buildRow(
 	term: XTerminal,
 	ctrlState: CtrlState,
 	config: WebmuxConfig,
+	registry: ActionRegistry,
+	hooks: HookRegistry,
 	openDrawer: () => void,
 ): HTMLDivElement {
 	const row = el('div', { class: 'wt-row' })
@@ -127,7 +165,7 @@ function buildRow(
 		if (def.action.type === 'ctrl-modifier') {
 			ctrlState.buttonEl = button
 		}
-		wireButton(button, def, term, ctrlState, config, openDrawer)
+		wireButton(button, def, term, ctrlState, config, registry, hooks, openDrawer)
 		row.appendChild(button)
 	}
 
@@ -144,12 +182,14 @@ export function createToolbar(
 	term: XTerminal,
 	config: WebmuxConfig,
 	openDrawer: () => void,
+	hooks: HookRegistry,
+	actions: ActionRegistry = createDefaultActionRegistry(),
 ): ToolbarResult {
 	const toolbar = el('div', { id: 'wt-toolbar' })
 	const ctrlState = createCtrlState()
 
-	const row1 = buildRow(config.toolbar.row1, term, ctrlState, config, openDrawer)
-	const row2 = buildRow(config.toolbar.row2, term, ctrlState, config, openDrawer)
+	const row1 = buildRow(config.toolbar.row1, term, ctrlState, config, actions, hooks, openDrawer)
+	const row2 = buildRow(config.toolbar.row2, term, ctrlState, config, actions, hooks, openDrawer)
 
 	toolbar.appendChild(row1)
 	toolbar.appendChild(row2)
