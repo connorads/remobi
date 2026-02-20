@@ -30,8 +30,10 @@ function renderGestures(config: WebmuxConfig): string {
 	const rows: string[] = []
 
 	if (config.gestures.swipe.enabled) {
-		rows.push('<tr><td>Swipe right</td><td>Previous tmux window</td></tr>')
-		rows.push('<tr><td>Swipe left</td><td>Next tmux window</td></tr>')
+		rows.push(
+			`<tr><td>Swipe right</td><td>${escapeHtml(config.gestures.swipe.rightLabel)}</td></tr>`,
+		)
+		rows.push(`<tr><td>Swipe left</td><td>${escapeHtml(config.gestures.swipe.leftLabel)}</td></tr>`)
 	}
 
 	if (config.gestures.pinch.enabled) {

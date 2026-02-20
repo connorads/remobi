@@ -102,6 +102,34 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('config.toolbar.row1[0].action')
 	})
 
+	test('accepts valid partial swipe overrides with left/right', () => {
+		expect(() =>
+			assertValidConfigOverrides({
+				gestures: {
+					swipe: { left: '\x02]', right: '\x02[', leftLabel: 'Next pane', rightLabel: 'Prev pane' },
+				},
+			}),
+		).not.toThrow()
+	})
+
+	test('rejects non-string swipe left', () => {
+		const message = getValidationMessage(
+			{ gestures: { swipe: { left: 42 } } },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.gestures.swipe.left')
+		expect(message).toContain('expected string')
+	})
+
+	test('rejects non-string swipe rightLabel', () => {
+		const message = getValidationMessage(
+			{ gestures: { swipe: { rightLabel: true } } },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.gestures.swipe.rightLabel')
+		expect(message).toContain('expected string')
+	})
+
 	test('rejects non-send action payload fields', () => {
 		const message = getValidationMessage(
 			{
@@ -156,7 +184,15 @@ describe('assertValidResolvedConfig', () => {
 				toolbar: { row1: [], row2: [] },
 				drawer: { buttons: [] },
 				gestures: {
-					swipe: { enabled: true, threshold: 80, maxDuration: 400 },
+					swipe: {
+						enabled: true,
+						threshold: 80,
+						maxDuration: 400,
+						left: '\x02n',
+						right: '\x02p',
+						leftLabel: 'Next tmux window',
+						rightLabel: 'Previous tmux window',
+					},
 					pinch: { enabled: false },
 					scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },
 				},

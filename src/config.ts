@@ -12,7 +12,15 @@ const defaultFont: WebmuxConfig['font'] = {
 
 /** Default gesture configuration */
 const defaultGestures: WebmuxConfig['gestures'] = {
-	swipe: { enabled: true, threshold: 80, maxDuration: 400 },
+	swipe: {
+		enabled: true,
+		threshold: 80,
+		maxDuration: 400,
+		left: '\x02n',
+		right: '\x02p',
+		leftLabel: 'Next tmux window',
+		rightLabel: 'Previous tmux window',
+	},
 	pinch: { enabled: false },
 	scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },
 }

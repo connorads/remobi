@@ -66,11 +66,11 @@ export function attachSwipeGestures(
 
 		const direction = isValidSwipe(dx, dy, dt, config)
 		if (direction === 'right') {
-			sendData(term, '\x02p')
+			sendData(term, config.right)
 			show('\u25C0')
 			haptic()
 		} else if (direction === 'left') {
-			sendData(term, '\x02n')
+			sendData(term, config.left)
 			show('\u25B6')
 			haptic()
 		}

@@ -18,3 +18,4 @@ This project has not been published yet. On first release, rename this section t
 - Added: config `plugins` array support in CLI build/inject path with resolved local specifiers.
 - Changed: CLI config validation remains strict; legacy config shapes are not auto-normalised.
 - Tests: expanded integration/config/height coverage for the new config model and viewport logic.
+- Added: `gestures.swipe.left`/`right` (data to send on swipe) and `leftLabel`/`rightLabel` (help overlay text) — defaults match previous hardcoded behaviour (`\x02n`/`\x02p`, next/previous tmux window).

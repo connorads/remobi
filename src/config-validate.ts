@@ -34,7 +34,15 @@ const FONT_KEYS = ['family', 'cdnUrl', 'mobileSizeDefault', 'sizeRange']
 const TOOLBAR_KEYS = ['row1', 'row2']
 const DRAWER_KEYS = ['buttons']
 const GESTURES_KEYS = ['swipe', 'pinch', 'scroll']
-const SWIPE_KEYS = ['enabled', 'threshold', 'maxDuration']
+const SWIPE_KEYS = [
+	'enabled',
+	'threshold',
+	'maxDuration',
+	'left',
+	'right',
+	'leftLabel',
+	'rightLabel',
+]
 const PINCH_KEYS = ['enabled']
 const SCROLL_KEYS = ['enabled', 'sensitivity', 'strategy', 'wheelIntervalMs']
 const BUTTON_KEYS = ['id', 'label', 'description', 'action']
@@ -389,6 +397,18 @@ function validateGestures(value: unknown, path: string, issues: ValidationIssue[
 			if ('maxDuration' in swipe && swipe.maxDuration !== undefined) {
 				validateNumber(swipe.maxDuration, `${path}.swipe.maxDuration`, issues)
 			}
+			if ('left' in swipe && swipe.left !== undefined) {
+				validateString(swipe.left, `${path}.swipe.left`, issues)
+			}
+			if ('right' in swipe && swipe.right !== undefined) {
+				validateString(swipe.right, `${path}.swipe.right`, issues)
+			}
+			if ('leftLabel' in swipe && swipe.leftLabel !== undefined) {
+				validateString(swipe.leftLabel, `${path}.swipe.leftLabel`, issues)
+			}
+			if ('rightLabel' in swipe && swipe.rightLabel !== undefined) {
+				validateString(swipe.rightLabel, `${path}.swipe.rightLabel`, issues)
+			}
 		}
 	}
 
@@ -510,6 +530,30 @@ function validateSwipeResolved(value: unknown, path: string, issues: ValidationI
 		pushIssue(issues, `${path}.maxDuration`, 'finite number', undefined)
 	} else {
 		validateNumber(value.maxDuration, `${path}.maxDuration`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'left')) {
+		pushIssue(issues, `${path}.left`, 'string', undefined)
+	} else {
+		validateString(value.left, `${path}.left`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'right')) {
+		pushIssue(issues, `${path}.right`, 'string', undefined)
+	} else {
+		validateString(value.right, `${path}.right`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'leftLabel')) {
+		pushIssue(issues, `${path}.leftLabel`, 'string', undefined)
+	} else {
+		validateString(value.leftLabel, `${path}.leftLabel`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'rightLabel')) {
+		pushIssue(issues, `${path}.rightLabel`, 'string', undefined)
+	} else {
+		validateString(value.rightLabel, `${path}.rightLabel`, issues)
 	}
 }
 

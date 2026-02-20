@@ -51,6 +51,10 @@ export interface SwipeConfig {
 	readonly enabled: boolean
 	readonly threshold: number
 	readonly maxDuration: number
+	readonly left: string
+	readonly right: string
+	readonly leftLabel: string
+	readonly rightLabel: string
 }
 
 /** Pinch gesture configuration */

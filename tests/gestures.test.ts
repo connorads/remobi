@@ -5,7 +5,15 @@ import { averageY, pageSeq, scrollSeq } from '../src/gestures/scroll'
 import { isValidSwipe } from '../src/gestures/swipe'
 
 describe('isValidSwipe', () => {
-	const config = { enabled: true, threshold: 80, maxDuration: 400 }
+	const config = {
+		enabled: true,
+		threshold: 80,
+		maxDuration: 400,
+		left: '\x02n',
+		right: '\x02p',
+		leftLabel: 'Next tmux window',
+		rightLabel: 'Previous tmux window',
+	}
 
 	test('detects right swipe', () => {
 		expect(isValidSwipe(100, 10, 200, config)).toBe('right')
@@ -32,7 +40,15 @@ describe('isValidSwipe', () => {
 	})
 
 	test('respects custom threshold', () => {
-		const strict = { enabled: true, threshold: 200, maxDuration: 400 }
+		const strict = {
+			enabled: true,
+			threshold: 200,
+			maxDuration: 400,
+			left: '\x02n',
+			right: '\x02p',
+			leftLabel: 'Next tmux window',
+			rightLabel: 'Previous tmux window',
+		}
 		expect(isValidSwipe(150, 10, 200, strict)).toBeNull()
 		expect(isValidSwipe(250, 10, 200, strict)).toBe('right')
 	})
