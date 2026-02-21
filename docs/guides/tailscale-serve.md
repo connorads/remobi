@@ -95,12 +95,12 @@ const config = defineConfig()
 console.log(serialiseThemeForTtyd(config))
 ```
 
-## Caching
+## Build strategy
 
-For repeated builds, cache the output HTML and invalidate when versions change:
+Always rebuild before starting ttyd:
 
 ```bash
-hash=$(echo "$(ttyd --version):$(webmux --version)" | md5sum | cut -d' ' -f1)
-idx="$cache_dir/index-$hash.html"
-[[ -f "$idx" ]] || webmux build --output "$idx"
+webmux build --output "$idx"
 ```
+
+The build is quick and this avoids stale overlay issues when config or local source changes.
