@@ -4,6 +4,10 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Added: `webmux serve` — single command to run webmux with full PWA support. Builds overlay in memory, manages ttyd lifecycle, serves manifest + icons + WebSocket relay. Replaces the multi-step build + ttyd + proxy workflow.
+- Added: PWA support — web app manifest, 192/512px icons, apple-touch-icon, theme-color meta tags for "Add to Home Screen" installability on iOS and Android.
+- Added: `pwa` config section (`enabled`, `name`, `shortName`, `themeColor`) — controls manifest generation and meta tag injection.
+
 - Breaking: unified toolbar/drawer model to `ControlButton` (`id`, `label`, `description`, `action`) and renamed `drawer.commands` to `drawer.buttons`.
 - Changed: touch scrolling defaults to wheel semantics for better behaviour across OpenCode, Claude Code, and plain tmux shells.
 - Added: dynamic help overlay rendered from current config (no stale hardcoded sections).

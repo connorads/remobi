@@ -2,6 +2,8 @@
 
 Reference for ttyd flags that work well with webmux.
 
+> **Note:** `webmux serve` generates these flags automatically from your config. This guide is for manual `ttyd` usage with `webmux build`.
+
 ## Essential flags
 
 | Flag | Purpose |

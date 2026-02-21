@@ -6,6 +6,8 @@ Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gestu
 
 ## Features
 
+- **`webmux serve`** — one command to run webmux: builds overlay in memory, manages ttyd, serves manifest + icons
+- **PWA installable** — "Add to Home Screen" on iOS and Android with proper icon and standalone mode
 - **Two-row toolbar** — Esc, Ctrl (sticky modifier), Tab, arrows, C-c, Enter, tmux prev/next, paste, drawer toggle
 - **Config-driven controls** — unified button model across toolbar + drawer with ids and descriptions
 - **Swipe gestures** — configurable swipe left/right with custom data and help overlay labels
@@ -21,7 +23,7 @@ Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gestu
 ## Requirements
 
 - [Bun](https://bun.sh/) ≥ 1.0 (runtime — webmux ships TypeScript source, no transpilation)
-- [ttyd](https://github.com/tsl0922/ttyd) (for `webmux build` to fetch base HTML)
+- [ttyd](https://github.com/tsl0922/ttyd) (managed by `webmux serve`)
 - [tmux](https://github.com/tmux/tmux) (the target multiplexer)
 
 ## Quick start
@@ -32,20 +34,22 @@ If the npm package is not published yet, use local development flow with `bun li
 # 1. Install
 bun add -g webmux
 
-# 2. Build the overlay
-webmux build --output index.html
-
-# 3. Start ttyd
-ttyd --index index.html -i 127.0.0.1 --port 7681 --writable tmux new -As main
+# 2. Start (builds overlay, manages ttyd, serves with PWA support)
+webmux serve
 ```
 
-Open `http://localhost:7681` on your phone.
+Open `http://localhost:7681` on your phone. Add to Home Screen for an app-like experience.
 
 ## CLI reference
 
 ```
+webmux serve [--config <path>] [--port <n>] [-- <command...>]
+  Build overlay in memory, manage ttyd, serve with PWA support.
+  Default port: 7681. Default command: tmux new-session -A -s main
+  Example: webmux serve --port 8080 -- tmux new -As dev
+
 webmux build [--config <path>] [--output <path>] [--dry-run]
-  Build patched index.html. Starts temp ttyd, fetches base HTML, injects overlay.
+  Build patched index.html for ttyd --index flag (advanced).
   Default output: dist/index.html
 
 webmux inject [--config <path>] [--dry-run]
@@ -59,7 +63,7 @@ webmux --version
 webmux --help
 ```
 
-Short flags: `-c` (`--config`), `-o` (`--output`), `-n` (`--dry-run`).
+Short flags: `-c` (`--config`), `-o` (`--output`), `-p` (`--port`), `-n` (`--dry-run`).
 
 ### Config resolution
 
