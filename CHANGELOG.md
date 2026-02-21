@@ -19,3 +19,4 @@ This project has not been published yet. On first release, rename this section t
 - Changed: CLI config validation remains strict; legacy config shapes are not auto-normalised.
 - Tests: expanded integration/config/height coverage for the new config model and viewport logic.
 - Added: `gestures.swipe.left`/`right` (data to send on swipe) and `leftLabel`/`rightLabel` (help overlay text) — defaults match previous hardcoded behaviour (`\x02n`/`\x02p`, next/previous tmux window).
+- Added: `mobile.initData` (string | null) — arbitrary data sent to the terminal on mobile init when viewport is below `mobile.widthThreshold` (default 768px). Useful for auto-zooming a tmux pane (`'\x02z'`) or any other mobile-specific setup.

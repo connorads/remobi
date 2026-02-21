@@ -130,6 +130,27 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('expected string')
 	})
 
+	test('accepts valid partial mobile overrides including null initData', () => {
+		expect(() => assertValidConfigOverrides({ mobile: { initData: null } })).not.toThrow()
+		expect(() => assertValidConfigOverrides({ mobile: { initData: '\x02z' } })).not.toThrow()
+		expect(() => assertValidConfigOverrides({ mobile: { widthThreshold: 480 } })).not.toThrow()
+	})
+
+	test('rejects non-string/non-null mobile initData', () => {
+		const message = getValidationMessage({ mobile: { initData: 42 } }, assertValidConfigOverrides)
+		expect(message).toContain('config.mobile.initData')
+		expect(message).toContain('string or null')
+	})
+
+	test('rejects unknown mobile keys', () => {
+		const message = getValidationMessage(
+			{ mobile: { unknownKey: true } },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.mobile.unknownKey')
+		expect(message).toContain('known key')
+	})
+
 	test('rejects non-send action payload fields', () => {
 		const message = getValidationMessage(
 			{
@@ -166,6 +187,7 @@ describe('assertValidResolvedConfig', () => {
 		expect(message).toContain('config.theme')
 		expect(message).toContain('config.font')
 		expect(message).toContain('config.plugins')
+		expect(message).toContain('config.mobile')
 		expect(message).toContain('received undefined')
 	})
 
@@ -196,11 +218,21 @@ describe('assertValidResolvedConfig', () => {
 					pinch: { enabled: false },
 					scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },
 				},
+				mobile: { initData: null, widthThreshold: 768 },
 			},
 			assertValidResolvedConfig,
 		)
 		expect(message).toContain('config.theme.background')
 		expect(message).toContain('expected string')
 		expect(message).toContain('received undefined')
+	})
+
+	test('rejects missing mobile fields in resolved config', () => {
+		const message = getValidationMessage(
+			{ ...defaultConfig, mobile: { widthThreshold: 768 } },
+			assertValidResolvedConfig,
+		)
+		expect(message).toContain('config.mobile.initData')
+		expect(message).toContain('string or null')
 	})
 })

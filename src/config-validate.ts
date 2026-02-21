@@ -6,7 +6,8 @@ interface ValidationIssue {
 	readonly received: string
 }
 
-const ROOT_KEYS = ['theme', 'font', 'plugins', 'toolbar', 'drawer', 'gestures']
+const ROOT_KEYS = ['theme', 'font', 'plugins', 'toolbar', 'drawer', 'gestures', 'mobile']
+const MOBILE_KEYS = ['initData', 'widthThreshold']
 const THEME_KEYS = [
 	'background',
 	'foreground',
@@ -668,6 +669,45 @@ function validateDrawerResolved(value: unknown, path: string, issues: Validation
 	}
 }
 
+function validateMobile(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, MOBILE_KEYS, path, issues)
+
+	if ('initData' in value && value.initData !== undefined) {
+		if (value.initData !== null && typeof value.initData !== 'string') {
+			pushIssue(issues, `${path}.initData`, 'string or null', value.initData)
+		}
+	}
+	if ('widthThreshold' in value && value.widthThreshold !== undefined) {
+		validateNumber(value.widthThreshold, `${path}.widthThreshold`, issues)
+	}
+}
+
+function validateMobileResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, MOBILE_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'initData')) {
+		pushIssue(issues, `${path}.initData`, 'string or null', undefined)
+	} else if (value.initData !== null && typeof value.initData !== 'string') {
+		pushIssue(issues, `${path}.initData`, 'string or null', value.initData)
+	}
+
+	if (!hasDefinedKey(value, 'widthThreshold')) {
+		pushIssue(issues, `${path}.widthThreshold`, 'finite number', undefined)
+	} else {
+		validateNumber(value.widthThreshold, `${path}.widthThreshold`, issues)
+	}
+}
+
 export function assertValidConfigOverrides(
 	value: unknown,
 ): asserts value is DeepPartial<WebmuxConfig> {
@@ -695,6 +735,9 @@ export function assertValidConfigOverrides(
 		}
 		if ('gestures' in value && value.gestures !== undefined) {
 			validateGestures(value.gestures, 'config.gestures', issues)
+		}
+		if ('mobile' in value && value.mobile !== undefined) {
+			validateMobile(value.mobile, 'config.mobile', issues)
 		}
 	}
 
@@ -745,6 +788,12 @@ export function assertValidResolvedConfig(value: unknown): asserts value is Webm
 			pushIssue(issues, 'config.gestures', 'object', undefined)
 		} else {
 			validateGesturesResolved(value.gestures, 'config.gestures', issues)
+		}
+
+		if (!hasDefinedKey(value, 'mobile')) {
+			pushIssue(issues, 'config.mobile', 'object', undefined)
+		} else {
+			validateMobileResolved(value.mobile, 'config.mobile', issues)
 		}
 	}
 

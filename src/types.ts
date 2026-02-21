@@ -80,6 +80,14 @@ export interface GestureConfig {
 	readonly scroll: ScrollConfig
 }
 
+/** Mobile-specific behaviour configuration */
+export interface MobileConfig {
+	/** Data to send to the terminal on mobile init, null = disabled */
+	readonly initData: string | null
+	/** Viewport width (px) below which mobile init behaviour triggers */
+	readonly widthThreshold: number
+}
+
 /** Full webmux configuration */
 export interface WebmuxConfig {
 	readonly theme: TermTheme
@@ -93,6 +101,7 @@ export interface WebmuxConfig {
 		readonly buttons: readonly ControlButton[]
 	}
 	readonly gestures: GestureConfig
+	readonly mobile: MobileConfig
 }
 
 /** Deep partial — allows overriding any nested subset of config */

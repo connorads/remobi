@@ -15,7 +15,7 @@ import type { WebmuxPlugin } from './plugins/manager'
 import { applyTheme } from './theme/apply'
 import { createToolbar } from './toolbar/toolbar'
 import type { WebmuxConfig } from './types'
-import { resizeTerm, waitForTerm } from './util/terminal'
+import { resizeTerm, sendData, waitForTerm } from './util/terminal'
 import { initHeightManager } from './viewport/height'
 
 // Re-export for package consumers
@@ -134,6 +134,11 @@ export function init(
 
 				// Height management
 				initHeightManager(toolbar)
+
+				// Mobile init data: send once on load if viewport is narrow enough
+				if (config.mobile.initData !== null && window.innerWidth < config.mobile.widthThreshold) {
+					sendData(term, config.mobile.initData)
+				}
 
 				// Help overlay should never break core controls.
 				try {

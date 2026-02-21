@@ -78,6 +78,12 @@ describe('defineConfig', () => {
 		expect(config.drawer.buttons).toEqual(customButtons)
 	})
 
+	test('overrides mobile initData while preserving widthThreshold', () => {
+		const config = defineConfig({ mobile: { initData: '\x02z' } })
+		expect(config.mobile.initData).toBe('\x02z')
+		expect(config.mobile.widthThreshold).toBe(768)
+	})
+
 	test('replaces plugins array', () => {
 		const config = defineConfig({
 			plugins: ['./plugins/logger.ts', 'webmux-plugin-demo'],
@@ -121,6 +127,11 @@ describe('defaultConfig', () => {
 
 	test('defaults to no plugins', () => {
 		expect(defaultConfig.plugins).toEqual([])
+	})
+
+	test('mobile defaults to null initData and 768 widthThreshold', () => {
+		expect(defaultConfig.mobile.initData).toBeNull()
+		expect(defaultConfig.mobile.widthThreshold).toBe(768)
 	})
 
 	test('swipe defaults to tmux next/prev window', () => {

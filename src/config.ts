@@ -196,6 +196,12 @@ export const defaultDrawerButtons: readonly ControlButton[] = [
 	},
 ]
 
+/** Default mobile configuration */
+const defaultMobile: WebmuxConfig['mobile'] = {
+	initData: null,
+	widthThreshold: 768,
+}
+
 /** Complete default configuration */
 export const defaultConfig: WebmuxConfig = {
 	theme: catppuccinMocha,
@@ -204,6 +210,7 @@ export const defaultConfig: WebmuxConfig = {
 	toolbar: { row1: defaultRow1, row2: defaultRow2 },
 	drawer: { buttons: defaultDrawerButtons },
 	gestures: defaultGestures,
+	mobile: defaultMobile,
 }
 
 /** Deep merge two objects, with `override` taking precedence */
