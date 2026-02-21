@@ -23,7 +23,7 @@ import { initHeightManager } from './viewport/height'
 export { defineConfig } from './config'
 export { createHookRegistry }
 export type { WebmuxConfig, ButtonAction, ControlButton, TermTheme } from './types'
-export type { HookRegistry } from './hooks/registry'
+export type { HookRegistry, SendSource } from './hooks/registry'
 export type { WebmuxPlugin } from './plugins/manager'
 
 /** Detect touch device */

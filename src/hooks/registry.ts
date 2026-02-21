@@ -1,6 +1,6 @@
 import type { ButtonAction, WebmuxConfig, XTerminal } from '../types'
 
-type SendSource = 'toolbar' | 'drawer' | 'floating-buttons' | 'mobile-init'
+export type SendSource = 'toolbar' | 'drawer' | 'floating-buttons' | 'mobile-init'
 
 export interface BeforeSendDataContext {
 	readonly term: XTerminal

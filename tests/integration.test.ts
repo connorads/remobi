@@ -257,7 +257,7 @@ describe('floating buttons integration', () => {
 		expect(buttons[1]?.textContent).toBe('›')
 	})
 
-	test('drawer-toggle button calls openDrawer', () => {
+	test('drawer-toggle button calls openDrawer', async () => {
 		const term = mockTerminal()
 		const hooks = createHookRegistry()
 		const actions = createDefaultActionRegistry()
@@ -290,6 +290,7 @@ describe('floating buttons integration', () => {
 
 		const button = element.querySelector('button') as HTMLButtonElement
 		button.click()
+		await new Promise((resolve) => setTimeout(resolve, 0))
 
 		expect(drawerOpened).toBe(true)
 	})

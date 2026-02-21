@@ -6,7 +6,11 @@ import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
 import { sendData } from '../util/terminal'
 
-/** Create the floating buttons container (top-left, always visible on touch devices) */
+/**
+ * Create the floating buttons container (top-left, always visible on touch devices).
+ * Note: `ctrl-modifier` actions are not supported — no ctrlState is available,
+ * so they silently no-op (focus only).
+ */
 export function createFloatingButtons(
 	term: XTerminal,
 	buttons: readonly ControlButton[],
