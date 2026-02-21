@@ -237,19 +237,33 @@ async function main(): Promise<void> {
 
 export default defineConfig({
   // theme: 'catppuccin-mocha',
-			// font: {
-			//   family: 'JetBrainsMono NFM, monospace',
-			//   mobileSizeDefault: 16,
-			//   sizeRange: [8, 32],
-			// },
-			// plugins: ['./plugins/logger.ts', 'webmux-plugin-demo'],
-			// toolbar: { row1: [{ id, label, description, action }], row2: [...] },
+  // font: {
+  //   family: 'JetBrainsMono NFM, monospace',
+  //   mobileSizeDefault: 16,
+  //   sizeRange: [8, 32],
+  // },
+  // plugins: ['./plugins/logger.ts', 'webmux-plugin-demo'],
+  // toolbar: { row1: [{ id, label, description, action }], row2: [...] },
   // drawer: { buttons: [{ id, label, description, action }] },
   // gestures: {
-  //   swipe: { enabled: true },
+  //   swipe: {
+  //     enabled: true,
+  //     left: '\\x02n',          // data sent on swipe left (default: next tmux window)
+  //     right: '\\x02p',         // data sent on swipe right (default: prev tmux window)
+  //     leftLabel: 'Next tmux window',
+  //     rightLabel: 'Previous tmux window',
+  //   },
   //   pinch: { enabled: true },
   //   scroll: { strategy: 'wheel', sensitivity: 40 },
   // },
+  // mobile: {
+  //   initData: '\\x02z',        // send on load when viewport < widthThreshold (auto-zoom pane)
+  //   widthThreshold: 768,       // px — default matches phone/tablet breakpoint
+  // },
+  // floatingButtons: [
+  //   // Always-visible top-left buttons (touch devices only)
+  //   { id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\\x02z' } },
+  // ],
 })
 `
 			await Bun.write(targetPath, template)

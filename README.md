@@ -8,7 +8,8 @@ Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gestu
 
 - **Two-row toolbar** — Esc, Ctrl (sticky modifier), Tab, arrows, C-c, Enter, tmux prev/next, paste, drawer toggle
 - **Config-driven controls** — unified button model across toolbar + drawer with ids and descriptions
-- **Swipe gestures** — swipe left/right to switch tmux windows
+- **Swipe gestures** — configurable swipe left/right with custom data and help overlay labels
+- **Floating buttons** — always-visible quick-action buttons (top-left, touch only) for zoom, pane cycling, etc.
 - **Touch scrolling modes** — default wheel scrolling for broad app compatibility, optional key paging
 - **Pinch-to-zoom** — adjust font size with two-finger pinch
 - **Font controls** — dedicated +/- buttons, top-right overlay
@@ -104,7 +105,13 @@ export default defineConfig({
     ],
   },
   gestures: {
-    swipe: { enabled: true, threshold: 80, maxDuration: 400 },
+    swipe: {
+      enabled: true,
+      left: '\x02n',         // data sent on swipe left (default: next tmux window)
+      right: '\x02p',        // data sent on swipe right (default: prev tmux window)
+      leftLabel: 'Next tmux window',    // shown in help overlay
+      rightLabel: 'Previous tmux window',
+    },
     scroll: {
       enabled: true,
       strategy: 'wheel',
@@ -113,6 +120,14 @@ export default defineConfig({
     },
     pinch: { enabled: true },
   },
+  mobile: {
+    initData: '\x02z',     // send on mobile load when viewport < widthThreshold
+    widthThreshold: 768,   // px — default matches common phone/tablet breakpoint
+  },
+  floatingButtons: [
+    // Always-visible buttons in the top-left corner (touch devices only)
+    { id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\x02z' } },
+  ],
 })
 ```
 
@@ -159,6 +174,7 @@ You can also pass plugins to `init(config, hooks, plugins)`. Plugin setup/dispos
 
 - [Tailscale Serve](docs/guides/tailscale-serve.md) — expose over your tailnet with HTTPS
 - [ttyd flags](docs/guides/ttyd-flags.md) — recommended ttyd options and theme flags
+- [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
 
 ## Architecture
 
