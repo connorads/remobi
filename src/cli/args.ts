@@ -1,10 +1,12 @@
-export type CliCommand = 'build' | 'inject' | 'init' | 'help' | 'version'
+export type CliCommand = 'build' | 'inject' | 'init' | 'serve' | 'help' | 'version'
 
 export interface ParsedCliArgs {
 	readonly command: CliCommand
 	readonly configPath?: string
 	readonly outputPath?: string
 	readonly dryRun: boolean
+	readonly port?: number
+	readonly command_: readonly string[]
 }
 
 interface ParseSuccess {
@@ -34,20 +36,27 @@ function isMissingOptionValue(value: string | undefined): boolean {
 export function parseCliArgs(args: readonly string[]): ParseCliResult {
 	const commandToken = args[0]
 	if (!commandToken || isHelpCommand(commandToken)) {
-		return { ok: true, value: { command: 'help', dryRun: false } }
+		return { ok: true, value: { command: 'help', dryRun: false, command_: [] } }
 	}
 
 	if (isVersionCommand(commandToken)) {
-		return { ok: true, value: { command: 'version', dryRun: false } }
+		return { ok: true, value: { command: 'version', dryRun: false, command_: [] } }
 	}
 
-	if (commandToken !== 'build' && commandToken !== 'inject' && commandToken !== 'init') {
+	if (
+		commandToken !== 'build' &&
+		commandToken !== 'inject' &&
+		commandToken !== 'init' &&
+		commandToken !== 'serve'
+	) {
 		return { ok: false, error: `Unknown command: ${commandToken}` }
 	}
 
 	let configPath: string | undefined
 	let outputPath: string | undefined
 	let dryRun = false
+	let port: number | undefined
+	let trailingCommand: readonly string[] = []
 
 	for (let index = 1; index < args.length; index++) {
 		const arg = args[index]
@@ -56,8 +65,14 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 			return { ok: false, error: 'Invalid argument list' }
 		}
 
+		// -- separator: everything after is the trailing command
+		if (arg === '--') {
+			trailingCommand = args.slice(index + 1)
+			break
+		}
+
 		if (arg === '--help' || arg === '-h') {
-			return { ok: true, value: { command: 'help', dryRun: false } }
+			return { ok: true, value: { command: 'help', dryRun: false, command_: [] } }
 		}
 
 		if (!arg.startsWith('-')) {
@@ -65,8 +80,8 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 		}
 
 		if (arg === '--config' || arg === '-c') {
-			if (commandToken !== 'build' && commandToken !== 'inject') {
-				return { ok: false, error: `${arg} is only valid for 'build' or 'inject'` }
+			if (commandToken !== 'build' && commandToken !== 'inject' && commandToken !== 'serve') {
+				return { ok: false, error: `${arg} is only valid for 'build', 'inject', or 'serve'` }
 			}
 			if (isMissingOptionValue(nextArg)) {
 				return { ok: false, error: 'Missing value for --config' }
@@ -96,6 +111,22 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 			continue
 		}
 
+		if (arg === '--port' || arg === '-p') {
+			if (commandToken !== 'serve') {
+				return { ok: false, error: `${arg} is only valid for 'serve'` }
+			}
+			if (isMissingOptionValue(nextArg)) {
+				return { ok: false, error: 'Missing value for --port' }
+			}
+			const portNum = Number(nextArg)
+			if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
+				return { ok: false, error: `Invalid port: ${nextArg}` }
+			}
+			port = portNum
+			index++
+			continue
+		}
+
 		if (isVersionCommand(arg)) {
 			return { ok: false, error: `${arg} is only valid as a top-level command` }
 		}
@@ -110,6 +141,8 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 			configPath,
 			outputPath,
 			dryRun,
+			port,
+			command_: trailingCommand,
 		},
 	}
 }

@@ -11,6 +11,7 @@ import {
 	assertValidConfigOverrides,
 	assertValidResolvedConfig,
 } from './src/config-validate'
+import { serve } from './src/serve'
 import type { DeepPartial, WebmuxConfig } from './src/types'
 
 const VERSION = '0.1.0'
@@ -19,6 +20,10 @@ function usage(): void {
 	console.log(`webmux v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
 
 Usage:
+  webmux serve [--config <path>] [--port <n>] [-- <command...>]
+    Build overlay in memory, manage ttyd, serve with PWA support.
+    Default port: 7681. Default command: tmux new-session -A -s main
+
   webmux build [--config <path>] [--output <path>] [--dry-run]
     Build patched index.html for ttyd --index flag.
     Starts temp ttyd, fetches base HTML, injects overlay.
@@ -36,11 +41,14 @@ Usage:
     Show this help.
 
 Flags:
-  -c, --config <path>  Use a specific config file
+  -c, --config <path>  Use a specific config file (build/inject/serve)
   -o, --output <path>  Build output path (build only)
+  -p, --port <n>       Port to serve on (serve only, default 7681)
   -n, --dry-run        Validate + print plan only (build/inject)
 
 Examples:
+  webmux serve
+  webmux serve --port 8080 -- tmux new -As dev
   webmux build -c ./webmux.config.ts -o ./dist/index.html
   webmux build --dry-run
   curl -s http://127.0.0.1:7681/ | webmux inject --dry-run`)
@@ -177,9 +185,20 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
-	const { command, configPath, outputPath, dryRun } = parsed.value
+	const { command, configPath, outputPath, dryRun, port, command_ } = parsed.value
 
 	switch (command) {
+		case 'serve': {
+			const loaded = await loadConfig(configPath)
+			await serve(
+				loaded.config,
+				loaded.pluginImports,
+				port,
+				command_.length > 0 ? command_ : undefined,
+			)
+			break
+		}
+
 		case 'build': {
 			const loaded = await loadConfig(configPath)
 			const targetPath = outputPath

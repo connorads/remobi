@@ -39,10 +39,90 @@ describe('parseCliArgs', () => {
 	})
 
 	test('rejects unknown command', () => {
-		const result = parseCliArgs(['serve'])
+		const result = parseCliArgs(['frobulate'])
 		expect(result.ok).toBe(false)
 		if (!result.ok) {
 			expect(result.error).toContain('Unknown command')
+		}
+	})
+
+	test('parses serve with default port and no trailing command', () => {
+		const result = parseCliArgs(['serve'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.command).toBe('serve')
+			expect(result.value.port).toBeUndefined()
+			expect(result.value.command_).toEqual([])
+		}
+	})
+
+	test('parses serve with --port flag', () => {
+		const result = parseCliArgs(['serve', '--port', '8080'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.command).toBe('serve')
+			expect(result.value.port).toBe(8080)
+		}
+	})
+
+	test('parses serve with -p short flag', () => {
+		const result = parseCliArgs(['serve', '-p', '9000'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.port).toBe(9000)
+		}
+	})
+
+	test('parses serve with -- trailing command', () => {
+		const result = parseCliArgs(['serve', '--', 'tmux', 'new', '-As', 'dev'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.command_).toEqual(['tmux', 'new', '-As', 'dev'])
+		}
+	})
+
+	test('parses serve with config, port and trailing command', () => {
+		const result = parseCliArgs([
+			'serve',
+			'-c',
+			'./cfg.ts',
+			'--port',
+			'8080',
+			'--',
+			'tmux',
+			'new',
+			'-As',
+			'dev',
+		])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.configPath).toBe('./cfg.ts')
+			expect(result.value.port).toBe(8080)
+			expect(result.value.command_).toEqual(['tmux', 'new', '-As', 'dev'])
+		}
+	})
+
+	test('rejects --port outside serve command', () => {
+		const result = parseCliArgs(['build', '--port', '8080'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain("only valid for 'serve'")
+		}
+	})
+
+	test('rejects invalid port value', () => {
+		const result = parseCliArgs(['serve', '--port', 'abc'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Invalid port')
+		}
+	})
+
+	test('rejects out-of-range port', () => {
+		const result = parseCliArgs(['serve', '--port', '99999'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Invalid port')
 		}
 	})
 
@@ -62,11 +142,11 @@ describe('parseCliArgs', () => {
 		}
 	})
 
-	test('rejects --config outside build/inject commands', () => {
+	test('rejects --config outside build/inject/serve commands', () => {
 		const result = parseCliArgs(['init', '--config', './x.ts'])
 		expect(result.ok).toBe(false)
 		if (!result.ok) {
-			expect(result.error).toContain("only valid for 'build' or 'inject'")
+			expect(result.error).toContain("only valid for 'build', 'inject', or 'serve'")
 		}
 	})
 

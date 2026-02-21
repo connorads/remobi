@@ -48,7 +48,7 @@ const plugins = pluginModules.flatMap((moduleRef, index) => {
 }
 
 /** Bundle the overlay JS + CSS into strings */
-async function bundleOverlay(
+export async function bundleOverlay(
 	config: WebmuxConfig,
 	pluginImports: readonly string[] = [],
 ): Promise<{ js: string; css: string }> {
