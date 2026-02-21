@@ -243,9 +243,7 @@ describe('assertValidConfigOverrides', () => {
 	test('accepts valid partial pwa overrides', () => {
 		expect(() => assertValidConfigOverrides({ pwa: { name: 'My Terminal' } })).not.toThrow()
 		expect(() => assertValidConfigOverrides({ pwa: { enabled: false } })).not.toThrow()
-		expect(() =>
-			assertValidConfigOverrides({ pwa: { themeColor: '#000000' } }),
-		).not.toThrow()
+		expect(() => assertValidConfigOverrides({ pwa: { themeColor: '#000000' } })).not.toThrow()
 	})
 
 	test('rejects non-boolean pwa enabled', () => {
@@ -261,10 +259,7 @@ describe('assertValidConfigOverrides', () => {
 	})
 
 	test('rejects unknown pwa keys', () => {
-		const message = getValidationMessage(
-			{ pwa: { unknown: true } },
-			assertValidConfigOverrides,
-		)
+		const message = getValidationMessage({ pwa: { unknown: true } }, assertValidConfigOverrides)
 		expect(message).toContain('config.pwa.unknown')
 		expect(message).toContain('known key')
 	})
