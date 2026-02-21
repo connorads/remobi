@@ -1,0 +1,37 @@
+import type { PwaConfig } from '../types'
+
+interface WebAppManifest {
+	readonly name: string
+	readonly short_name: string
+	readonly start_url: string
+	readonly display: string
+	readonly background_color: string
+	readonly theme_color: string
+	readonly icons: readonly {
+		readonly src: string
+		readonly sizes: string
+		readonly type: string
+		readonly purpose?: string
+	}[]
+}
+
+/** Generate a web app manifest object from pwa config */
+export function generateManifest(pwa: PwaConfig): WebAppManifest {
+	return {
+		name: pwa.name,
+		short_name: pwa.shortName,
+		start_url: '/',
+		display: 'standalone',
+		background_color: pwa.themeColor,
+		theme_color: pwa.themeColor,
+		icons: [
+			{ src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+			{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+		],
+	}
+}
+
+/** Serialise manifest to JSON string */
+export function manifestToJson(pwa: PwaConfig): string {
+	return JSON.stringify(generateManifest(pwa), null, 2)
+}

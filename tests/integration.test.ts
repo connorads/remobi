@@ -222,6 +222,30 @@ describe('build output', () => {
 		expect(result).toContain('jetbrainsmono-nfm.css')
 		expect(result).toContain('</head>')
 	})
+
+	test('injectOverlay includes PWA tags when pwa.enabled', async () => {
+		const { injectOverlay } = await import('../build')
+		const baseHtml = '<html><head></head><body></body></html>'
+
+		const result = injectOverlay(baseHtml, '', '', defaultConfig)
+
+		expect(result).toContain('rel="manifest"')
+		expect(result).toContain('href="/manifest.json"')
+		expect(result).toContain('apple-touch-icon')
+		expect(result).toContain('theme-color')
+	})
+
+	test('injectOverlay omits PWA tags when pwa.enabled is false', async () => {
+		const { injectOverlay } = await import('../build')
+		const { defineConfig } = await import('../src/config')
+		const baseHtml = '<html><head></head><body></body></html>'
+		const config = defineConfig({ pwa: { enabled: false } })
+
+		const result = injectOverlay(baseHtml, '', '', config)
+
+		expect(result).not.toContain('rel="manifest"')
+		expect(result).not.toContain('apple-touch-icon')
+	})
 })
 
 describe('floating buttons integration', () => {

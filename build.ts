@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { generatePwaHtml } from './src/pwa/meta-tags'
 import type { WebmuxConfig } from './src/types'
 
 const PROJECT_ROOT = import.meta.dir
@@ -142,8 +143,9 @@ export function injectOverlay(html: string, js: string, css: string, config: Web
 	const styleTag = `<style>${css}</style>`
 	const safeJs = js.replace(/<(?=\/script)/gi, '\\x3c')
 	const scriptTag = `<script type="module">${safeJs}</script>`
+	const pwaHtml = config.pwa.enabled ? `${generatePwaHtml(config.pwa)}\n` : ''
 
-	const injection = `${fontLink}\n${viewport}\n${styleTag}\n${scriptTag}\n`
+	const injection = `${fontLink}\n${viewport}\n${pwaHtml}${styleTag}\n${scriptTag}\n`
 
 	// Avoid String.replace() — minified JS may contain $& which .replace()
 	// interprets as a special replacement pattern, corrupting the output
