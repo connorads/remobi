@@ -205,13 +205,12 @@ const defaultMobile: WebmuxConfig['mobile'] = {
 /** Default PWA configuration */
 const defaultPwa: PwaConfig = {
 	enabled: true,
-	name: 'webmux',
-	shortName: 'webmux',
 	themeColor: '#1e1e2e',
 }
 
 /** Complete default configuration */
 export const defaultConfig: WebmuxConfig = {
+	name: 'webmux',
 	theme: catppuccinMocha,
 	font: defaultFont,
 	plugins: [],

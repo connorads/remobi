@@ -7,6 +7,7 @@ interface ValidationIssue {
 }
 
 const ROOT_KEYS = [
+	'name',
 	'theme',
 	'font',
 	'plugins',
@@ -17,7 +18,7 @@ const ROOT_KEYS = [
 	'floatingButtons',
 	'pwa',
 ]
-const PWA_KEYS = ['enabled', 'name', 'shortName', 'themeColor']
+const PWA_KEYS = ['enabled', 'shortName', 'themeColor']
 const MOBILE_KEYS = ['initData', 'widthThreshold']
 const THEME_KEYS = [
 	'background',
@@ -752,9 +753,6 @@ function validatePwa(value: unknown, path: string, issues: ValidationIssue[]): v
 	if ('enabled' in value && value.enabled !== undefined) {
 		validateBoolean(value.enabled, `${path}.enabled`, issues)
 	}
-	if ('name' in value && value.name !== undefined) {
-		validateString(value.name, `${path}.name`, issues)
-	}
 	if ('shortName' in value && value.shortName !== undefined) {
 		validateString(value.shortName, `${path}.shortName`, issues)
 	}
@@ -777,15 +775,7 @@ function validatePwaResolved(value: unknown, path: string, issues: ValidationIss
 		validateBoolean(value.enabled, `${path}.enabled`, issues)
 	}
 
-	if (!hasDefinedKey(value, 'name')) {
-		pushIssue(issues, `${path}.name`, 'string', undefined)
-	} else {
-		validateString(value.name, `${path}.name`, issues)
-	}
-
-	if (!hasDefinedKey(value, 'shortName')) {
-		pushIssue(issues, `${path}.shortName`, 'string', undefined)
-	} else {
+	if ('shortName' in value && value.shortName !== undefined) {
 		validateString(value.shortName, `${path}.shortName`, issues)
 	}
 
@@ -845,6 +835,9 @@ export function assertValidConfigOverrides(
 	} else {
 		checkUnknownKeys(value, ROOT_KEYS, 'config', issues)
 
+		if ('name' in value && value.name !== undefined) {
+			validateString(value.name, 'config.name', issues)
+		}
 		if ('theme' in value && value.theme !== undefined) {
 			validateTheme(value.theme, 'config.theme', issues)
 		}
@@ -886,6 +879,12 @@ export function assertValidResolvedConfig(value: unknown): asserts value is Webm
 		pushIssue(issues, 'config', 'object', value)
 	} else {
 		checkUnknownKeys(value, ROOT_KEYS, 'config', issues)
+
+		if (!hasDefinedKey(value, 'name')) {
+			pushIssue(issues, 'config.name', 'string', undefined)
+		} else {
+			validateString(value.name, 'config.name', issues)
+		}
 
 		if (!hasDefinedKey(value, 'theme')) {
 			pushIssue(issues, 'config.theme', 'object', undefined)

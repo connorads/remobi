@@ -112,13 +112,13 @@ export interface FloatingButtonGroup {
 /** PWA (Progressive Web App) configuration */
 export interface PwaConfig {
 	readonly enabled: boolean
-	readonly name: string
-	readonly shortName: string
+	readonly shortName?: string
 	readonly themeColor: string
 }
 
 /** Full webmux configuration */
 export interface WebmuxConfig {
+	readonly name: string
 	readonly theme: TermTheme
 	readonly font: FontConfig
 	readonly plugins: readonly string[]

@@ -93,7 +93,7 @@ export async function serve(
 
 	console.log('webmux: overlay ready')
 
-	const manifestJson = config.pwa.enabled ? manifestToJson(config.pwa) : null
+	const manifestJson = config.pwa.enabled ? manifestToJson(config.name, config.pwa) : null
 	const icon180 = readIcon('icon-180.png')
 	const icon192 = readIcon('icon-192.png')
 	const icon512 = readIcon('icon-512.png')

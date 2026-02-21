@@ -240,22 +240,35 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('known key')
 	})
 
+	test('accepts valid top-level name override', () => {
+		expect(() => assertValidConfigOverrides({ name: 'My Terminal' })).not.toThrow()
+	})
+
+	test('rejects non-string top-level name', () => {
+		const message = getValidationMessage({ name: 42 }, assertValidConfigOverrides)
+		expect(message).toContain('config.name')
+		expect(message).toContain('expected string')
+	})
+
 	test('accepts valid partial pwa overrides', () => {
-		expect(() => assertValidConfigOverrides({ pwa: { name: 'My Terminal' } })).not.toThrow()
+		expect(() => assertValidConfigOverrides({ pwa: { shortName: 'wm' } })).not.toThrow()
 		expect(() => assertValidConfigOverrides({ pwa: { enabled: false } })).not.toThrow()
 		expect(() => assertValidConfigOverrides({ pwa: { themeColor: '#000000' } })).not.toThrow()
+	})
+
+	test('rejects pwa.name as unknown key', () => {
+		const message = getValidationMessage(
+			{ pwa: { name: 'My Terminal' } },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.pwa.name')
+		expect(message).toContain('known key')
 	})
 
 	test('rejects non-boolean pwa enabled', () => {
 		const message = getValidationMessage({ pwa: { enabled: 'yes' } }, assertValidConfigOverrides)
 		expect(message).toContain('config.pwa.enabled')
 		expect(message).toContain('expected boolean')
-	})
-
-	test('rejects non-string pwa name', () => {
-		const message = getValidationMessage({ pwa: { name: 42 } }, assertValidConfigOverrides)
-		expect(message).toContain('config.pwa.name')
-		expect(message).toContain('expected string')
 	})
 
 	test('rejects unknown pwa keys', () => {
@@ -297,6 +310,7 @@ describe('assertValidResolvedConfig', () => {
 
 	test('rejects missing required root keys', () => {
 		const message = getValidationMessage({}, assertValidResolvedConfig)
+		expect(message).toContain('config.name')
 		expect(message).toContain('config.theme')
 		expect(message).toContain('config.font')
 		expect(message).toContain('config.plugins')

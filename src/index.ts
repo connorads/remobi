@@ -85,7 +85,7 @@ export function init(
 				// Resize after fonts load
 				document.fonts.ready.then(() => resizeTerm())
 
-				document.title = `webmux · ${location.hostname.replace(/\..*/, '')}`
+				document.title = `${config.name} · ${location.hostname.replace(/\..*/, '')}`
 
 				if (!mobile) {
 					await hooks.runOverlayReady({ term, config, mobile })

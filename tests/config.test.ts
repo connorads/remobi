@@ -100,11 +100,10 @@ describe('defineConfig', () => {
 		expect(config.mobile.widthThreshold).toBe(768)
 	})
 
-	test('overrides pwa name while preserving other pwa defaults', () => {
-		const config = defineConfig({ pwa: { name: 'My Terminal' } })
-		expect(config.pwa.name).toBe('My Terminal')
+	test('overrides name while preserving pwa defaults', () => {
+		const config = defineConfig({ name: 'My Terminal' })
+		expect(config.name).toBe('My Terminal')
 		expect(config.pwa.enabled).toBe(true)
-		expect(config.pwa.shortName).toBe('webmux')
 		expect(config.pwa.themeColor).toBe('#1e1e2e')
 	})
 
@@ -162,10 +161,12 @@ describe('defaultConfig', () => {
 		expect(defaultConfig.floatingButtons).toEqual([])
 	})
 
+	test('has default name', () => {
+		expect(defaultConfig.name).toBe('webmux')
+	})
+
 	test('has default pwa config', () => {
 		expect(defaultConfig.pwa.enabled).toBe(true)
-		expect(defaultConfig.pwa.name).toBe('webmux')
-		expect(defaultConfig.pwa.shortName).toBe('webmux')
 		expect(defaultConfig.pwa.themeColor).toBe('#1e1e2e')
 	})
 

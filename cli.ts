@@ -255,6 +255,7 @@ async function main(): Promise<void> {
 			const template = `import { defineConfig } from 'webmux'
 
 export default defineConfig({
+  // name: 'webmux',              // app name (tab title, PWA home screen label)
   // theme: 'catppuccin-mocha',
   // font: {
   //   family: 'JetBrainsMono NFM, monospace',
@@ -284,10 +285,9 @@ export default defineConfig({
   //   { id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\\x02z' } },
   // ],
   // pwa: {
-  //   enabled: true,                  // enable PWA manifest + meta tags (used by webmux serve)
-  //   name: 'webmux',                 // full app name for home screen
-  //   shortName: 'webmux',            // short name for home screen icon
-  //   themeColor: '#1e1e2e',          // theme-color meta tag + manifest
+  //   enabled: true,              // enable PWA manifest + meta tags (used by webmux serve)
+  //   shortName: 'webmux',        // short name for home screen icon (defaults to name)
+  //   themeColor: '#1e1e2e',      // theme-color meta tag + manifest
   // },
 })
 `

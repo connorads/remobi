@@ -143,7 +143,7 @@ export function injectOverlay(html: string, js: string, css: string, config: Web
 	const styleTag = `<style>${css}</style>`
 	const safeJs = js.replace(/<(?=\/script)/gi, '\\x3c')
 	const scriptTag = `<script type="module">${safeJs}</script>`
-	const pwaHtml = config.pwa.enabled ? `${generatePwaHtml(config.pwa)}\n` : ''
+	const pwaHtml = config.pwa.enabled ? `${generatePwaHtml(config.name, config.pwa)}\n` : ''
 
 	const injection = `${fontLink}\n${viewport}\n${pwaHtml}${styleTag}\n${scriptTag}\n`
 

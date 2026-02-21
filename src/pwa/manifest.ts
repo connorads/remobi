@@ -16,10 +16,10 @@ interface WebAppManifest {
 }
 
 /** Generate a web app manifest object from pwa config */
-export function generateManifest(pwa: PwaConfig): WebAppManifest {
+export function generateManifest(name: string, pwa: PwaConfig): WebAppManifest {
 	return {
-		name: pwa.name,
-		short_name: pwa.shortName,
+		name,
+		short_name: pwa.shortName ?? name,
 		start_url: '/',
 		display: 'standalone',
 		background_color: pwa.themeColor,
@@ -32,6 +32,6 @@ export function generateManifest(pwa: PwaConfig): WebAppManifest {
 }
 
 /** Serialise manifest to JSON string */
-export function manifestToJson(pwa: PwaConfig): string {
-	return JSON.stringify(generateManifest(pwa), null, 2)
+export function manifestToJson(name: string, pwa: PwaConfig): string {
+	return JSON.stringify(generateManifest(name, pwa), null, 2)
 }
