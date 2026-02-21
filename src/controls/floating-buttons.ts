@@ -13,6 +13,7 @@ export function createFloatingButtons(
 	config: WebmuxConfig,
 	hooks: HookRegistry,
 	actions: ActionRegistry,
+	openDrawer?: () => void,
 ): { element: HTMLDivElement } {
 	const container = el('div', { id: 'wt-floating-buttons' })
 
@@ -30,7 +31,7 @@ export function createFloatingButtons(
 				const before = await hooks.runBeforeSendData({
 					term,
 					config,
-					source: 'toolbar',
+					source: 'floating-buttons',
 					actionType: def.action.type,
 					kbWasOpen,
 					data,
@@ -41,7 +42,7 @@ export function createFloatingButtons(
 				await hooks.runAfterSendData({
 					term,
 					config,
-					source: 'toolbar',
+					source: 'floating-buttons',
 					actionType: def.action.type,
 					kbWasOpen,
 					data: before.data,
@@ -55,6 +56,7 @@ export function createFloatingButtons(
 					focusIfNeeded: () => conditionalFocus(term, kbWasOpen),
 					sendText: sendWithHooks,
 					sendRawText: sendWithHooks,
+					openDrawer,
 				})
 				.catch((error) => {
 					console.error('webmux: floating button action failed', error)

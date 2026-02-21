@@ -124,6 +124,7 @@ export function init(
 						config,
 						hooks,
 						actions,
+						drawer.open,
 					)
 					document.body.appendChild(floating)
 				}
@@ -148,9 +149,31 @@ export function init(
 				// Height management
 				initHeightManager(toolbar)
 
-				// Mobile init data: send once on load if viewport is narrow enough
+				// Mobile init data: send once on load if viewport is narrow enough.
+				// Already inside isMobile() guard (touch detection). widthThreshold adds a
+				// second filter — a wide-viewport touch device (e.g. landscape tablet) may
+				// not want mobile init behaviour.
 				if (config.mobile.initData !== null && window.innerWidth < config.mobile.widthThreshold) {
-					sendData(term, config.mobile.initData)
+					const data = config.mobile.initData
+					const before = await hooks.runBeforeSendData({
+						term,
+						config,
+						source: 'mobile-init',
+						actionType: 'send',
+						kbWasOpen: false,
+						data,
+					})
+					if (!before.blocked) {
+						sendData(term, before.data)
+						await hooks.runAfterSendData({
+							term,
+							config,
+							source: 'mobile-init',
+							actionType: 'send',
+							kbWasOpen: false,
+							data: before.data,
+						})
+					}
 				}
 
 				// Help overlay should never break core controls.

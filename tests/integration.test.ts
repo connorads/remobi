@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
+import { createDefaultActionRegistry } from '../src/actions/registry'
 import { defaultConfig } from '../src/config'
+import { createFloatingButtons } from '../src/controls/floating-buttons'
 import { createFontControls } from '../src/controls/font-size'
 import { createHelpOverlay } from '../src/controls/help'
 import { createDrawer } from '../src/drawer/drawer'
@@ -219,5 +221,104 @@ describe('build output', () => {
 		expect(result).toContain('viewport')
 		expect(result).toContain('jetbrainsmono-nfm.css')
 		expect(result).toContain('</head>')
+	})
+})
+
+describe('floating buttons integration', () => {
+	test('renders one button per config entry', () => {
+		const term = mockTerminal()
+		const hooks = createHookRegistry()
+		const actions = createDefaultActionRegistry()
+		const config = {
+			...defaultConfig,
+			floatingButtons: [
+				{
+					id: 'zoom',
+					label: 'Zoom',
+					description: 'Toggle pane zoom',
+					action: { type: 'send' as const, data: '\x02z' },
+				},
+				{
+					id: 'next',
+					label: '›',
+					description: 'Next pane',
+					action: { type: 'send' as const, data: '\x02]' },
+				},
+			],
+		}
+
+		const { element } = createFloatingButtons(term, config.floatingButtons, config, hooks, actions)
+		document.body.appendChild(element)
+
+		expect(element.id).toBe('wt-floating-buttons')
+		const buttons = element.querySelectorAll('button')
+		expect(buttons).toHaveLength(2)
+		expect(buttons[0]?.textContent).toBe('Zoom')
+		expect(buttons[1]?.textContent).toBe('›')
+	})
+
+	test('drawer-toggle button calls openDrawer', () => {
+		const term = mockTerminal()
+		const hooks = createHookRegistry()
+		const actions = createDefaultActionRegistry()
+		const config = {
+			...defaultConfig,
+			floatingButtons: [
+				{
+					id: 'more',
+					label: '☰',
+					description: 'Open drawer',
+					action: { type: 'drawer-toggle' as const },
+				},
+			],
+		}
+
+		let drawerOpened = false
+		const openDrawer = () => {
+			drawerOpened = true
+		}
+
+		const { element } = createFloatingButtons(
+			term,
+			config.floatingButtons,
+			config,
+			hooks,
+			actions,
+			openDrawer,
+		)
+		document.body.appendChild(element)
+
+		const button = element.querySelector('button') as HTMLButtonElement
+		button.click()
+
+		expect(drawerOpened).toBe(true)
+	})
+
+	test('floating buttons appear in help overlay when configured', () => {
+		const term = mockTerminal()
+		const { helpButton } = createFontControls(term, defaultConfig.font)
+		const config = {
+			...defaultConfig,
+			floatingButtons: [
+				{
+					id: 'zoom',
+					label: 'Zoom',
+					description: 'Toggle pane zoom',
+					action: { type: 'send' as const, data: '\x02z' },
+				},
+			],
+		}
+		const { element } = createHelpOverlay(term, helpButton, config)
+
+		expect(element.innerHTML).toContain('Floating Buttons')
+		expect(element.innerHTML).toContain('Toggle pane zoom')
+	})
+
+	test('help overlay has no floating buttons section when unconfigured', () => {
+		const term = mockTerminal()
+		const { helpButton } = createFontControls(term, defaultConfig.font)
+		const { element } = createHelpOverlay(term, helpButton, defaultConfig)
+
+		expect(element.innerHTML).not.toContain('Floating Buttons')
 	})
 })

@@ -59,6 +59,33 @@ describe('hook registry', () => {
 		expect(result.data).toBe('blocked')
 	})
 
+	test('accepts mobile-init and floating-buttons as sources', async () => {
+		const hooks = createHookRegistry()
+		const sources: string[] = []
+		hooks.on('beforeSendData', (ctx) => {
+			sources.push(ctx.source)
+		})
+
+		await hooks.runBeforeSendData({
+			term: mockTerminal(),
+			config: defaultConfig,
+			source: 'mobile-init',
+			actionType: 'send',
+			kbWasOpen: false,
+			data: '\x02z',
+		})
+		await hooks.runBeforeSendData({
+			term: mockTerminal(),
+			config: defaultConfig,
+			source: 'floating-buttons',
+			actionType: 'send',
+			kbWasOpen: false,
+			data: '\x02z',
+		})
+
+		expect(sources).toEqual(['mobile-init', 'floating-buttons'])
+	})
+
 	test('isolates hook errors and continues execution', async () => {
 		const hooks = createHookRegistry()
 		const calls: string[] = []
