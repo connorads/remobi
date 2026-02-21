@@ -1,4 +1,4 @@
-import type { ControlButton, WebmuxConfig, XTerminal } from '../types'
+import type { ControlButton, FloatingButtonGroup, WebmuxConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
@@ -84,7 +84,14 @@ function buildHelpContent(config: WebmuxConfig): string {
 	]
 
 	if (config.floatingButtons.length > 0) {
-		sections.push(renderButtonTable('Floating Buttons', config.floatingButtons))
+		const groups: readonly FloatingButtonGroup[] = config.floatingButtons
+		if (groups.length === 1) {
+			sections.push(renderButtonTable('Floating Buttons', groups[0].buttons))
+		} else {
+			for (const group of groups) {
+				sections.push(renderButtonTable(`Floating Buttons (${group.position})`, group.buttons))
+			}
+		}
 	}
 
 	return sections.join('')

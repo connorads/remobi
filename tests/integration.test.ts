@@ -225,7 +225,7 @@ describe('build output', () => {
 })
 
 describe('floating buttons integration', () => {
-	test('renders one button per config entry', () => {
+	test('renders one element per group, buttons within each group', () => {
 		const term = mockTerminal()
 		const hooks = createHookRegistry()
 		const actions = createDefaultActionRegistry()
@@ -233,28 +233,94 @@ describe('floating buttons integration', () => {
 			...defaultConfig,
 			floatingButtons: [
 				{
-					id: 'zoom',
-					label: 'Zoom',
-					description: 'Toggle pane zoom',
-					action: { type: 'send' as const, data: '\x02z' },
-				},
-				{
-					id: 'next',
-					label: '›',
-					description: 'Next pane',
-					action: { type: 'send' as const, data: '\x02]' },
+					position: 'top-left' as const,
+					buttons: [
+						{
+							id: 'zoom',
+							label: 'Zoom',
+							description: 'Toggle pane zoom',
+							action: { type: 'send' as const, data: '\x02z' },
+						},
+						{
+							id: 'next',
+							label: '›',
+							description: 'Next pane',
+							action: { type: 'send' as const, data: '\x02]' },
+						},
+					],
 				},
 			],
 		}
 
-		const { element } = createFloatingButtons(term, config.floatingButtons, config, hooks, actions)
-		document.body.appendChild(element)
+		const { elements } = createFloatingButtons(term, config.floatingButtons, config, hooks, actions)
+		expect(elements).toHaveLength(1)
+		const el = elements[0] as HTMLDivElement
+		document.body.appendChild(el)
 
-		expect(element.id).toBe('wt-floating-buttons')
-		const buttons = element.querySelectorAll('button')
+		expect(el.classList.contains('wt-floating-group')).toBe(true)
+		expect(el.classList.contains('wt-floating-top-left')).toBe(true)
+		const buttons = el.querySelectorAll('button')
 		expect(buttons).toHaveLength(2)
 		expect(buttons[0]?.textContent).toBe('Zoom')
 		expect(buttons[1]?.textContent).toBe('›')
+	})
+
+	test('multiple groups produce multiple elements', () => {
+		const term = mockTerminal()
+		const hooks = createHookRegistry()
+		const actions = createDefaultActionRegistry()
+		const config = {
+			...defaultConfig,
+			floatingButtons: [
+				{
+					position: 'top-left' as const,
+					buttons: [
+						{
+							id: 'zoom',
+							label: 'Zoom',
+							description: 'Toggle pane zoom',
+							action: { type: 'send' as const, data: '\x02z' },
+						},
+					],
+				},
+				{
+					position: 'bottom-right' as const,
+					direction: 'column' as const,
+					buttons: [
+						{
+							id: 'next',
+							label: '›',
+							description: 'Next pane',
+							action: { type: 'send' as const, data: '\x02]' },
+						},
+					],
+				},
+			],
+		}
+
+		const { elements } = createFloatingButtons(term, config.floatingButtons, config, hooks, actions)
+		expect(elements).toHaveLength(2)
+		expect(elements[0]?.classList.contains('wt-floating-top-left')).toBe(true)
+		expect(elements[1]?.classList.contains('wt-floating-bottom-right')).toBe(true)
+		expect(elements[1]?.classList.contains('wt-floating-column')).toBe(true)
+	})
+
+	test('group without direction has no column class', () => {
+		const term = mockTerminal()
+		const hooks = createHookRegistry()
+		const actions = createDefaultActionRegistry()
+		const config = {
+			...defaultConfig,
+			floatingButtons: [
+				{
+					position: 'top-right' as const,
+					buttons: [],
+				},
+			],
+		}
+
+		const { elements } = createFloatingButtons(term, config.floatingButtons, config, hooks, actions)
+		expect(elements[0]?.classList.contains('wt-floating-column')).toBe(false)
 	})
 
 	test('drawer-toggle button calls openDrawer', async () => {
@@ -265,10 +331,15 @@ describe('floating buttons integration', () => {
 			...defaultConfig,
 			floatingButtons: [
 				{
-					id: 'more',
-					label: '☰',
-					description: 'Open drawer',
-					action: { type: 'drawer-toggle' as const },
+					position: 'top-left' as const,
+					buttons: [
+						{
+							id: 'more',
+							label: '☰',
+							description: 'Open drawer',
+							action: { type: 'drawer-toggle' as const },
+						},
+					],
 				},
 			],
 		}
@@ -278,7 +349,7 @@ describe('floating buttons integration', () => {
 			drawerOpened = true
 		}
 
-		const { element } = createFloatingButtons(
+		const { elements } = createFloatingButtons(
 			term,
 			config.floatingButtons,
 			config,
@@ -286,33 +357,75 @@ describe('floating buttons integration', () => {
 			actions,
 			openDrawer,
 		)
-		document.body.appendChild(element)
+		document.body.appendChild(elements[0] as HTMLDivElement)
 
-		const button = element.querySelector('button') as HTMLButtonElement
+		const button = elements[0]?.querySelector('button') as HTMLButtonElement
 		button.click()
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
 		expect(drawerOpened).toBe(true)
 	})
 
-	test('floating buttons appear in help overlay when configured', () => {
+	test('single group shows "Floating Buttons" in help overlay', () => {
 		const term = mockTerminal()
 		const { helpButton } = createFontControls(term, defaultConfig.font)
 		const config = {
 			...defaultConfig,
 			floatingButtons: [
 				{
-					id: 'zoom',
-					label: 'Zoom',
-					description: 'Toggle pane zoom',
-					action: { type: 'send' as const, data: '\x02z' },
+					position: 'top-left' as const,
+					buttons: [
+						{
+							id: 'zoom',
+							label: 'Zoom',
+							description: 'Toggle pane zoom',
+							action: { type: 'send' as const, data: '\x02z' },
+						},
+					],
 				},
 			],
 		}
 		const { element } = createHelpOverlay(term, helpButton, config)
 
 		expect(element.innerHTML).toContain('Floating Buttons')
+		expect(element.innerHTML).not.toContain('(top-left)')
 		expect(element.innerHTML).toContain('Toggle pane zoom')
+	})
+
+	test('multiple groups show position label in help overlay', () => {
+		const term = mockTerminal()
+		const { helpButton } = createFontControls(term, defaultConfig.font)
+		const config = {
+			...defaultConfig,
+			floatingButtons: [
+				{
+					position: 'top-left' as const,
+					buttons: [
+						{
+							id: 'zoom',
+							label: 'Zoom',
+							description: 'Toggle pane zoom',
+							action: { type: 'send' as const, data: '\x02z' },
+						},
+					],
+				},
+				{
+					position: 'bottom-right' as const,
+					buttons: [
+						{
+							id: 'next',
+							label: '›',
+							description: 'Next pane',
+							action: { type: 'send' as const, data: '\x02]' },
+						},
+					],
+				},
+			],
+		}
+		const { element } = createHelpOverlay(term, helpButton, config)
+
+		expect(element.innerHTML).toContain('Floating Buttons (top-left)')
+		expect(element.innerHTML).toContain('Floating Buttons (bottom-right)')
 	})
 
 	test('help overlay has no floating buttons section when unconfigured', () => {

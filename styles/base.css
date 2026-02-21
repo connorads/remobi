@@ -304,25 +304,65 @@ body {
 	background: #585b70;
 }
 
-/* Floating action buttons (top-left) */
-#wt-floating-buttons {
+/* Floating action button groups */
+.wt-floating-group {
 	display: none;
 	position: fixed;
-	top: 8px;
-	left: 8px;
 	z-index: 9999;
 	gap: 4px;
 	-webkit-user-select: none;
 	user-select: none;
+	flex-direction: row;
 }
 
 @media (pointer: coarse) {
-	#wt-floating-buttons {
+	.wt-floating-group {
 		display: flex;
 	}
 }
 
-#wt-floating-buttons button {
+.wt-floating-column {
+	flex-direction: column;
+}
+
+.wt-floating-top-left {
+	top: 8px;
+	left: 8px;
+}
+.wt-floating-top-right {
+	top: 8px;
+	right: 8px;
+}
+.wt-floating-top-centre {
+	top: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.wt-floating-bottom-left {
+	bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+	left: 8px;
+}
+.wt-floating-bottom-right {
+	bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+	right: 8px;
+}
+.wt-floating-bottom-centre {
+	bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+	left: 50%;
+	transform: translateX(-50%);
+}
+.wt-floating-centre-left {
+	top: 50%;
+	left: 8px;
+	transform: translateY(-50%);
+}
+.wt-floating-centre-right {
+	top: 50%;
+	right: 8px;
+	transform: translateY(-50%);
+}
+
+.wt-floating-group button {
 	background: #45475a;
 	color: #cdd6f4;
 	border: none;
@@ -336,7 +376,7 @@ body {
 	opacity: 0.8;
 }
 
-#wt-floating-buttons button:active {
+.wt-floating-group button:active {
 	opacity: 1;
 	background: #585b70;
 }

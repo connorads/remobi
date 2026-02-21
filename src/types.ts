@@ -88,6 +88,27 @@ export interface MobileConfig {
 	readonly widthThreshold: number
 }
 
+/** Viewport position for a floating button group */
+export type FloatingPosition =
+	| 'top-left'
+	| 'top-right'
+	| 'top-centre'
+	| 'bottom-left'
+	| 'bottom-right'
+	| 'bottom-centre'
+	| 'centre-left'
+	| 'centre-right'
+
+/** Layout direction for a floating button group */
+export type FloatingDirection = 'row' | 'column'
+
+/** A positioned group of floating buttons */
+export interface FloatingButtonGroup {
+	readonly position: FloatingPosition
+	readonly direction?: FloatingDirection
+	readonly buttons: readonly ControlButton[]
+}
+
 /** Full webmux configuration */
 export interface WebmuxConfig {
 	readonly theme: TermTheme
@@ -102,7 +123,7 @@ export interface WebmuxConfig {
 	}
 	readonly gestures: GestureConfig
 	readonly mobile: MobileConfig
-	readonly floatingButtons: readonly ControlButton[]
+	readonly floatingButtons: readonly FloatingButtonGroup[]
 }
 
 /** Deep partial — allows overriding any nested subset of config */

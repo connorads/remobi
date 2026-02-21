@@ -142,15 +142,34 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('string or null')
 	})
 
-	test('accepts valid floatingButtons array', () => {
+	test('accepts valid floatingButtons group array', () => {
 		expect(() =>
 			assertValidConfigOverrides({
 				floatingButtons: [
 					{
-						id: 'zoom',
-						label: 'Zoom',
-						description: 'Toggle pane zoom',
-						action: { type: 'send', data: '\x02z' },
+						position: 'top-left',
+						buttons: [
+							{
+								id: 'zoom',
+								label: 'Zoom',
+								description: 'Toggle pane zoom',
+								action: { type: 'send', data: '\x02z' },
+							},
+						],
+					},
+				],
+			}),
+		).not.toThrow()
+	})
+
+	test('accepts floatingButtons group with direction', () => {
+		expect(() =>
+			assertValidConfigOverrides({
+				floatingButtons: [
+					{
+						position: 'centre-left',
+						direction: 'column',
+						buttons: [],
 					},
 				],
 			}),
@@ -164,17 +183,52 @@ describe('assertValidConfigOverrides', () => {
 	test('rejects non-array floatingButtons', () => {
 		const message = getValidationMessage({ floatingButtons: 'bad' }, assertValidConfigOverrides)
 		expect(message).toContain('config.floatingButtons')
-		expect(message).toContain('array of control buttons')
+		expect(message).toContain('array of floating button groups')
 	})
 
-	test('rejects malformed button in floatingButtons', () => {
+	test('rejects floatingButtons group missing position', () => {
 		const message = getValidationMessage(
-			{ floatingButtons: [{ id: 'zoom' }] },
+			{ floatingButtons: [{ buttons: [] }] },
 			assertValidConfigOverrides,
 		)
-		expect(message).toContain('config.floatingButtons[0].label')
-		expect(message).toContain('config.floatingButtons[0].description')
-		expect(message).toContain('config.floatingButtons[0].action')
+		expect(message).toContain('config.floatingButtons[0].position')
+	})
+
+	test('rejects floatingButtons group with invalid position', () => {
+		const message = getValidationMessage(
+			{ floatingButtons: [{ position: 'middle', buttons: [] }] },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.floatingButtons[0].position')
+		expect(message).toContain('top-left')
+	})
+
+	test('rejects floatingButtons group with invalid direction', () => {
+		const message = getValidationMessage(
+			{ floatingButtons: [{ position: 'top-left', direction: 'diagonal', buttons: [] }] },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.floatingButtons[0].direction')
+		expect(message).toContain("'row' | 'column'")
+	})
+
+	test('rejects floatingButtons group with unknown keys', () => {
+		const message = getValidationMessage(
+			{ floatingButtons: [{ position: 'top-left', buttons: [], mystery: true }] },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.floatingButtons[0].mystery')
+		expect(message).toContain('known key')
+	})
+
+	test('rejects malformed button inside floatingButtons group', () => {
+		const message = getValidationMessage(
+			{ floatingButtons: [{ position: 'top-left', buttons: [{ id: 'zoom' }] }] },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.floatingButtons[0].buttons[0].label')
+		expect(message).toContain('config.floatingButtons[0].buttons[0].description')
+		expect(message).toContain('config.floatingButtons[0].buttons[0].action')
 	})
 
 	test('rejects unknown mobile keys', () => {
@@ -224,7 +278,7 @@ describe('assertValidResolvedConfig', () => {
 		expect(message).toContain('config.plugins')
 		expect(message).toContain('config.mobile')
 		expect(message).toContain('config.floatingButtons')
-		expect(message).toContain('received undefined')
+		expect(message).toMatch(/received undefined/)
 	})
 
 	test('rejects missing required nested fields', () => {

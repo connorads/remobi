@@ -22,7 +22,15 @@ import { initHeightManager } from './viewport/height'
 // Re-export for package consumers
 export { defineConfig } from './config'
 export { createHookRegistry }
-export type { WebmuxConfig, ButtonAction, ControlButton, TermTheme } from './types'
+export type {
+	WebmuxConfig,
+	ButtonAction,
+	ControlButton,
+	TermTheme,
+	FloatingButtonGroup,
+	FloatingPosition,
+	FloatingDirection,
+} from './types'
 export type { HookRegistry, SendSource } from './hooks/registry'
 export type { WebmuxPlugin } from './plugins/manager'
 
@@ -116,9 +124,9 @@ export function init(
 				const { element: fontControls, helpButton } = createFontControls(term, config.font)
 				document.body.appendChild(fontControls)
 
-				// Floating buttons (top-left, always visible)
+				// Floating button groups (always visible on touch devices)
 				if (config.floatingButtons.length > 0) {
-					const { element: floating } = createFloatingButtons(
+					const { elements: floatingEls } = createFloatingButtons(
 						term,
 						config.floatingButtons,
 						config,
@@ -126,7 +134,9 @@ export function init(
 						actions,
 						drawer.open,
 					)
-					document.body.appendChild(floating)
+					for (const floatingEl of floatingEls) {
+						document.body.appendChild(floatingEl)
+					}
 				}
 
 				// Scroll buttons

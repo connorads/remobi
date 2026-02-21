@@ -57,6 +57,18 @@ const PINCH_KEYS = ['enabled']
 const SCROLL_KEYS = ['enabled', 'sensitivity', 'strategy', 'wheelIntervalMs']
 const BUTTON_KEYS = ['id', 'label', 'description', 'action']
 const ACTION_KEYS = ['type', 'data', 'keyLabel']
+const FLOATING_POSITIONS = [
+	'top-left',
+	'top-right',
+	'top-centre',
+	'bottom-left',
+	'bottom-right',
+	'bottom-centre',
+	'centre-left',
+	'centre-right',
+] as const
+const FLOATING_DIRECTIONS = ['row', 'column'] as const
+const FLOATING_GROUP_KEYS = ['position', 'direction', 'buttons']
 
 export class ConfigValidationError extends Error {
 	readonly issues: readonly ValidationIssue[]
@@ -279,6 +291,55 @@ function validateButtonsArray(value: unknown, path: string, issues: ValidationIs
 
 	for (let index = 0; index < value.length; index++) {
 		validateControlButton(value[index], `${path}[${index}]`, issues)
+	}
+}
+
+function validateFloatingGroups(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!Array.isArray(value)) {
+		pushIssue(issues, path, 'array of floating button groups', value)
+		return
+	}
+
+	for (let index = 0; index < value.length; index++) {
+		const group = value[index]
+		const groupPath = `${path}[${index}]`
+
+		if (!isRecord(group)) {
+			pushIssue(issues, groupPath, 'object', group)
+			continue
+		}
+
+		checkUnknownKeys(group, FLOATING_GROUP_KEYS, groupPath, issues)
+
+		if (!('position' in group)) {
+			pushIssue(issues, `${groupPath}.position`, `'${FLOATING_POSITIONS.join("' | '")}'`, undefined)
+		} else if (
+			!FLOATING_POSITIONS.includes(group.position as (typeof FLOATING_POSITIONS)[number])
+		) {
+			pushIssue(
+				issues,
+				`${groupPath}.position`,
+				`'${FLOATING_POSITIONS.join("' | '")}'`,
+				group.position,
+			)
+		}
+
+		if ('direction' in group && group.direction !== undefined) {
+			if (!FLOATING_DIRECTIONS.includes(group.direction as (typeof FLOATING_DIRECTIONS)[number])) {
+				pushIssue(
+					issues,
+					`${groupPath}.direction`,
+					`'${FLOATING_DIRECTIONS.join("' | '")}'`,
+					group.direction,
+				)
+			}
+		}
+
+		if (!('buttons' in group)) {
+			pushIssue(issues, `${groupPath}.buttons`, 'array of control buttons', undefined)
+		} else {
+			validateButtonsArray(group.buttons, `${groupPath}.buttons`, issues)
+		}
 	}
 }
 
@@ -749,7 +810,7 @@ export function assertValidConfigOverrides(
 			validateMobile(value.mobile, 'config.mobile', issues)
 		}
 		if ('floatingButtons' in value && value.floatingButtons !== undefined) {
-			validateButtonsArray(value.floatingButtons, 'config.floatingButtons', issues)
+			validateFloatingGroups(value.floatingButtons, 'config.floatingButtons', issues)
 		}
 	}
 
@@ -809,9 +870,9 @@ export function assertValidResolvedConfig(value: unknown): asserts value is Webm
 		}
 
 		if (!hasDefinedKey(value, 'floatingButtons')) {
-			pushIssue(issues, 'config.floatingButtons', 'array of control buttons', undefined)
+			pushIssue(issues, 'config.floatingButtons', 'array of floating button groups', undefined)
 		} else {
-			validateButtonsArray(value.floatingButtons, 'config.floatingButtons', issues)
+			validateFloatingGroups(value.floatingButtons, 'config.floatingButtons', issues)
 		}
 	}
 

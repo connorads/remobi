@@ -79,14 +79,19 @@ describe('defineConfig', () => {
 	})
 
 	test('sets custom floatingButtons', () => {
-		const zoomBtn = {
-			id: 'zoom',
-			label: 'Zoom',
-			description: 'Toggle pane zoom',
-			action: { type: 'send' as const, data: '\x02z' },
+		const group = {
+			position: 'top-left' as const,
+			buttons: [
+				{
+					id: 'zoom',
+					label: 'Zoom',
+					description: 'Toggle pane zoom',
+					action: { type: 'send' as const, data: '\x02z' },
+				},
+			],
 		}
-		const config = defineConfig({ floatingButtons: [zoomBtn] })
-		expect(config.floatingButtons).toEqual([zoomBtn])
+		const config = defineConfig({ floatingButtons: [group] })
+		expect(config.floatingButtons).toEqual([group])
 	})
 
 	test('overrides mobile initData while preserving widthThreshold', () => {
@@ -145,7 +150,7 @@ describe('defaultConfig', () => {
 		expect(defaultConfig.mobile.widthThreshold).toBe(768)
 	})
 
-	test('defaults to empty floatingButtons', () => {
+	test('defaults to empty floatingButtons groups', () => {
 		expect(defaultConfig.floatingButtons).toEqual([])
 	})
 
