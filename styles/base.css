@@ -304,6 +304,43 @@ body {
 	background: #585b70;
 }
 
+/* Floating action buttons (top-left) */
+#wt-floating-buttons {
+	display: none;
+	position: fixed;
+	top: 8px;
+	left: 8px;
+	z-index: 9999;
+	gap: 4px;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+@media (pointer: coarse) {
+	#wt-floating-buttons {
+		display: flex;
+	}
+}
+
+#wt-floating-buttons button {
+	background: #45475a;
+	color: #cdd6f4;
+	border: none;
+	border-radius: 6px;
+	min-width: 44px;
+	min-height: 44px;
+	font-size: 18px;
+	font-weight: 700;
+	cursor: pointer;
+	touch-action: manipulation;
+	opacity: 0.8;
+}
+
+#wt-floating-buttons button:active {
+	opacity: 1;
+	background: #585b70;
+}
+
 /* Landscape + keyboard: hide row 2, shrink buttons */
 @media (orientation: landscape) {
 	#wt-toolbar.wt-kb-open .wt-row:last-child {

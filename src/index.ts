@@ -1,5 +1,6 @@
 import { createDefaultActionRegistry } from './actions/registry'
 import { defaultConfig } from './config'
+import { createFloatingButtons } from './controls/floating-buttons'
 import { createFontControls } from './controls/font-size'
 import { createHelpOverlay } from './controls/help'
 import { createScrollButtons } from './controls/scroll-buttons'
@@ -114,6 +115,18 @@ export function init(
 				// Font controls + help
 				const { element: fontControls, helpButton } = createFontControls(term, config.font)
 				document.body.appendChild(fontControls)
+
+				// Floating buttons (top-left, always visible)
+				if (config.floatingButtons.length > 0) {
+					const { element: floating } = createFloatingButtons(
+						term,
+						config.floatingButtons,
+						config,
+						hooks,
+						actions,
+					)
+					document.body.appendChild(floating)
+				}
 
 				// Scroll buttons
 				const { element: scrollButtons } = createScrollButtons(term, config.gestures.scroll)

@@ -142,6 +142,41 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('string or null')
 	})
 
+	test('accepts valid floatingButtons array', () => {
+		expect(() =>
+			assertValidConfigOverrides({
+				floatingButtons: [
+					{
+						id: 'zoom',
+						label: 'Zoom',
+						description: 'Toggle pane zoom',
+						action: { type: 'send', data: '\x02z' },
+					},
+				],
+			}),
+		).not.toThrow()
+	})
+
+	test('accepts empty floatingButtons array', () => {
+		expect(() => assertValidConfigOverrides({ floatingButtons: [] })).not.toThrow()
+	})
+
+	test('rejects non-array floatingButtons', () => {
+		const message = getValidationMessage({ floatingButtons: 'bad' }, assertValidConfigOverrides)
+		expect(message).toContain('config.floatingButtons')
+		expect(message).toContain('array of control buttons')
+	})
+
+	test('rejects malformed button in floatingButtons', () => {
+		const message = getValidationMessage(
+			{ floatingButtons: [{ id: 'zoom' }] },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.floatingButtons[0].label')
+		expect(message).toContain('config.floatingButtons[0].description')
+		expect(message).toContain('config.floatingButtons[0].action')
+	})
+
 	test('rejects unknown mobile keys', () => {
 		const message = getValidationMessage(
 			{ mobile: { unknownKey: true } },
@@ -188,6 +223,7 @@ describe('assertValidResolvedConfig', () => {
 		expect(message).toContain('config.font')
 		expect(message).toContain('config.plugins')
 		expect(message).toContain('config.mobile')
+		expect(message).toContain('config.floatingButtons')
 		expect(message).toContain('received undefined')
 	})
 
@@ -219,6 +255,7 @@ describe('assertValidResolvedConfig', () => {
 					scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },
 				},
 				mobile: { initData: null, widthThreshold: 768 },
+				floatingButtons: [],
 			},
 			assertValidResolvedConfig,
 		)

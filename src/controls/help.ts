@@ -74,14 +74,20 @@ function buildHelpContent(config: WebmuxConfig): string {
 		},
 	]
 
-	return [
+	const sections = [
 		'<button class="wt-help-close">×</button>',
 		renderButtonTable('Toolbar — Row 1', config.toolbar.row1),
 		renderButtonTable('Toolbar — Row 2', config.toolbar.row2),
 		renderButtonTable('Drawer Buttons', config.drawer.buttons),
 		renderGestures(config),
 		renderButtonTable('Top-Right Controls', topRightButtons),
-	].join('')
+	]
+
+	if (config.floatingButtons.length > 0) {
+		sections.push(renderButtonTable('Floating Buttons', config.floatingButtons))
+	}
+
+	return sections.join('')
 }
 
 export interface HelpOverlayResult {

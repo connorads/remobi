@@ -211,6 +211,7 @@ export const defaultConfig: WebmuxConfig = {
 	drawer: { buttons: defaultDrawerButtons },
 	gestures: defaultGestures,
 	mobile: defaultMobile,
+	floatingButtons: [],
 }
 
 /** Deep merge two objects, with `override` taking precedence */

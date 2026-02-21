@@ -6,7 +6,16 @@ interface ValidationIssue {
 	readonly received: string
 }
 
-const ROOT_KEYS = ['theme', 'font', 'plugins', 'toolbar', 'drawer', 'gestures', 'mobile']
+const ROOT_KEYS = [
+	'theme',
+	'font',
+	'plugins',
+	'toolbar',
+	'drawer',
+	'gestures',
+	'mobile',
+	'floatingButtons',
+]
 const MOBILE_KEYS = ['initData', 'widthThreshold']
 const THEME_KEYS = [
 	'background',
@@ -739,6 +748,9 @@ export function assertValidConfigOverrides(
 		if ('mobile' in value && value.mobile !== undefined) {
 			validateMobile(value.mobile, 'config.mobile', issues)
 		}
+		if ('floatingButtons' in value && value.floatingButtons !== undefined) {
+			validateButtonsArray(value.floatingButtons, 'config.floatingButtons', issues)
+		}
 	}
 
 	if (issues.length > 0) {
@@ -794,6 +806,12 @@ export function assertValidResolvedConfig(value: unknown): asserts value is Webm
 			pushIssue(issues, 'config.mobile', 'object', undefined)
 		} else {
 			validateMobileResolved(value.mobile, 'config.mobile', issues)
+		}
+
+		if (!hasDefinedKey(value, 'floatingButtons')) {
+			pushIssue(issues, 'config.floatingButtons', 'array of control buttons', undefined)
+		} else {
+			validateButtonsArray(value.floatingButtons, 'config.floatingButtons', issues)
 		}
 	}
 

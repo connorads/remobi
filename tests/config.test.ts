@@ -78,6 +78,17 @@ describe('defineConfig', () => {
 		expect(config.drawer.buttons).toEqual(customButtons)
 	})
 
+	test('sets custom floatingButtons', () => {
+		const zoomBtn = {
+			id: 'zoom',
+			label: 'Zoom',
+			description: 'Toggle pane zoom',
+			action: { type: 'send' as const, data: '\x02z' },
+		}
+		const config = defineConfig({ floatingButtons: [zoomBtn] })
+		expect(config.floatingButtons).toEqual([zoomBtn])
+	})
+
 	test('overrides mobile initData while preserving widthThreshold', () => {
 		const config = defineConfig({ mobile: { initData: '\x02z' } })
 		expect(config.mobile.initData).toBe('\x02z')
@@ -132,6 +143,10 @@ describe('defaultConfig', () => {
 	test('mobile defaults to null initData and 768 widthThreshold', () => {
 		expect(defaultConfig.mobile.initData).toBeNull()
 		expect(defaultConfig.mobile.widthThreshold).toBe(768)
+	})
+
+	test('defaults to empty floatingButtons', () => {
+		expect(defaultConfig.floatingButtons).toEqual([])
 	})
 
 	test('swipe defaults to tmux next/prev window', () => {

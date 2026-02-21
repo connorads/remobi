@@ -102,6 +102,7 @@ export interface WebmuxConfig {
 	}
 	readonly gestures: GestureConfig
 	readonly mobile: MobileConfig
+	readonly floatingButtons: readonly ControlButton[]
 }
 
 /** Deep partial — allows overriding any nested subset of config */
