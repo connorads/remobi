@@ -100,6 +100,14 @@ describe('defineConfig', () => {
 		expect(config.mobile.widthThreshold).toBe(768)
 	})
 
+	test('overrides pwa name while preserving other pwa defaults', () => {
+		const config = defineConfig({ pwa: { name: 'My Terminal' } })
+		expect(config.pwa.name).toBe('My Terminal')
+		expect(config.pwa.enabled).toBe(true)
+		expect(config.pwa.shortName).toBe('webmux')
+		expect(config.pwa.themeColor).toBe('#1e1e2e')
+	})
+
 	test('replaces plugins array', () => {
 		const config = defineConfig({
 			plugins: ['./plugins/logger.ts', 'webmux-plugin-demo'],
@@ -152,6 +160,13 @@ describe('defaultConfig', () => {
 
 	test('defaults to empty floatingButtons groups', () => {
 		expect(defaultConfig.floatingButtons).toEqual([])
+	})
+
+	test('has default pwa config', () => {
+		expect(defaultConfig.pwa.enabled).toBe(true)
+		expect(defaultConfig.pwa.name).toBe('webmux')
+		expect(defaultConfig.pwa.shortName).toBe('webmux')
+		expect(defaultConfig.pwa.themeColor).toBe('#1e1e2e')
 	})
 
 	test('swipe defaults to tmux next/prev window', () => {

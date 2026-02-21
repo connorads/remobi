@@ -15,7 +15,9 @@ const ROOT_KEYS = [
 	'gestures',
 	'mobile',
 	'floatingButtons',
+	'pwa',
 ]
+const PWA_KEYS = ['enabled', 'name', 'shortName', 'themeColor']
 const MOBILE_KEYS = ['initData', 'widthThreshold']
 const THEME_KEYS = [
 	'background',
@@ -739,6 +741,61 @@ function validateDrawerResolved(value: unknown, path: string, issues: Validation
 	}
 }
 
+function validatePwa(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, PWA_KEYS, path, issues)
+
+	if ('enabled' in value && value.enabled !== undefined) {
+		validateBoolean(value.enabled, `${path}.enabled`, issues)
+	}
+	if ('name' in value && value.name !== undefined) {
+		validateString(value.name, `${path}.name`, issues)
+	}
+	if ('shortName' in value && value.shortName !== undefined) {
+		validateString(value.shortName, `${path}.shortName`, issues)
+	}
+	if ('themeColor' in value && value.themeColor !== undefined) {
+		validateString(value.themeColor, `${path}.themeColor`, issues)
+	}
+}
+
+function validatePwaResolved(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, PWA_KEYS, path, issues)
+
+	if (!hasDefinedKey(value, 'enabled')) {
+		pushIssue(issues, `${path}.enabled`, 'boolean', undefined)
+	} else {
+		validateBoolean(value.enabled, `${path}.enabled`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'name')) {
+		pushIssue(issues, `${path}.name`, 'string', undefined)
+	} else {
+		validateString(value.name, `${path}.name`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'shortName')) {
+		pushIssue(issues, `${path}.shortName`, 'string', undefined)
+	} else {
+		validateString(value.shortName, `${path}.shortName`, issues)
+	}
+
+	if (!hasDefinedKey(value, 'themeColor')) {
+		pushIssue(issues, `${path}.themeColor`, 'string', undefined)
+	} else {
+		validateString(value.themeColor, `${path}.themeColor`, issues)
+	}
+}
+
 function validateMobile(value: unknown, path: string, issues: ValidationIssue[]): void {
 	if (!isRecord(value)) {
 		pushIssue(issues, path, 'object', value)
@@ -812,6 +869,9 @@ export function assertValidConfigOverrides(
 		if ('floatingButtons' in value && value.floatingButtons !== undefined) {
 			validateFloatingGroups(value.floatingButtons, 'config.floatingButtons', issues)
 		}
+		if ('pwa' in value && value.pwa !== undefined) {
+			validatePwa(value.pwa, 'config.pwa', issues)
+		}
 	}
 
 	if (issues.length > 0) {
@@ -873,6 +933,12 @@ export function assertValidResolvedConfig(value: unknown): asserts value is Webm
 			pushIssue(issues, 'config.floatingButtons', 'array of floating button groups', undefined)
 		} else {
 			validateFloatingGroups(value.floatingButtons, 'config.floatingButtons', issues)
+		}
+
+		if (!hasDefinedKey(value, 'pwa')) {
+			pushIssue(issues, 'config.pwa', 'object', undefined)
+		} else {
+			validatePwaResolved(value.pwa, 'config.pwa', issues)
 		}
 	}
 

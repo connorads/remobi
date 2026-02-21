@@ -1,5 +1,5 @@
 import { catppuccinMocha } from './theme/catppuccin-mocha'
-import type { ControlButton, DeepPartial, WebmuxConfig } from './types'
+import type { ControlButton, DeepPartial, PwaConfig, WebmuxConfig } from './types'
 
 /** Default font configuration */
 const defaultFont: WebmuxConfig['font'] = {
@@ -202,6 +202,14 @@ const defaultMobile: WebmuxConfig['mobile'] = {
 	widthThreshold: 768,
 }
 
+/** Default PWA configuration */
+const defaultPwa: PwaConfig = {
+	enabled: true,
+	name: 'webmux',
+	shortName: 'webmux',
+	themeColor: '#1e1e2e',
+}
+
 /** Complete default configuration */
 export const defaultConfig: WebmuxConfig = {
 	theme: catppuccinMocha,
@@ -212,6 +220,7 @@ export const defaultConfig: WebmuxConfig = {
 	gestures: defaultGestures,
 	mobile: defaultMobile,
 	floatingButtons: [],
+	pwa: defaultPwa,
 }
 
 /** Deep merge two objects, with `override` taking precedence */

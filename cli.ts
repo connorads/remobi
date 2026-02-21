@@ -264,6 +264,12 @@ export default defineConfig({
   //   // Always-visible top-left buttons (touch devices only)
   //   { id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\\x02z' } },
   // ],
+  // pwa: {
+  //   enabled: true,                  // enable PWA manifest + meta tags (used by webmux serve)
+  //   name: 'webmux',                 // full app name for home screen
+  //   shortName: 'webmux',            // short name for home screen icon
+  //   themeColor: '#1e1e2e',          // theme-color meta tag + manifest
+  // },
 })
 `
 			await Bun.write(targetPath, template)

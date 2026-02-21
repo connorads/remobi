@@ -109,6 +109,14 @@ export interface FloatingButtonGroup {
 	readonly buttons: readonly ControlButton[]
 }
 
+/** PWA (Progressive Web App) configuration */
+export interface PwaConfig {
+	readonly enabled: boolean
+	readonly name: string
+	readonly shortName: string
+	readonly themeColor: string
+}
+
 /** Full webmux configuration */
 export interface WebmuxConfig {
 	readonly theme: TermTheme
@@ -124,6 +132,7 @@ export interface WebmuxConfig {
 	readonly gestures: GestureConfig
 	readonly mobile: MobileConfig
 	readonly floatingButtons: readonly FloatingButtonGroup[]
+	readonly pwa: PwaConfig
 }
 
 /** Deep partial — allows overriding any nested subset of config */

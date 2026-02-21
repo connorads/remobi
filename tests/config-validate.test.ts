@@ -240,6 +240,35 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('known key')
 	})
 
+	test('accepts valid partial pwa overrides', () => {
+		expect(() => assertValidConfigOverrides({ pwa: { name: 'My Terminal' } })).not.toThrow()
+		expect(() => assertValidConfigOverrides({ pwa: { enabled: false } })).not.toThrow()
+		expect(() =>
+			assertValidConfigOverrides({ pwa: { themeColor: '#000000' } }),
+		).not.toThrow()
+	})
+
+	test('rejects non-boolean pwa enabled', () => {
+		const message = getValidationMessage({ pwa: { enabled: 'yes' } }, assertValidConfigOverrides)
+		expect(message).toContain('config.pwa.enabled')
+		expect(message).toContain('expected boolean')
+	})
+
+	test('rejects non-string pwa name', () => {
+		const message = getValidationMessage({ pwa: { name: 42 } }, assertValidConfigOverrides)
+		expect(message).toContain('config.pwa.name')
+		expect(message).toContain('expected string')
+	})
+
+	test('rejects unknown pwa keys', () => {
+		const message = getValidationMessage(
+			{ pwa: { unknown: true } },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.pwa.unknown')
+		expect(message).toContain('known key')
+	})
+
 	test('rejects non-send action payload fields', () => {
 		const message = getValidationMessage(
 			{
@@ -278,6 +307,7 @@ describe('assertValidResolvedConfig', () => {
 		expect(message).toContain('config.plugins')
 		expect(message).toContain('config.mobile')
 		expect(message).toContain('config.floatingButtons')
+		expect(message).toContain('config.pwa')
 		expect(message).toMatch(/received undefined/)
 	})
 
