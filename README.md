@@ -8,7 +8,7 @@ Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gestu
 
 - **`webmux serve`** — one command to run webmux: builds overlay in memory, manages ttyd, serves manifest + icons
 - **PWA installable** — "Add to Home Screen" on iOS and Android with proper icon and standalone mode
-- **Two-row toolbar** — Esc, Prefix (`C-b`), Tab, arrows, C-c, Enter, Alt+Enter, paste, drawer toggle
+- **Two-row toolbar** — Esc, Prefix (`C-b`), Tab, arrows, C-c, Enter, Alt+Enter, paste, backspace, drawer toggle
 - **Config-driven controls** — unified button model across toolbar + drawer with ids and descriptions
 - **Swipe gestures** — configurable swipe left/right with custom data and help overlay labels
 - **Floating buttons** — always-visible quick-action buttons (top-left, touch only) for zoom, pane cycling, etc.
@@ -99,6 +99,7 @@ export default defineConfig({
       { id: 'alt-enter', label: 'M-↵', description: 'Send Alt+Enter (ESC + Enter)', action: { type: 'send', data: '\x1b\r' } },
       { id: 'drawer-toggle', label: '☰ More', description: 'Open command drawer', action: { type: 'drawer-toggle' } },
       { id: 'paste', label: 'Paste', description: 'Paste from clipboard', action: { type: 'paste' } },
+      { id: 'backspace', label: '⌫', description: 'Send Backspace key', action: { type: 'send', data: '\x7f' } },
       // ...
     ],
   },

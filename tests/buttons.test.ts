@@ -42,6 +42,13 @@ describe('defaultRow2', () => {
 		expect(paste?.label).toBe('Paste')
 	})
 
+	test('has backspace button', () => {
+		const backspace = defaultRow2.find((b) => b.id === 'backspace')
+		expect(backspace).toBeDefined()
+		expect(backspace?.label).toBe('⌫')
+		expect(backspace?.action).toEqual({ type: 'send', data: '\x7f', keyLabel: 'Backspace' })
+	})
+
 	test('has drawer-toggle button', () => {
 		const toggle = defaultRow2.find((b) => b.action.type === 'drawer-toggle')
 		expect(toggle).toBeDefined()

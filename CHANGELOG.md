@@ -8,6 +8,7 @@ This project has not been published yet. On first release, rename this section t
 - Added: PWA support — web app manifest, 192/512px icons, apple-touch-icon, theme-color meta tags for "Add to Home Screen" installability on iOS and Android.
 - Added: `pwa` config section (`enabled`, `shortName`, `themeColor`) — controls manifest generation and meta tag injection. `shortName` defaults to `name` when absent.
 - Added: top-level `name` config field (default `'webmux'`) — used as document title, PWA manifest name, and apple-mobile-web-app-title. Replaces `pwa.name` and `pwa.shortName` (the latter is now optional and falls back to `name`).
+- Added: default toolbar backspace button (`⌫`, sends `\x7f`) to provide reliable deletion on mobile keyboards when IME composition behaviour is inconsistent.
 
 - Breaking: unified toolbar/drawer model to `ControlButton` (`id`, `label`, `description`, `action`) and renamed `drawer.commands` to `drawer.buttons`.
 - Changed: touch scrolling defaults to wheel semantics for better behaviour across OpenCode, Claude Code, and plain tmux shells.

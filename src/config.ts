@@ -106,6 +106,12 @@ const defaultRow2: WebmuxConfig['toolbar']['row2'] = [
 	},
 	{ id: 'paste', label: 'Paste', description: 'Paste from clipboard', action: { type: 'paste' } },
 	{
+		id: 'backspace',
+		label: '\u232b',
+		description: 'Send Backspace key',
+		action: { type: 'send', data: '\x7f', keyLabel: 'Backspace' },
+	},
+	{
 		id: 'space',
 		label: 'Space',
 		description: 'Send Space key',
