@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
-import { defaultConfig } from '../src/config'
+import { defineConfig } from '../src/config'
 import { createDrawer } from '../src/drawer/drawer'
 import { createHookRegistry } from '../src/hooks/registry'
 import { createToolbar } from '../src/toolbar/toolbar'
@@ -47,11 +47,32 @@ describe('toolbar action behaviour', () => {
 	test('paste does not consume ctrl sticky modifier', async () => {
 		const term = mockTerminal()
 		const hooks = createHookRegistry()
-		const drawer = createDrawer(term, defaultConfig.drawer.buttons, {
-			hooks,
-			appConfig: defaultConfig,
+		const config = defineConfig({
+			toolbar: {
+				row1: [
+					{
+						id: 'ctrl-mod',
+						label: 'Ctrl',
+						description: 'Sticky Ctrl modifier for the next typed key',
+						action: { type: 'ctrl-modifier' },
+					},
+				],
+				row2: [
+					{ id: 'q', label: 'q', description: 'Send q key', action: { type: 'send', data: 'q' } },
+					{
+						id: 'paste',
+						label: 'Paste',
+						description: 'Paste from clipboard',
+						action: { type: 'paste' },
+					},
+				],
+			},
 		})
-		const { element: toolbar } = createToolbar(term, defaultConfig, drawer.open, hooks)
+		const drawer = createDrawer(term, config.drawer.buttons, {
+			hooks,
+			appConfig: config,
+		})
+		const { element: toolbar } = createToolbar(term, config, drawer.open, hooks)
 
 		Object.defineProperty(navigator, 'clipboard', {
 			value: {

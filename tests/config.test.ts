@@ -129,8 +129,8 @@ describe('defaultConfig', () => {
 		expect(defaultConfig.toolbar.row2).toHaveLength(5)
 	})
 
-	test('has 14 drawer buttons', () => {
-		expect(defaultConfig.drawer.buttons).toHaveLength(14)
+	test('has 15 drawer buttons', () => {
+		expect(defaultConfig.drawer.buttons).toHaveLength(15)
 	})
 
 	test('row1 includes S-Tab after Tab', () => {
@@ -139,9 +139,9 @@ describe('defaultConfig', () => {
 		expect(sTabIdx).toBe(tabIdx + 1)
 	})
 
-	test('row2 has q, C-d, More, Paste, Space', () => {
+	test('row2 has Alt+Enter, C-d, More, Paste, Space', () => {
 		const labels = defaultConfig.toolbar.row2.map((b) => b.label)
-		expect(labels).toEqual(['q', 'C-d', '\u2630 More', 'Paste', 'Space'])
+		expect(labels).toEqual(['M-↵', 'C-d', '\u2630 More', 'Paste', 'Space'])
 	})
 
 	test('font size range is [8, 32]', () => {

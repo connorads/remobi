@@ -8,7 +8,7 @@ Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gestu
 
 - **`webmux serve`** — one command to run webmux: builds overlay in memory, manages ttyd, serves manifest + icons
 - **PWA installable** — "Add to Home Screen" on iOS and Android with proper icon and standalone mode
-- **Two-row toolbar** — Esc, Ctrl (sticky modifier), Tab, arrows, C-c, Enter, tmux prev/next, paste, drawer toggle
+- **Two-row toolbar** — Esc, Prefix (`C-b`), Tab, arrows, C-c, Enter, Alt+Enter, paste, drawer toggle
 - **Config-driven controls** — unified button model across toolbar + drawer with ids and descriptions
 - **Swipe gestures** — configurable swipe left/right with custom data and help overlay labels
 - **Floating buttons** — always-visible quick-action buttons (top-left, touch only) for zoom, pane cycling, etc.
@@ -92,10 +92,11 @@ export default defineConfig({
   toolbar: {
     row1: [
       { id: 'esc', label: 'Esc', description: 'Send Escape key', action: { type: 'send', data: '\x1b' } },
-      { id: 'ctrl-mod', label: 'Ctrl', description: 'Sticky Ctrl modifier', action: { type: 'ctrl-modifier' } },
+      { id: 'tmux-prefix', label: 'Prefix', description: 'Send tmux prefix key (Ctrl-B)', action: { type: 'send', data: '\x02' } },
       // ...
     ],
     row2: [
+      { id: 'alt-enter', label: 'M-↵', description: 'Send Alt+Enter (ESC + Enter)', action: { type: 'send', data: '\x1b\r' } },
       { id: 'drawer-toggle', label: '☰ More', description: 'Open command drawer', action: { type: 'drawer-toggle' } },
       { id: 'paste', label: 'Paste', description: 'Paste from clipboard', action: { type: 'paste' } },
       // ...
@@ -105,6 +106,7 @@ export default defineConfig({
     buttons: [
       { id: 'tmux-new-window', label: '+ Win', description: 'Create tmux window', action: { type: 'send', data: '\x02c' } },
       { id: 'tmux-split-vertical', label: 'Split |', description: 'Split pane vertically', action: { type: 'send', data: '\x02|' } },
+      { id: 'combo-picker', label: 'Combo', description: 'Open combo sender (Ctrl/Alt + key)', action: { type: 'combo-picker' } },
       // ...
     ],
   },
@@ -129,8 +131,12 @@ export default defineConfig({
     widthThreshold: 768,   // px — default matches common phone/tablet breakpoint
   },
   floatingButtons: [
-    // Always-visible buttons in the top-left corner (touch devices only)
-    { id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\x02z' } },
+    {
+      position: 'top-left',
+      buttons: [
+        { id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\x02z' } },
+      ],
+    },
   ],
 })
 ```

@@ -7,6 +7,10 @@ export interface ActionExecutionContext {
 	readonly sendText: (data: string) => Promise<void>
 	readonly sendRawText?: (data: string) => Promise<void>
 	readonly openDrawer?: () => void
+	readonly openComboPicker?: (options: {
+		readonly sendText: (data: string) => Promise<void>
+		readonly focusIfNeeded: () => void
+	}) => void
 	readonly toggleCtrlModifier?: () => void
 }
 
@@ -99,6 +103,25 @@ export function createDefaultActionRegistry(): ActionRegistry {
 	registry.register('drawer-toggle', (_action, context) => {
 		if (context.openDrawer) {
 			context.openDrawer()
+		} else {
+			context.focusIfNeeded()
+		}
+	})
+
+	registry.register('combo-picker', (_action, context) => {
+		if (context.openComboPicker) {
+			context.openComboPicker({
+				sendText: async (data: string) => {
+					await registry.execute(
+						{ type: 'send', data },
+						{
+							...context,
+							sendText: context.sendRawText ?? context.sendText,
+						},
+					)
+				},
+				focusIfNeeded: context.focusIfNeeded,
+			})
 		} else {
 			context.focusIfNeeded()
 		}

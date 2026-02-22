@@ -277,6 +277,23 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('known key')
 	})
 
+	test('accepts combo-picker actions', () => {
+		expect(() =>
+			assertValidConfigOverrides({
+				drawer: {
+					buttons: [
+						{
+							id: 'combo-picker',
+							label: 'Combo',
+							description: 'Open combo sender',
+							action: { type: 'combo-picker' },
+						},
+					],
+				},
+			}),
+		).not.toThrow()
+	})
+
 	test('rejects non-send action payload fields', () => {
 		const message = getValidationMessage(
 			{

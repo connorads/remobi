@@ -13,6 +13,12 @@ function createGroupButton(
 	hooks: HookRegistry,
 	actions: ActionRegistry,
 	openDrawer: (() => void) | undefined,
+	openComboPicker:
+		| ((options: {
+				readonly sendText: (data: string) => Promise<void>
+				readonly focusIfNeeded: () => void
+		  }) => void)
+		| undefined,
 ): HTMLButtonElement {
 	const button = el('button')
 	button.textContent = def.label
@@ -53,6 +59,7 @@ function createGroupButton(
 				sendText: sendWithHooks,
 				sendRawText: sendWithHooks,
 				openDrawer,
+				openComboPicker,
 			})
 			.catch((error) => {
 				console.error('webmux: floating button action failed', error)
@@ -75,6 +82,10 @@ export function createFloatingButtons(
 	hooks: HookRegistry,
 	actions: ActionRegistry,
 	openDrawer?: () => void,
+	openComboPicker?: (options: {
+		readonly sendText: (data: string) => Promise<void>
+		readonly focusIfNeeded: () => void
+	}) => void,
 ): { elements: HTMLDivElement[] } {
 	const elements: HTMLDivElement[] = []
 
@@ -84,7 +95,9 @@ export function createFloatingButtons(
 		})
 
 		for (const def of group.buttons) {
-			container.appendChild(createGroupButton(term, def, config, hooks, actions, openDrawer))
+			container.appendChild(
+				createGroupButton(term, def, config, hooks, actions, openDrawer, openComboPicker),
+			)
 		}
 
 		elements.push(container)

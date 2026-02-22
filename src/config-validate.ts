@@ -211,7 +211,7 @@ function validateAction(value: unknown, path: string, issues: ValidationIssue[])
 		pushIssue(
 			issues,
 			`${path}.type`,
-			`'send' | 'ctrl-modifier' | 'paste' | 'drawer-toggle'`,
+			`'send' | 'ctrl-modifier' | 'paste' | 'combo-picker' | 'drawer-toggle'`,
 			actionType,
 		)
 		return
@@ -221,12 +221,13 @@ function validateAction(value: unknown, path: string, issues: ValidationIssue[])
 		actionType !== 'send' &&
 		actionType !== 'ctrl-modifier' &&
 		actionType !== 'paste' &&
+		actionType !== 'combo-picker' &&
 		actionType !== 'drawer-toggle'
 	) {
 		pushIssue(
 			issues,
 			`${path}.type`,
-			`'send' | 'ctrl-modifier' | 'paste' | 'drawer-toggle'`,
+			`'send' | 'ctrl-modifier' | 'paste' | 'combo-picker' | 'drawer-toggle'`,
 			actionType,
 		)
 		return

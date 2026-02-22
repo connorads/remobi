@@ -7,10 +7,10 @@ describe('defaultRow1', () => {
 		expect(defaultRow1[0]?.action).toEqual({ type: 'send', data: '\x1b' })
 	})
 
-	test('has Ctrl modifier button', () => {
-		const ctrl = defaultRow1.find((b) => b.action.type === 'ctrl-modifier')
-		expect(ctrl).toBeDefined()
-		expect(ctrl?.label).toBe('Ctrl')
+	test('has tmux Prefix button', () => {
+		const prefix = defaultRow1.find((b) => b.id === 'tmux-prefix')
+		expect(prefix).toBeDefined()
+		expect(prefix?.action).toEqual({ type: 'send', data: '\x02' })
 	})
 
 	test('has S-Tab after Tab', () => {
@@ -48,10 +48,10 @@ describe('defaultRow2', () => {
 		expect(toggle?.label).toContain('More')
 	})
 
-	test('has q button', () => {
-		const q = defaultRow2.find((b) => b.label === 'q')
-		expect(q).toBeDefined()
-		expect(q?.action).toEqual({ type: 'send', data: 'q' })
+	test('has Alt+Enter button', () => {
+		const altEnter = defaultRow2.find((b) => b.id === 'alt-enter')
+		expect(altEnter).toBeDefined()
+		expect(altEnter?.action).toEqual({ type: 'send', data: '\x1b\r', keyLabel: 'Alt+Enter' })
 	})
 
 	test('has C-d button', () => {

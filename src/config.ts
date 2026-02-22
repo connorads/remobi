@@ -25,7 +25,7 @@ const defaultGestures: WebmuxConfig['gestures'] = {
 	scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },
 }
 
-/** Default row 1 buttons (modifiers + nav) */
+/** Default row 1 buttons (prefix + nav) */
 const defaultRow1: WebmuxConfig['toolbar']['row1'] = [
 	{
 		id: 'esc',
@@ -34,10 +34,10 @@ const defaultRow1: WebmuxConfig['toolbar']['row1'] = [
 		action: { type: 'send', data: '\x1b' },
 	},
 	{
-		id: 'ctrl-mod',
-		label: 'Ctrl',
-		description: 'Sticky Ctrl modifier for the next typed key',
-		action: { type: 'ctrl-modifier' },
+		id: 'tmux-prefix',
+		label: 'Prefix',
+		description: 'Send tmux prefix key (Ctrl-B)',
+		action: { type: 'send', data: '\x02' },
 	},
 	{ id: 'tab', label: 'Tab', description: 'Send Tab key', action: { type: 'send', data: '\t' } },
 	{
@@ -86,7 +86,12 @@ const defaultRow1: WebmuxConfig['toolbar']['row1'] = [
 
 /** Default row 2 buttons */
 const defaultRow2: WebmuxConfig['toolbar']['row2'] = [
-	{ id: 'q', label: 'q', description: 'Send q key', action: { type: 'send', data: 'q' } },
+	{
+		id: 'alt-enter',
+		label: 'M-↵',
+		description: 'Send Alt+Enter (ESC + Enter)',
+		action: { type: 'send', data: '\x1b\r', keyLabel: 'Alt+Enter' },
+	},
 	{
 		id: 'ctrl-d',
 		label: 'C-d',
@@ -193,6 +198,12 @@ export const defaultDrawerButtons: readonly ControlButton[] = [
 		label: 'Kill',
 		description: 'Kill current pane (with confirm)',
 		action: { type: 'send', data: '\x02x' },
+	},
+	{
+		id: 'combo-picker',
+		label: 'Combo',
+		description: 'Open combo sender (Ctrl/Alt + key)',
+		action: { type: 'combo-picker' },
 	},
 ]
 

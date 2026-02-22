@@ -1,5 +1,6 @@
 import { createDefaultActionRegistry } from './actions/registry'
 import { defaultConfig } from './config'
+import { createComboPicker } from './controls/combo-picker'
 import { createFloatingButtons } from './controls/floating-buttons'
 import { createFontControls } from './controls/font-size'
 import { createHelpOverlay } from './controls/help'
@@ -100,11 +101,15 @@ export function init(
 
 				// CSS is injected as a <style> tag by the build script (build.ts)
 
+				const comboPicker = createComboPicker()
+				document.body.appendChild(comboPicker.element)
+
 				// Create drawer (needed by toolbar for toggle)
 				const drawer = createDrawer(term, config.drawer.buttons, {
 					hooks,
 					appConfig: config,
 					actions,
+					openComboPicker: comboPicker.open,
 				})
 				document.body.appendChild(drawer.backdrop)
 				document.body.appendChild(drawer.drawer)
@@ -116,7 +121,14 @@ export function init(
 				})
 
 				// Create toolbar
-				const { element: toolbar } = createToolbar(term, config, drawer.open, hooks, actions)
+				const { element: toolbar } = createToolbar(
+					term,
+					config,
+					drawer.open,
+					hooks,
+					actions,
+					comboPicker.open,
+				)
 				document.body.appendChild(toolbar)
 				await hooks.runToolbarCreated({ term, config, toolbar })
 
@@ -133,6 +145,7 @@ export function init(
 						hooks,
 						actions,
 						drawer.open,
+						comboPicker.open,
 					)
 					for (const floatingEl of floatingEls) {
 						document.body.appendChild(floatingEl)

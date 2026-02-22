@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test'
 import { defaultDrawerButtons } from '../src/drawer/commands'
 
 describe('defaultDrawerButtons', () => {
-	test('has 14 commands', () => {
-		expect(defaultDrawerButtons).toHaveLength(14)
+	test('has 15 commands', () => {
+		expect(defaultDrawerButtons).toHaveLength(15)
 	})
 
 	test('all commands have id, label, description, and action', () => {
@@ -45,5 +45,11 @@ describe('defaultDrawerButtons', () => {
 		const labels = defaultDrawerButtons.map((c) => c.label)
 		expect(labels).toContain('PgUp')
 		expect(labels).toContain('PgDn')
+	})
+
+	test('includes combo sender command', () => {
+		const combo = defaultDrawerButtons.find((button) => button.id === 'combo-picker')
+		expect(combo).toBeDefined()
+		expect(combo?.action).toEqual({ type: 'combo-picker' })
 	})
 })

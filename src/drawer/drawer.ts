@@ -23,6 +23,10 @@ export function createDrawer(
 		readonly hooks: HookRegistry
 		readonly appConfig: WebmuxConfig
 		readonly actions?: ActionRegistry
+		readonly openComboPicker?: (options: {
+			readonly sendText: (data: string) => Promise<void>
+			readonly focusIfNeeded: () => void
+		}) => void
 	},
 ): DrawerResult {
 	const actionRegistry = config.actions ?? createDefaultActionRegistry()
@@ -76,6 +80,7 @@ export function createDrawer(
 					focusIfNeeded: () => conditionalFocus(term, kbWasOpen),
 					sendText: sendWithHooks,
 					sendRawText: sendWithHooks,
+					openComboPicker: config.openComboPicker,
 				})
 				.catch((error) => {
 					console.error('webmux: drawer action execution failed', error)

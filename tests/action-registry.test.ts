@@ -330,4 +330,81 @@ describe('createDefaultActionRegistry', () => {
 		expect(focused).toBe(true)
 		expect(sent).toBe(false)
 	})
+
+	test('combo-picker opens picker with raw sender when available', async () => {
+		const registry = createDefaultActionRegistry()
+		let opened = false
+		let sent = ''
+
+		await registry.execute(
+			{ type: 'combo-picker' },
+			{
+				term: mockTerminal(),
+				kbWasOpen: false,
+				focusIfNeeded() {},
+				async sendText(data: string) {
+					sent = `normal:${data}`
+				},
+				async sendRawText(data: string) {
+					sent = `raw:${data}`
+				},
+				openComboPicker(options) {
+					opened = true
+					void options.sendText('abc')
+				},
+			},
+		)
+
+		expect(opened).toBe(true)
+		expect(sent).toBe('raw:abc')
+	})
+
+	test('combo-picker falls back to focus when picker unavailable', async () => {
+		const registry = createDefaultActionRegistry()
+		let focused = false
+
+		await registry.execute(
+			{ type: 'combo-picker' },
+			{
+				term: mockTerminal(),
+				kbWasOpen: false,
+				focusIfNeeded() {
+					focused = true
+				},
+				async sendText(_data: string) {},
+			},
+		)
+
+		expect(focused).toBe(true)
+	})
+
+	test('combo-picker queued sends preserve existing send order', async () => {
+		const registry = createDefaultActionRegistry()
+		const sent: string[] = []
+		let comboPromise: Promise<void> | null = null
+
+		const context = {
+			term: mockTerminal(),
+			kbWasOpen: false,
+			focusIfNeeded() {},
+			async sendText(data: string) {
+				if (data === 'q') {
+					await new Promise((resolve) => setTimeout(resolve, 10))
+				}
+				sent.push(data)
+			},
+			openComboPicker(options: { sendText: (data: string) => Promise<void> }) {
+				comboPromise = options.sendText('x')
+			},
+		}
+
+		const first = registry.execute({ type: 'send', data: 'q' }, context)
+		await registry.execute({ type: 'combo-picker' }, context)
+		if (comboPromise) {
+			await comboPromise
+		}
+		await first
+
+		expect(sent).toEqual(['q', 'x'])
+	})
 })

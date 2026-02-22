@@ -28,3 +28,5 @@ This project has not been published yet. On first release, rename this section t
 - Added: `floatingButtons` config — always-visible buttons on touch devices using the same `ControlButton` schema as toolbar/drawer. Renders in the help overlay when non-empty.
 - Breaking: `floatingButtons` changed from a flat `ControlButton[]` to `FloatingButtonGroup[]`. Each group has a `position` (`'top-left' | 'top-right' | 'top-centre' | 'bottom-left' | 'bottom-right' | 'bottom-centre' | 'centre-left' | 'centre-right'`), optional `direction` (`'row' | 'column'`, default `'row'`), and a `buttons` array. Migrate: `floatingButtons: [btn]` → `floatingButtons: [{ position: 'top-left', buttons: [btn] }]`.
 - Changed: Tailscale Serve guide now recommends always rebuilding the overlay before start; removed version-hash cache-key snippet to prevent stale build issues.
+- Changed: default toolbar now uses explicit tmux `Prefix` (`C-b`) and `Alt+Enter` buttons for more predictable mobile input.
+- Added: new drawer `Combo` action (`combo-picker`) that opens a small combo input modal for explicit Ctrl/Alt key sends.

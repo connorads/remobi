@@ -62,6 +62,10 @@ function wireButton(
 	registry: ActionRegistry,
 	hooks: HookRegistry,
 	openDrawer: () => void,
+	openComboPicker?: (options: {
+		readonly sendText: (data: string) => Promise<void>
+		readonly focusIfNeeded: () => void
+	}) => void,
 ): void {
 	button.addEventListener('click', (e: Event) => {
 		e.preventDefault()
@@ -131,6 +135,7 @@ function wireButton(
 				sendText: sendWithCtrlAware,
 				sendRawText: sendRaw,
 				openDrawer,
+				openComboPicker,
 				toggleCtrlModifier: () => {
 					if (ctrlState.active) {
 						deactivateCtrl(ctrlState, config.theme)
@@ -156,6 +161,10 @@ function buildRow(
 	registry: ActionRegistry,
 	hooks: HookRegistry,
 	openDrawer: () => void,
+	openComboPicker?: (options: {
+		readonly sendText: (data: string) => Promise<void>
+		readonly focusIfNeeded: () => void
+	}) => void,
 ): HTMLDivElement {
 	const row = el('div', { class: 'wt-row' })
 
@@ -165,7 +174,7 @@ function buildRow(
 		if (def.action.type === 'ctrl-modifier') {
 			ctrlState.buttonEl = button
 		}
-		wireButton(button, def, term, ctrlState, config, registry, hooks, openDrawer)
+		wireButton(button, def, term, ctrlState, config, registry, hooks, openDrawer, openComboPicker)
 		row.appendChild(button)
 	}
 
@@ -184,12 +193,34 @@ export function createToolbar(
 	openDrawer: () => void,
 	hooks: HookRegistry,
 	actions: ActionRegistry = createDefaultActionRegistry(),
+	openComboPicker?: (options: {
+		readonly sendText: (data: string) => Promise<void>
+		readonly focusIfNeeded: () => void
+	}) => void,
 ): ToolbarResult {
 	const toolbar = el('div', { id: 'wt-toolbar' })
 	const ctrlState = createCtrlState()
 
-	const row1 = buildRow(config.toolbar.row1, term, ctrlState, config, actions, hooks, openDrawer)
-	const row2 = buildRow(config.toolbar.row2, term, ctrlState, config, actions, hooks, openDrawer)
+	const row1 = buildRow(
+		config.toolbar.row1,
+		term,
+		ctrlState,
+		config,
+		actions,
+		hooks,
+		openDrawer,
+		openComboPicker,
+	)
+	const row2 = buildRow(
+		config.toolbar.row2,
+		term,
+		ctrlState,
+		config,
+		actions,
+		hooks,
+		openDrawer,
+		openComboPicker,
+	)
 
 	toolbar.appendChild(row1)
 	toolbar.appendChild(row2)

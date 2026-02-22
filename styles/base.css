@@ -262,6 +262,89 @@ body {
 	z-index: 10003;
 }
 
+/* Combo picker */
+#wt-combo-backdrop {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 10004;
+	align-items: flex-end;
+	justify-content: center;
+	padding: 12px;
+}
+
+#wt-combo-panel {
+	width: min(520px, 100%);
+	background: #313244;
+	border-radius: 14px;
+	padding: 12px;
+	color: #cdd6f4;
+	font-family: system-ui, sans-serif;
+	box-sizing: border-box;
+}
+
+#wt-combo-panel h3 {
+	margin: 0 0 6px 0;
+	font-size: 16px;
+}
+
+#wt-combo-panel p {
+	margin: 0 0 8px 0;
+	font-size: 12px;
+	color: #a6adc8;
+}
+
+#wt-combo-panel input {
+	width: 100%;
+	box-sizing: border-box;
+	min-height: 42px;
+	padding: 8px 10px;
+	font-size: 15px;
+	border-radius: 8px;
+	border: 1px solid #585b70;
+	background: #1e1e2e;
+	color: #cdd6f4;
+	outline: none;
+}
+
+#wt-combo-panel input:focus {
+	border-color: #89b4fa;
+}
+
+#wt-combo-panel .wt-combo-error {
+	min-height: 16px;
+	margin-top: 8px;
+	color: #f38ba8;
+}
+
+#wt-combo-panel .wt-combo-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 10px;
+}
+
+#wt-combo-panel .wt-combo-actions button {
+	flex: 1;
+	min-height: 42px;
+	border: none;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	background: #45475a;
+	color: #cdd6f4;
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+#wt-combo-panel .wt-combo-actions button:last-child {
+	background: #89b4fa;
+	color: #1e1e2e;
+}
+
 /* Floating scroll buttons */
 #wt-scroll-buttons {
 	display: none;

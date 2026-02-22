@@ -3,6 +3,7 @@ export type ButtonAction =
 	| { readonly type: 'send'; readonly data: string; readonly keyLabel?: string }
 	| { readonly type: 'ctrl-modifier' }
 	| { readonly type: 'paste' }
+	| { readonly type: 'combo-picker' }
 	| { readonly type: 'drawer-toggle' }
 
 /** A generic control button definition used by toolbar and drawer */
