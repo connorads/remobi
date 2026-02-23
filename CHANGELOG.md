@@ -31,3 +31,4 @@ This project has not been published yet. On first release, rename this section t
 - Changed: Tailscale Serve guide now recommends always rebuilding the overlay before start; removed version-hash cache-key snippet to prevent stale build issues.
 - Changed: default toolbar now uses explicit tmux `Prefix` (`C-b`) and `Alt+Enter` buttons for more predictable mobile input.
 - Added: new drawer `Combo` action (`combo-picker`) that opens a small combo input modal for explicit Ctrl/Alt key sends.
+- Added: default toolbar `q` button (row 2, left) for quitting interactive TUIs.

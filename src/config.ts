@@ -87,6 +87,12 @@ const defaultRow1: WebmuxConfig['toolbar']['row1'] = [
 /** Default row 2 buttons */
 const defaultRow2: WebmuxConfig['toolbar']['row2'] = [
 	{
+		id: 'q',
+		label: 'q',
+		description: 'Send q key',
+		action: { type: 'send', data: 'q' },
+	},
+	{
 		id: 'alt-enter',
 		label: 'M-↵',
 		description: 'Send Alt+Enter (ESC + Enter)',
