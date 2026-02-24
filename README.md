@@ -203,6 +203,10 @@ Key modules:
 | `src/viewport/` | Height management, landscape detection |
 | `src/util/` | DOM helpers, terminal, keyboard, haptics |
 
+## Docs
+
+- [Plugin author guide](docs/guides/plugins.md) — hooks, UI contributions, custom actions, cleanup
+
 ## Public API and semver
 
 webmux follows semantic versioning. The public API is defined by the following import paths:

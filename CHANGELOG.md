@@ -9,6 +9,7 @@ This project has not been published yet. On first release, rename this section t
 - Added: `pwa` config section (`enabled`, `shortName`, `themeColor`) — controls manifest generation and meta tag injection. `shortName` defaults to `name` when absent.
 - Added: top-level `name` config field (default `'webmux'`) — used as document title, PWA manifest name, and apple-mobile-web-app-title. Replaces `pwa.name` and `pwa.shortName` (the latter is now optional and falls back to `name`).
 - Added: default toolbar backspace button (`⌫`, sends `\x7f`) to provide reliable deletion on mobile keyboards when IME composition behaviour is inconsistent.
+- Added: plugin author guide (`docs/guides/plugins.md`) covering hooks, UI contributions, custom actions, and cleanup patterns. Closes #10.
 - Added: stable public API surface defined in README — semver policy documents which import paths are public, what constitutes major/minor/patch. Closes #4.
 - Added: UI contribution API for plugins — `context.ui.add(slot, button, priority?)` lets plugins contribute buttons to `'toolbar.row1'`, `'toolbar.row2'`, or `'drawer'` slots. Contributions are merged (appended) after config buttons, sorted by priority. Closes #8.
 - Added: per-machine config overrides via `.local` config file — place `webmux.config.local.ts` next to your shared `webmux.config.ts` to apply machine-specific overrides (gitignore the `.local` file). Merged on top of the shared config using the same `WebmuxConfigOverrides` schema. Closes #12.
