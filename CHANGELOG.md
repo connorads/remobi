@@ -9,6 +9,7 @@ This project has not been published yet. On first release, rename this section t
 - Added: `pwa` config section (`enabled`, `shortName`, `themeColor`) — controls manifest generation and meta tag injection. `shortName` defaults to `name` when absent.
 - Added: top-level `name` config field (default `'webmux'`) — used as document title, PWA manifest name, and apple-mobile-web-app-title. Replaces `pwa.name` and `pwa.shortName` (the latter is now optional and falls back to `name`).
 - Added: default toolbar backspace button (`⌫`, sends `\x7f`) to provide reliable deletion on mobile keyboards when IME composition behaviour is inconsistent.
+- v0.2 extensibility and DX milestone complete: action registry, hook system, plugin manager, UI contributions, declarative button customisation, .local config overrides, plugin guide, Bun-only ADR, e2e scaffolding. Closes #1.
 - Added: e2e smoke test scaffold (`tests/e2e/smoke.test.ts`) — checks ttyd availability, skips gracefully when absent, tests HTML serving and `webmux inject` pipe path against a real ttyd process. Closes #9.
 - Added: ADR `docs/decisions/001-bun-only.md` — documents the decision to remain Bun-only, the Bun-specific APIs in use, and the conditions under which a Node runtime track would be considered. Closes #11.
 - Added: plugin author guide (`docs/guides/plugins.md`) covering hooks, UI contributions, custom actions, and cleanup patterns. Closes #10.
