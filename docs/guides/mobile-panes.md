@@ -173,8 +173,4 @@ export default defineConfig({
 
 ## General mobile tmux tips
 
-- **Use zoom liberally** — `prefix z` is your friend on mobile. One pane at a time is readable; six squished panes are not.
-- **Keep layouts simple** — flat window lists (many windows, few panes each) work better than deep nested pane trees.
-- **Status bar pane info** — add `#{window_zoomed_flag}` to your status bar so you can see at a glance whether you're zoomed: `set -g status-right "#{window_zoomed_flag}[Z] #H"`.
-- **Mouse mode** — `set -g mouse on` lets you tap a pane to focus it, scroll with touch, and resize panes by dragging borders.
-- **Prefix key** — `\x02` is `Ctrl-b`. If you prefer a different prefix (e.g. `Ctrl-a`), update the `data` values in your webmux config accordingly.
+See [Mobile-friendly tmux config](mobile-tmux.md) for a full guide on responsive status bars, popup sizing, zoom indicators, mouse mode, and binding ergonomics.

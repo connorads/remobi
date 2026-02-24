@@ -4,6 +4,7 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Added: mobile-friendly tmux config guide (`docs/guides/mobile-tmux.md`) and optional tmux optimisation step in setup skill.
 - Added: agent setup skill (`skills/webmux-setup/SKILL.md`), guide (`docs/guides/agent-setup.md`), and README collapsible prompt for AI-assisted configuration.
 - Added: `webmux serve` — single command to run webmux with full PWA support. Builds overlay in memory, manages ttyd lifecycle, serves manifest + icons + WebSocket relay. Replaces the multi-step build + ttyd + proxy workflow.
 - Added: PWA support — web app manifest, 192/512px icons, apple-touch-icon, theme-color meta tags for "Add to Home Screen" installability on iOS and Android.

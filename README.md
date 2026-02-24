@@ -205,6 +205,7 @@ You can also pass plugins to `init(config, hooks, plugins)`. Plugin setup/dispos
 - [Tailscale Serve](docs/guides/tailscale-serve.md) — expose over your tailnet with HTTPS
 - [ttyd flags](docs/guides/ttyd-flags.md) — recommended ttyd options and theme flags
 - [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
+- [Mobile-friendly tmux config](docs/guides/mobile-tmux.md) — responsive status bar, popup sizing, binding ergonomics
 - [Agent setup](docs/guides/agent-setup.md) — configure webmux with AI agents
 
 ## Architecture

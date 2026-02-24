@@ -48,6 +48,8 @@ If you cannot install the skill, paste this self-contained prompt directly into 
 
 ---
 
+The skill can also suggest tmux.conf mobile optimisations after config generation — see [Mobile-friendly tmux config](mobile-tmux.md) for what it checks.
+
 ## Tmux-to-webmux mapping reference
 
 ### Prefix bytes

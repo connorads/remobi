@@ -21,6 +21,7 @@ Use this skill whenever you need to:
 3. **Validate** — run `webmux build --dry-run`. Fix any reported issues (unknown keys, wrong action payloads).
 4. **Iterate** — repeat until `--dry-run` exits 0 with no errors.
 5. **Summarise** — tell the user what was configured and why (prefix byte, custom bindings, gestures).
+6. **Offer tmux mobile optimisation (optional)** — ask: "Would you like suggestions for making your tmux.conf more mobile-friendly?" If yes, run the checks in the [tmux mobile optimisation](#tmux-mobile-optimisation) section below.
 
 ## Config structure
 
@@ -229,6 +230,23 @@ export default defineConfig({
   ],
 })
 ```
+
+## Tmux mobile optimisation
+
+Run these checks when the user accepts the step 6 offer. If tmux is not running, fall back to reading `~/.config/tmux/tmux.conf` (or `~/.tmux.conf`) directly.
+
+**Guardrails:** suggest snippets only — never modify `tmux.conf` without explicit permission. Link to the full guide at `docs/guides/mobile-tmux.md`.
+
+| Check | Command | Good sign | Suggestion if missing |
+|-------|---------|-----------|----------------------|
+| Responsive status-left | `tmux show -g status-left` | Contains `#{client_width}` | Add width breakpoints |
+| Responsive status-right | `tmux show -g status-right` | Contains `#{client_width}` or calls a script | Progressive content stripping |
+| Popup sizing | `tmux list-keys \| grep display-popup` | Uses `%` dimensions | Replace fixed char sizes with `95%`/`100%` |
+| Zoom indicator | `tmux show -g status-left` | Contains `window_zoomed_flag` | Add `#{?window_zoomed_flag,[Z] ,}` |
+| Mouse mode | `tmux show -g mouse` | `on` | `set -g mouse on` |
+| Window renumbering | `tmux show -g renumber-windows` | `on` | `set -g renumber-windows on` |
+
+For each missing item, offer a concrete snippet the user can paste into `tmux.conf`. See the full guide for context and examples.
 
 ## Guardrails
 
