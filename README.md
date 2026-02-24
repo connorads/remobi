@@ -229,7 +229,7 @@ webmux follows semantic versioning. The public API is defined by the following i
 
 ```bash
 bun install
-bun test          # 93 tests
+bun test
 bun run check     # biome lint + format
 bun run build     # build dist/index.html
 ```
