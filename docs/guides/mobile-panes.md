@@ -63,7 +63,7 @@ mobile: {
 
 ## Floating buttons
 
-Add `floatingButtons` to put always-visible quick-action buttons in the top-left corner, visible on touch devices only. Useful for a one-tap zoom button without opening the drawer:
+Add `floatingButtons` to put always-visible quick-action buttons at a chosen position, visible on touch devices only. Each group specifies a `position` and a `buttons` array. Useful for a one-tap zoom button without opening the drawer:
 
 ```typescript
 import { defineConfig } from 'webmux'
@@ -71,10 +71,15 @@ import { defineConfig } from 'webmux'
 export default defineConfig({
   floatingButtons: [
     {
-      id: 'zoom',
-      label: 'Zoom',
-      description: 'Toggle pane zoom',
-      action: { type: 'send', data: '\x02z' },
+      position: 'top-left',
+      buttons: [
+        {
+          id: 'zoom',
+          label: 'Zoom',
+          description: 'Toggle pane zoom',
+          action: { type: 'send', data: '\x02z' },
+        },
+      ],
     },
   ],
 })
@@ -85,22 +90,27 @@ You can combine with swipe cycling buttons if you prefer explicit buttons over s
 ```typescript
 floatingButtons: [
   {
-    id: 'zoom',
-    label: 'Zoom',
-    description: 'Toggle pane zoom',
-    action: { type: 'send', data: '\x02z' },
-  },
-  {
-    id: 'next-pane',
-    label: '›',
-    description: 'Next pane',
-    action: { type: 'send', data: '\x02]' },
-  },
-  {
-    id: 'prev-pane',
-    label: '‹',
-    description: 'Previous pane',
-    action: { type: 'send', data: '\x02[' },
+    position: 'top-left',
+    buttons: [
+      {
+        id: 'zoom',
+        label: 'Zoom',
+        description: 'Toggle pane zoom',
+        action: { type: 'send', data: '\x02z' },
+      },
+      {
+        id: 'next-pane',
+        label: '›',
+        description: 'Next pane',
+        action: { type: 'send', data: '\x02]' },
+      },
+      {
+        id: 'prev-pane',
+        label: '‹',
+        description: 'Previous pane',
+        action: { type: 'send', data: '\x02[' },
+      },
+    ],
   },
 ],
 ```
@@ -155,10 +165,15 @@ export default defineConfig({
   },
   floatingButtons: [
     {
-      id: 'zoom',
-      label: 'Zoom',
-      description: 'Toggle pane zoom',
-      action: { type: 'send', data: '\x02z' },
+      position: 'top-left',
+      buttons: [
+        {
+          id: 'zoom',
+          label: 'Zoom',
+          description: 'Toggle pane zoom',
+          action: { type: 'send', data: '\x02z' },
+        },
+      ],
     },
   ],
 })

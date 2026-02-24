@@ -27,7 +27,10 @@ export { defineConfig } from './config'
 export { createHookRegistry }
 export type {
 	WebmuxConfig,
+	WebmuxConfigOverrides,
 	ButtonAction,
+	ButtonArrayInput,
+	ButtonArrayPatch,
 	ControlButton,
 	TermTheme,
 	FloatingButtonGroup,
