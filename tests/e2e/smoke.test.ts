@@ -23,7 +23,7 @@ async function ttydAvailable(): Promise<boolean> {
 /** Find a free port in the ephemeral range */
 async function findFreePort(): Promise<number> {
 	const server = Bun.serve({ port: 0, fetch: () => new Response('') })
-	const port = server.port
+	const port = server.port ?? 0
 	await server.stop()
 	return port
 }

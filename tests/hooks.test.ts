@@ -64,6 +64,7 @@ describe('hook registry', () => {
 		const sources: string[] = []
 		hooks.on('beforeSendData', (ctx) => {
 			sources.push(ctx.source)
+			return undefined
 		})
 
 		await hooks.runBeforeSendData({

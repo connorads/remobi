@@ -85,7 +85,7 @@ function buildHelpContent(config: WebmuxConfig): string {
 
 	if (config.floatingButtons.length > 0) {
 		const groups: readonly FloatingButtonGroup[] = config.floatingButtons
-		if (groups.length === 1) {
+		if (groups.length === 1 && groups[0] !== undefined) {
 			sections.push(renderButtonTable('Floating Buttons', groups[0].buttons))
 		} else {
 			for (const group of groups) {

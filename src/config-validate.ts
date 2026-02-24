@@ -1,4 +1,4 @@
-import type { DeepPartial, WebmuxConfig, WebmuxConfigOverrides } from './types'
+import type { WebmuxConfig, WebmuxConfigOverrides } from './types'
 
 interface ValidationIssue {
 	readonly path: string
@@ -464,22 +464,6 @@ function validateFont(value: unknown, path: string, issues: ValidationIssue[]): 
 	}
 }
 
-function validateToolbar(value: unknown, path: string, issues: ValidationIssue[]): void {
-	if (!isRecord(value)) {
-		pushIssue(issues, path, 'object', value)
-		return
-	}
-
-	checkUnknownKeys(value, TOOLBAR_KEYS, path, issues)
-
-	if ('row1' in value && value.row1 !== undefined) {
-		validateButtonsArray(value.row1, `${path}.row1`, issues)
-	}
-	if ('row2' in value && value.row2 !== undefined) {
-		validateButtonsArray(value.row2, `${path}.row2`, issues)
-	}
-}
-
 function validateToolbarOverrides(value: unknown, path: string, issues: ValidationIssue[]): void {
 	if (!isRecord(value)) {
 		pushIssue(issues, path, 'object', value)
@@ -535,19 +519,6 @@ function validateDrawerOverrides(value: unknown, path: string, issues: Validatio
 
 	if ('buttons' in value && value.buttons !== undefined) {
 		validateButtonArrayInput(value.buttons, `${path}.buttons`, issues)
-	}
-}
-
-function validateDrawer(value: unknown, path: string, issues: ValidationIssue[]): void {
-	if (!isRecord(value)) {
-		pushIssue(issues, path, 'object', value)
-		return
-	}
-
-	checkUnknownKeys(value, DRAWER_KEYS, path, issues)
-
-	if ('buttons' in value && value.buttons !== undefined) {
-		validateButtonsArray(value.buttons, `${path}.buttons`, issues)
 	}
 }
 

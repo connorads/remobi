@@ -4,7 +4,7 @@ import { defaultConfig } from '../src/config'
 import { createHookRegistry } from '../src/hooks/registry'
 import { createPluginManager } from '../src/plugins/manager'
 import { createUIContributionCollector } from '../src/plugins/ui-contributions'
-import type { ControlButton, XTerminal } from '../src/types'
+import type { XTerminal } from '../src/types'
 
 function mockTerminal(): XTerminal {
 	return {
@@ -15,10 +15,6 @@ function mockTerminal(): XTerminal {
 			return { dispose() {} }
 		},
 	}
-}
-
-function btn(id: string): ControlButton {
-	return { id, label: id, description: id, action: { type: 'send', data: id } }
 }
 
 describe('createPluginManager', () => {

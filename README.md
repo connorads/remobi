@@ -1,5 +1,9 @@
 # webmux
 
+[![CI](https://github.com/connorads/webmux/actions/workflows/ci.yml/badge.svg)](https://github.com/connorads/webmux/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/webmux)](https://www.npmjs.com/package/webmux)
+[![licence](https://img.shields.io/npm/l/webmux)](LICENSE)
+
 Mobile-friendly terminal overlay for [ttyd](https://github.com/tsl0922/ttyd) + [tmux](https://github.com/tmux/tmux).
 
 Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gesture support, and a command drawer. Produces a single `index.html` for `ttyd --index`.

@@ -122,19 +122,19 @@ export async function serve(
 			}
 
 			if (url.pathname === '/apple-touch-icon.png' && icon180) {
-				return new Response(icon180, {
+				return new Response(icon180 as unknown as BodyInit, {
 					headers: { 'content-type': 'image/png' },
 				})
 			}
 
 			if (url.pathname === '/icon-192.png' && icon192) {
-				return new Response(icon192, {
+				return new Response(icon192 as unknown as BodyInit, {
 					headers: { 'content-type': 'image/png' },
 				})
 			}
 
 			if (url.pathname === '/icon-512.png' && icon512) {
-				return new Response(icon512, {
+				return new Response(icon512 as unknown as BodyInit, {
 					headers: { 'content-type': 'image/png' },
 				})
 			}
@@ -181,7 +181,9 @@ export async function serve(
 				if (backend !== null && backend.readyState === WebSocket.OPEN) {
 					backend.send(data)
 				} else {
-					buffer.push(typeof data === 'string' ? data : new Uint8Array(data as ArrayBuffer))
+					buffer.push(
+						typeof data === 'string' ? data : new Uint8Array(data as unknown as ArrayBuffer),
+					)
 				}
 			},
 			close(ws) {
