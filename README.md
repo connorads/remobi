@@ -142,6 +142,25 @@ export default defineConfig({
 })
 ```
 
+<details>
+<summary>Configure with an AI agent</summary>
+
+### Install the webmux skill
+
+```bash
+npx skills add connorads/webmux
+```
+
+For a specific agent only (e.g. Claude Code, globally): `npx skills add connorads/webmux -a claude-code -g`
+
+### Or paste this prompt
+
+> Inspect my tmux config (`tmux show-options -g prefix` and `tmux list-keys`), then generate a `webmux.config.ts` tailored to my setup. Allowed root keys: `name theme font plugins toolbar drawer gestures mobile floatingButtons pwa`. Action types: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`. Use `drawer.buttons` not `drawer.commands`. Validate with `webmux build --dry-run` and fix any errors. Summarise what was configured.
+
+See the full [agent setup guide](docs/guides/agent-setup.md) for examples and escape-code reference.
+
+</details>
+
 All fields are optional — defaults are filled in via `defineConfig()`.
 
 At runtime, webmux validates the config object shape and rejects unknown keys with clear path-based errors.
@@ -186,6 +205,7 @@ You can also pass plugins to `init(config, hooks, plugins)`. Plugin setup/dispos
 - [Tailscale Serve](docs/guides/tailscale-serve.md) — expose over your tailnet with HTTPS
 - [ttyd flags](docs/guides/ttyd-flags.md) — recommended ttyd options and theme flags
 - [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
+- [Agent setup](docs/guides/agent-setup.md) — configure webmux with AI agents
 
 ## Architecture
 
