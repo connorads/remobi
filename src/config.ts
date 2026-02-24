@@ -1,5 +1,12 @@
+import { resolveButtonArray } from './config-resolve'
 import { catppuccinMocha } from './theme/catppuccin-mocha'
-import type { ControlButton, DeepPartial, PwaConfig, WebmuxConfig } from './types'
+import type {
+	ControlButton,
+	DeepPartial,
+	PwaConfig,
+	WebmuxConfig,
+	WebmuxConfigOverrides,
+} from './types'
 
 /** Default font configuration */
 const defaultFont: WebmuxConfig['font'] = {
@@ -274,12 +281,57 @@ function deepMerge(
 	return result
 }
 
-/** Define a webmux configuration with defaults filled in */
-export function defineConfig(overrides: DeepPartial<WebmuxConfig> = {}): WebmuxConfig {
-	return deepMerge(
-		defaultConfig as unknown as Record<string, unknown>,
-		overrides as unknown as Record<string, unknown>,
+/**
+ * Merge a config overrides object against a base config.
+ * Button arrays support array, function, or patch form via `ButtonArrayInput`.
+ */
+export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides): WebmuxConfig {
+	// Extract button array inputs before deep-merging (they are not plain arrays)
+	const row1Input = overrides.toolbar?.row1
+	const row2Input = overrides.toolbar?.row2
+	const drawerInput = overrides.drawer?.buttons
+
+	// Strip button array inputs from overrides before deep-merge so deepMerge
+	// doesn't try to replace them (they may be functions or patch objects, not arrays)
+	const strippedOverrides: DeepPartial<WebmuxConfig> = {
+		...overrides,
+		toolbar:
+			overrides.toolbar !== undefined
+				? {
+						...(overrides.toolbar as DeepPartial<WebmuxConfig['toolbar']>),
+						row1: undefined,
+						row2: undefined,
+					}
+				: undefined,
+		drawer:
+			overrides.drawer !== undefined
+				? {
+						...(overrides.drawer as DeepPartial<WebmuxConfig['drawer']>),
+						buttons: undefined,
+					}
+				: undefined,
+	}
+
+	const merged = deepMerge(
+		base as unknown as Record<string, unknown>,
+		strippedOverrides as unknown as Record<string, unknown>,
 	) as unknown as WebmuxConfig
+
+	// Resolve button arrays
+	const row1 = resolveButtonArray(base.toolbar.row1, row1Input)
+	const row2 = resolveButtonArray(base.toolbar.row2, row2Input)
+	const drawerButtons = resolveButtonArray(base.drawer.buttons, drawerInput)
+
+	return {
+		...merged,
+		toolbar: { row1, row2 },
+		drawer: { buttons: drawerButtons },
+	}
+}
+
+/** Define a webmux configuration with defaults filled in */
+export function defineConfig(overrides: WebmuxConfigOverrides = {}): WebmuxConfig {
+	return mergeConfig(defaultConfig, overrides)
 }
 
 /**

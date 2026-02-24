@@ -1,4 +1,4 @@
-import type { DeepPartial, WebmuxConfig } from './types'
+import type { DeepPartial, WebmuxConfig, WebmuxConfigOverrides } from './types'
 
 interface ValidationIssue {
 	readonly path: string
@@ -60,6 +60,15 @@ const PINCH_KEYS = ['enabled']
 const SCROLL_KEYS = ['enabled', 'sensitivity', 'strategy', 'wheelIntervalMs']
 const BUTTON_KEYS = ['id', 'label', 'description', 'action']
 const ACTION_KEYS = ['type', 'data', 'keyLabel']
+const BUTTON_ARRAY_PATCH_KEYS = [
+	'remove',
+	'replace',
+	'insertBefore',
+	'insertAfter',
+	'prepend',
+	'append',
+]
+const INSERT_OP_KEYS = ['id', 'buttons']
 const FLOATING_POSITIONS = [
 	'top-left',
 	'top-right',
@@ -298,6 +307,70 @@ function validateButtonsArray(value: unknown, path: string, issues: ValidationIs
 	}
 }
 
+function validateButtonArrayInput(value: unknown, path: string, issues: ValidationIssue[]): void {
+	// Plain array: validate each button
+	if (Array.isArray(value)) {
+		validateButtonsArray(value, path, issues)
+		return
+	}
+
+	// Function form: accept as-is (can't validate statically)
+	if (typeof value === 'function') {
+		return
+	}
+
+	// Patch object
+	if (isRecord(value)) {
+		checkUnknownKeys(value, BUTTON_ARRAY_PATCH_KEYS, path, issues)
+
+		if ('remove' in value && value.remove !== undefined) {
+			if (!Array.isArray(value.remove)) {
+				pushIssue(issues, `${path}.remove`, 'array of string ids', value.remove)
+			} else {
+				for (let i = 0; i < value.remove.length; i++) {
+					validateString(value.remove[i], `${path}.remove[${i}]`, issues)
+				}
+			}
+		}
+
+		if ('replace' in value && value.replace !== undefined) {
+			validateButtonsArray(value.replace, `${path}.replace`, issues)
+		}
+
+		if ('prepend' in value && value.prepend !== undefined) {
+			validateButtonsArray(value.prepend, `${path}.prepend`, issues)
+		}
+
+		if ('append' in value && value.append !== undefined) {
+			validateButtonsArray(value.append, `${path}.append`, issues)
+		}
+
+		for (const op of ['insertBefore', 'insertAfter'] as const) {
+			if (op in value && value[op] !== undefined) {
+				const opVal = value[op]
+				if (!isRecord(opVal)) {
+					pushIssue(issues, `${path}.${op}`, 'object', opVal)
+				} else {
+					checkUnknownKeys(opVal, INSERT_OP_KEYS, `${path}.${op}`, issues)
+					if (!('id' in opVal)) {
+						pushIssue(issues, `${path}.${op}.id`, 'string', undefined)
+					} else {
+						validateString(opVal.id, `${path}.${op}.id`, issues)
+					}
+					if (!('buttons' in opVal)) {
+						pushIssue(issues, `${path}.${op}.buttons`, 'array of control buttons', undefined)
+					} else {
+						validateButtonsArray(opVal.buttons, `${path}.${op}.buttons`, issues)
+					}
+				}
+			}
+		}
+		return
+	}
+
+	pushIssue(issues, path, 'array, function, or patch object', value)
+}
+
 function validateFloatingGroups(value: unknown, path: string, issues: ValidationIssue[]): void {
 	if (!Array.isArray(value)) {
 		pushIssue(issues, path, 'array of floating button groups', value)
@@ -407,6 +480,22 @@ function validateToolbar(value: unknown, path: string, issues: ValidationIssue[]
 	}
 }
 
+function validateToolbarOverrides(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, TOOLBAR_KEYS, path, issues)
+
+	if ('row1' in value && value.row1 !== undefined) {
+		validateButtonArrayInput(value.row1, `${path}.row1`, issues)
+	}
+	if ('row2' in value && value.row2 !== undefined) {
+		validateButtonArrayInput(value.row2, `${path}.row2`, issues)
+	}
+}
+
 function validatePlugins(value: unknown, path: string, issues: ValidationIssue[]): void {
 	if (!Array.isArray(value)) {
 		pushIssue(issues, path, 'array of plugin specifiers', value)
@@ -433,6 +522,19 @@ function validatePlugins(value: unknown, path: string, issues: ValidationIssue[]
 				entry,
 			)
 		}
+	}
+}
+
+function validateDrawerOverrides(value: unknown, path: string, issues: ValidationIssue[]): void {
+	if (!isRecord(value)) {
+		pushIssue(issues, path, 'object', value)
+		return
+	}
+
+	checkUnknownKeys(value, DRAWER_KEYS, path, issues)
+
+	if ('buttons' in value && value.buttons !== undefined) {
+		validateButtonArrayInput(value.buttons, `${path}.buttons`, issues)
 	}
 }
 
@@ -826,9 +928,7 @@ function validateMobileResolved(value: unknown, path: string, issues: Validation
 	}
 }
 
-export function assertValidConfigOverrides(
-	value: unknown,
-): asserts value is DeepPartial<WebmuxConfig> {
+export function assertValidConfigOverrides(value: unknown): asserts value is WebmuxConfigOverrides {
 	const issues: ValidationIssue[] = []
 
 	if (!isRecord(value)) {
@@ -849,10 +949,10 @@ export function assertValidConfigOverrides(
 			validatePlugins(value.plugins, 'config.plugins', issues)
 		}
 		if ('toolbar' in value && value.toolbar !== undefined) {
-			validateToolbar(value.toolbar, 'config.toolbar', issues)
+			validateToolbarOverrides(value.toolbar, 'config.toolbar', issues)
 		}
 		if ('drawer' in value && value.drawer !== undefined) {
-			validateDrawer(value.drawer, 'config.drawer', issues)
+			validateDrawerOverrides(value.drawer, 'config.drawer', issues)
 		}
 		if ('gestures' in value && value.gestures !== undefined) {
 			validateGestures(value.gestures, 'config.gestures', issues)

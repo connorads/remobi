@@ -142,6 +142,51 @@ export type DeepPartial<T> = {
 }
 
 /**
+ * Patch operations for a button array. Applied in order:
+ * remove → replace → insertBefore → insertAfter → prepend → append.
+ */
+export interface ButtonArrayPatch<T extends { readonly id: string }> {
+	/** Remove buttons by id */
+	readonly remove?: readonly string[]
+	/** Replace buttons by id (matched by id, replaced in-place) */
+	readonly replace?: readonly T[]
+	/** Insert buttons before a button with the given id (falls back to prepend) */
+	readonly insertBefore?: { readonly id: string; readonly buttons: readonly T[] }
+	/** Insert buttons after a button with the given id (falls back to append) */
+	readonly insertAfter?: { readonly id: string; readonly buttons: readonly T[] }
+	/** Prepend buttons to the start of the array */
+	readonly prepend?: readonly T[]
+	/** Append buttons to the end of the array */
+	readonly append?: readonly T[]
+}
+
+/**
+ * Input form for a button array in config overrides.
+ * - Array: replace defaults entirely (backwards compat)
+ * - Function: receive defaults, return new array
+ * - Patch object: apply patch operations against defaults
+ */
+export type ButtonArrayInput<T extends { readonly id: string }> =
+	| readonly T[]
+	| ((defaults: readonly T[]) => readonly T[])
+	| ButtonArrayPatch<T>
+
+/** Config overrides shape that supports ButtonArrayInput for button arrays */
+export type WebmuxConfigOverrides = Omit<
+	DeepPartial<WebmuxConfig>,
+	'toolbar' | 'drawer' | 'floatingButtons'
+> & {
+	readonly toolbar?: {
+		readonly row1?: ButtonArrayInput<ControlButton>
+		readonly row2?: ButtonArrayInput<ControlButton>
+	}
+	readonly drawer?: {
+		readonly buttons?: ButtonArrayInput<ControlButton>
+	}
+	readonly floatingButtons?: readonly FloatingButtonGroup[]
+}
+
+/**
  * Minimal xterm.js Terminal interface — only what webmux needs.
  * Avoids importing the full xterm package.
  */

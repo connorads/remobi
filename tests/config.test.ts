@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { defaultConfig, defineConfig, serialiseThemeForTtyd } from '../src/config'
+import { defaultConfig, defineConfig, mergeConfig, serialiseThemeForTtyd } from '../src/config'
 
 describe('defineConfig', () => {
 	test('returns default config when called with no args', () => {
@@ -175,6 +175,162 @@ describe('defaultConfig', () => {
 		expect(defaultConfig.gestures.swipe.right).toBe('\x02p')
 		expect(defaultConfig.gestures.swipe.leftLabel).toBe('Next tmux window')
 		expect(defaultConfig.gestures.swipe.rightLabel).toBe('Previous tmux window')
+	})
+})
+
+describe('defineConfig with ButtonArrayInput', () => {
+	test('plain array replaces toolbar row1 (backwards compat)', () => {
+		const custom = [
+			{ id: 'x', label: 'X', description: 'X', action: { type: 'send' as const, data: 'x' } },
+		]
+		const config = defineConfig({ toolbar: { row1: custom } })
+		expect(config.toolbar.row1).toEqual(custom)
+		// row2 preserved
+		expect(config.toolbar.row2.length).toBeGreaterThan(0)
+	})
+
+	test('function form transforms toolbar row2', () => {
+		const config = defineConfig({
+			toolbar: { row2: (defaults) => defaults.filter((b) => b.id !== 'q') },
+		})
+		expect(config.toolbar.row2.find((b) => b.id === 'q')).toBeUndefined()
+		expect(config.toolbar.row2.length).toBe(defaultConfig.toolbar.row2.length - 1)
+	})
+
+	test('patch append to toolbar row1', () => {
+		const extra = {
+			id: 'x',
+			label: 'X',
+			description: 'X',
+			action: { type: 'send' as const, data: 'x' },
+		}
+		const config = defineConfig({ toolbar: { row1: { append: [extra] } } })
+		expect(config.toolbar.row1).toHaveLength(defaultConfig.toolbar.row1.length + 1)
+		expect(config.toolbar.row1[config.toolbar.row1.length - 1]).toEqual(extra)
+	})
+
+	test('patch prepend to toolbar row2', () => {
+		const extra = {
+			id: 'x',
+			label: 'X',
+			description: 'X',
+			action: { type: 'send' as const, data: 'x' },
+		}
+		const config = defineConfig({ toolbar: { row2: { prepend: [extra] } } })
+		expect(config.toolbar.row2[0]).toEqual(extra)
+	})
+
+	test('patch remove from toolbar row1', () => {
+		const config = defineConfig({ toolbar: { row1: { remove: ['esc'] } } })
+		expect(config.toolbar.row1.find((b) => b.id === 'esc')).toBeUndefined()
+		expect(config.toolbar.row1.length).toBe(defaultConfig.toolbar.row1.length - 1)
+	})
+
+	test('patch replace in toolbar row1', () => {
+		const escReplaced = {
+			id: 'esc',
+			label: 'ESC2',
+			description: 'Esc2',
+			action: { type: 'send' as const, data: '\x1b\x1b' },
+		}
+		const config = defineConfig({ toolbar: { row1: { replace: [escReplaced] } } })
+		const esc = config.toolbar.row1.find((b) => b.id === 'esc')
+		expect(esc?.label).toBe('ESC2')
+	})
+
+	test('patch insertBefore in toolbar row1', () => {
+		const newBtn = {
+			id: 'new',
+			label: 'New',
+			description: 'New',
+			action: { type: 'send' as const, data: 'n' },
+		}
+		const config = defineConfig({
+			toolbar: { row1: { insertBefore: { id: 'tab', buttons: [newBtn] } } },
+		})
+		const tabIdx = config.toolbar.row1.findIndex((b) => b.id === 'tab')
+		const newIdx = config.toolbar.row1.findIndex((b) => b.id === 'new')
+		expect(newIdx).toBe(tabIdx - 1)
+	})
+
+	test('patch insertAfter in toolbar row1', () => {
+		const newBtn = {
+			id: 'new',
+			label: 'New',
+			description: 'New',
+			action: { type: 'send' as const, data: 'n' },
+		}
+		const config = defineConfig({
+			toolbar: { row1: { insertAfter: { id: 'tab', buttons: [newBtn] } } },
+		})
+		const tabIdx = config.toolbar.row1.findIndex((b) => b.id === 'tab')
+		const newIdx = config.toolbar.row1.findIndex((b) => b.id === 'new')
+		expect(newIdx).toBe(tabIdx + 1)
+	})
+
+	test('patch insertBefore missing target falls back to prepend', () => {
+		const newBtn = {
+			id: 'new',
+			label: 'New',
+			description: 'New',
+			action: { type: 'send' as const, data: 'n' },
+		}
+		const config = defineConfig({
+			toolbar: { row1: { insertBefore: { id: 'nonexistent', buttons: [newBtn] } } },
+		})
+		expect(config.toolbar.row1[0]).toEqual(newBtn)
+	})
+
+	test('patch insertAfter missing target falls back to append', () => {
+		const newBtn = {
+			id: 'new',
+			label: 'New',
+			description: 'New',
+			action: { type: 'send' as const, data: 'n' },
+		}
+		const config = defineConfig({
+			toolbar: { row1: { insertAfter: { id: 'nonexistent', buttons: [newBtn] } } },
+		})
+		expect(config.toolbar.row1[config.toolbar.row1.length - 1]).toEqual(newBtn)
+	})
+
+	test('patch drawer buttons', () => {
+		const extra = {
+			id: 'x',
+			label: 'X',
+			description: 'X',
+			action: { type: 'send' as const, data: 'x' },
+		}
+		const config = defineConfig({ drawer: { buttons: { append: [extra] } } })
+		expect(config.drawer.buttons).toHaveLength(defaultConfig.drawer.buttons.length + 1)
+	})
+
+	test('drawer function form', () => {
+		const config = defineConfig({
+			drawer: { buttons: (defaults) => defaults.slice(0, 3) },
+		})
+		expect(config.drawer.buttons).toHaveLength(3)
+	})
+})
+
+describe('mergeConfig', () => {
+	test('merges overrides against a non-default base config', () => {
+		const base = defineConfig({ name: 'base' })
+		const result = mergeConfig(base, { name: 'merged' })
+		expect(result.name).toBe('merged')
+		// Toolbar preserved from base
+		expect(result.toolbar.row1).toEqual(base.toolbar.row1)
+	})
+
+	test('patch resolves against base buttons, not defaults', () => {
+		const custom = [
+			{ id: 'x', label: 'X', description: 'X', action: { type: 'send' as const, data: 'x' } },
+			{ id: 'y', label: 'Y', description: 'Y', action: { type: 'send' as const, data: 'y' } },
+		]
+		const base = defineConfig({ toolbar: { row1: custom } })
+		const result = mergeConfig(base, { toolbar: { row1: { remove: ['x'] } } })
+		expect(result.toolbar.row1).toHaveLength(1)
+		expect(result.toolbar.row1[0]?.id).toBe('y')
 	})
 })
 

@@ -5,14 +5,14 @@ import { homedir } from 'node:os'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
 import { parseCliArgs } from './src/cli/args'
-import { defaultConfig, defineConfig } from './src/config'
+import { defaultConfig, defineConfig, mergeConfig } from './src/config'
 import {
 	ConfigValidationError,
 	assertValidConfigOverrides,
 	assertValidResolvedConfig,
 } from './src/config-validate'
 import { serve } from './src/serve'
-import type { DeepPartial, WebmuxConfig } from './src/types'
+import type { WebmuxConfig, WebmuxConfigOverrides } from './src/types'
 
 const VERSION = '0.1.0'
 
@@ -110,7 +110,7 @@ function throwConfigValidationError(source: string, error: ConfigValidationError
 function assertValidOverridesOrThrow(
 	value: unknown,
 	source: string,
-): asserts value is DeepPartial<WebmuxConfig> {
+): asserts value is WebmuxConfigOverrides {
 	try {
 		assertValidConfigOverrides(value)
 	} catch (error) {
@@ -263,8 +263,24 @@ export default defineConfig({
   //   sizeRange: [8, 32],
   // },
   // plugins: ['./plugins/logger.ts', 'webmux-plugin-demo'],
+  //
+  // Toolbar/drawer accept a plain array (replace), a function (transform), or a patch:
+  //
   // toolbar: { row1: [{ id, label, description, action }], row2: [...] },
-  // drawer: { buttons: [{ id, label, description, action }] },
+  //
+  // toolbar: {
+  //   row2: (defaults) => defaults.filter((b) => b.id !== 'q'),
+  // },
+  //
+  // toolbar: {
+  //   row2: {
+  //     append: [{ id: 'my-btn', label: 'X', description: 'Send x', action: { type: 'send', data: 'x' } }],
+  //     remove: ['q'],
+  //   },
+  // },
+  //
+  // drawer: { buttons: { append: [{ id, label, description, action }] } },
+  //
   // gestures: {
   //   swipe: {
   //     enabled: true,
@@ -282,7 +298,7 @@ export default defineConfig({
   // },
   // floatingButtons: [
   //   // Always-visible top-left buttons (touch devices only)
-  //   { id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\\x02z' } },
+  //   { position: 'top-left', buttons: [{ id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\\x02z' } }] },
   // ],
   // pwa: {
   //   enabled: true,              // enable PWA manifest + meta tags (used by webmux serve)
