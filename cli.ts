@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { homedir } from 'node:os'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
+import pkg from './package.json'
 import { parseCliArgs } from './src/cli/args'
 import { defaultConfig, defineConfig, mergeConfig } from './src/config'
 import {
@@ -14,7 +15,7 @@ import {
 import { serve } from './src/serve'
 import type { WebmuxConfig, WebmuxConfigOverrides } from './src/types'
 
-const VERSION = '0.1.0'
+const VERSION: string = pkg.version
 
 function usage(): void {
 	console.log(`webmux v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
