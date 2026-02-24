@@ -203,6 +203,24 @@ Key modules:
 | `src/viewport/` | Height management, landscape detection |
 | `src/util/` | DOM helpers, terminal, keyboard, haptics |
 
+## Public API and semver
+
+webmux follows semantic versioning. The public API is defined by the following import paths:
+
+| Import path | Contents | Stability |
+|---|---|---|
+| `webmux` | `init`, `defineConfig`, `createHookRegistry`, `WebmuxConfig`, `ControlButton`, `ButtonAction`, `ButtonArrayPatch`, `ButtonArrayInput`, `WebmuxConfigOverrides`, `WebmuxPlugin`, `HookRegistry`, `UISlot`, `UIContributionCollector` | Public — breaking changes are semver-major |
+| `webmux/config` | `defineConfig`, `mergeConfig`, `defaultConfig`, `serialiseThemeForTtyd` | Public |
+| `webmux/types` | All types in `src/types.ts` | Public |
+
+**Internal modules** (not part of the public API — may change without a major version bump):
+`src/toolbar/`, `src/drawer/`, `src/gestures/`, `src/controls/`, `src/theme/`, `src/viewport/`, `src/util/`, `src/serve.ts`, `src/cli/`, `build.ts`
+
+**Semver policy**:
+- **Major**: removing or renaming a public export, changing a public function signature incompatibly, removing a config field
+- **Minor**: adding new public exports, new optional config fields, new `ButtonArrayInput` operations
+- **Patch**: bug fixes, internal refactors, documentation updates
+
 ## Development
 
 ```bash
