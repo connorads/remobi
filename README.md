@@ -28,8 +28,6 @@ Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gestu
 
 ## Quick start
 
-If the npm package is not published yet, use local development flow with `bun link` instead of `bun add -g webmux`.
-
 ```bash
 # 1. Install
 bun add -g webmux
@@ -37,6 +35,8 @@ bun add -g webmux
 # 2. Start (builds overlay, manages ttyd, serves with PWA support)
 webmux serve
 ```
+
+For local development, use `bun link` from the repo root instead of `bun add -g webmux`.
 
 Open `http://localhost:7681` on your phone. Add to Home Screen for an app-like experience.
 
@@ -164,12 +164,6 @@ See the full [agent setup guide](docs/guides/agent-setup.md) for examples and es
 All fields are optional — defaults are filled in via `defineConfig()`.
 
 At runtime, webmux validates the config object shape and rejects unknown keys with clear path-based errors.
-
-### Beta migration note
-
-- Drawer config key is `drawer.buttons` (previously `drawer.commands`).
-- Toolbar and drawer entries share one schema: `ControlButton` (`id`, `label`, `description`, `action`).
-- Help content is generated from configured controls, so keep `description` clear and user-facing.
 
 `gestures.scroll.strategy` controls touch scroll behaviour:
 
