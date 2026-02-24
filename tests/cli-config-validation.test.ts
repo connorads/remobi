@@ -51,6 +51,12 @@ async function writeConfig(dir: string, source: string): Promise<string> {
 	return path
 }
 
+async function writeLocalConfig(dir: string, source: string): Promise<string> {
+	const path = join(dir, 'webmux.config.local.ts')
+	await Bun.write(path, source)
+	return path
+}
+
 describe('CLI config validation', () => {
 	test('build fails fast with nested validation errors', async () => {
 		const dir = createTempDir()
@@ -97,5 +103,42 @@ describe('CLI config validation', () => {
 		expect(result.stderr).toContain('config.toolbar.row1[0].label')
 		expect(result.stderr).toContain('config.toolbar.row1[0].description')
 		expect(result.stderr).toContain('config.toolbar.row1[0].action')
+	})
+
+	test('build --dry-run shows shared config path when no .local file', async () => {
+		const dir = createTempDir()
+		const configPath = await writeConfig(dir, "export default { name: 'myterm' }")
+
+		const result = await runCli(['build', '--config', configPath, '--dry-run'])
+
+		expect(result.exitCode).toBe(0)
+		expect(result.stdout).toContain(configPath)
+		// Should NOT mention .local in source
+		expect(result.stdout).not.toContain('.local')
+	})
+
+	test('local config merges with shared config', async () => {
+		const dir = createTempDir()
+		const configPath = await writeConfig(dir, "export default { name: 'shared' }")
+		await writeLocalConfig(dir, "export default { name: 'local-override' }")
+
+		const result = await runCli(['build', '--config', configPath, '--dry-run'])
+
+		expect(result.exitCode).toBe(0)
+		// Source should mention both files
+		expect(result.stdout).toContain(configPath)
+		expect(result.stdout).toContain('.local')
+	})
+
+	test('local config validation errors report local file path', async () => {
+		const dir = createTempDir()
+		const configPath = await writeConfig(dir, "export default { name: 'shared' }")
+		const localPath = await writeLocalConfig(dir, 'export default { unknownKey: true }')
+
+		const result = await runCli(['build', '--config', configPath])
+
+		expect(result.exitCode).toBe(1)
+		expect(result.stderr).toContain(localPath)
+		expect(result.stderr).toContain('config.unknownKey')
 	})
 })

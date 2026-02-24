@@ -107,6 +107,31 @@ function throwConfigValidationError(source: string, error: ConfigValidationError
 	throw new Error(`Config validation failed for ${source}\n${error.message}`)
 }
 
+/** Convert a config path to its .local sibling, e.g. webmux.config.ts → webmux.config.local.ts */
+function toLocalPath(configPath: string): string {
+	const dotIdx = configPath.lastIndexOf('.')
+	if (dotIdx === -1) {
+		return `${configPath}.local`
+	}
+	return `${configPath.slice(0, dotIdx)}.local${configPath.slice(dotIdx)}`
+}
+
+/** Try to load a .local config override file. Returns undefined if the file does not exist. */
+async function loadLocalOverrides(localPath: string): Promise<WebmuxConfigOverrides | undefined> {
+	if (!existsSync(localPath)) {
+		return undefined
+	}
+
+	const mod = await import(localPath)
+	const defaultExport = extractDefaultExport(mod)
+	if (defaultExport === undefined) {
+		throw new Error(`Local config file has no default export: ${localPath}`)
+	}
+
+	assertValidOverridesOrThrow(defaultExport, localPath)
+	return defaultExport
+}
+
 function assertValidOverridesOrThrow(
 	value: unknown,
 	source: string,
@@ -162,10 +187,18 @@ async function loadConfig(configPath: string | undefined): Promise<LoadedConfig>
 		}
 
 		assertValidOverridesOrThrow(defaultExport, abs)
-		const config = defineConfig(defaultExport)
-		assertValidResolvedOrThrow(config, abs)
+		const sharedConfig = defineConfig(defaultExport)
+
+		// Apply .local overrides on top of the shared config
+		const localPath = toLocalPath(abs)
+		const localOverrides = await loadLocalOverrides(localPath)
+		const config =
+			localOverrides !== undefined ? mergeConfig(sharedConfig, localOverrides) : sharedConfig
+
+		const sourceLabel = localOverrides !== undefined ? `${abs} + ${localPath}` : abs
+		assertValidResolvedOrThrow(config, sourceLabel)
 		const pluginImports = resolvePluginSpecifiers(config.plugins, dirname(abs))
-		return { config, source: abs, pluginImports }
+		return { config, source: sourceLabel, pluginImports }
 	}
 
 	assertValidResolvedOrThrow(defaultConfig, 'built-in defaults')
