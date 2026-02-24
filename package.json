@@ -11,7 +11,7 @@
 		"./config": "./src/config.ts",
 		"./types": "./src/types.ts"
 	},
-	"files": ["src/", "styles/", "cli.ts", "build.ts", "README.md", "LICENSE"],
+	"files": ["src/", "styles/", "cli.ts", "build.ts", "README.md", "CHANGELOG.md", "LICENSE"],
 	"engines": {
 		"bun": ">=1.0.0"
 	},
