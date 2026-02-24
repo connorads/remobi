@@ -14,6 +14,8 @@ import { createHookRegistry } from './hooks/registry'
 import type { HookRegistry } from './hooks/registry'
 import { createPluginManager } from './plugins/manager'
 import type { WebmuxPlugin } from './plugins/manager'
+import { createUIContributionCollector } from './plugins/ui-contributions'
+import type { UISlot } from './plugins/ui-contributions'
 import { applyTheme } from './theme/apply'
 import { createToolbar } from './toolbar/toolbar'
 import type { WebmuxConfig } from './types'
@@ -34,6 +36,7 @@ export type {
 } from './types'
 export type { HookRegistry, SendSource } from './hooks/registry'
 export type { WebmuxPlugin } from './plugins/manager'
+export type { UISlot, UIContributionCollector } from './plugins/ui-contributions'
 
 /** Detect touch device */
 function isMobile(): boolean {
@@ -54,6 +57,7 @@ export function init(
 		.then(async (term) => {
 			const mobile = isMobile()
 			const actions = createDefaultActionRegistry()
+			const uiContributions = createUIContributionCollector()
 			const pluginsManager = createPluginManager(plugins)
 			let disposed = false
 
@@ -78,6 +82,7 @@ export function init(
 				hooks,
 				actions,
 				mobile,
+				ui: uiContributions,
 			})
 
 			try {
@@ -101,11 +106,24 @@ export function init(
 
 				// CSS is injected as a <style> tag by the build script (build.ts)
 
+				// Merge plugin UI contributions into the active config
+				const activeRow1 = [...config.toolbar.row1, ...uiContributions.getForSlot('toolbar.row1')]
+				const activeRow2 = [...config.toolbar.row2, ...uiContributions.getForSlot('toolbar.row2')]
+				const activeDrawerButtons = [
+					...config.drawer.buttons,
+					...uiContributions.getForSlot('drawer'),
+				]
+				const activeConfig = {
+					...config,
+					toolbar: { row1: activeRow1, row2: activeRow2 },
+					drawer: { buttons: activeDrawerButtons },
+				}
+
 				const comboPicker = createComboPicker()
 				document.body.appendChild(comboPicker.element)
 
 				// Create drawer (needed by toolbar for toggle)
-				const drawer = createDrawer(term, config.drawer.buttons, {
+				const drawer = createDrawer(term, activeConfig.drawer.buttons, {
 					hooks,
 					appConfig: config,
 					actions,
@@ -123,7 +141,7 @@ export function init(
 				// Create toolbar
 				const { element: toolbar } = createToolbar(
 					term,
-					config,
+					activeConfig,
 					drawer.open,
 					hooks,
 					actions,

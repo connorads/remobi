@@ -1,6 +1,7 @@
 import type { ActionRegistry } from '../actions/registry'
 import type { HookRegistry } from '../hooks/registry'
 import type { WebmuxConfig, XTerminal } from '../types'
+import type { UIContributionCollector } from './ui-contributions'
 
 export interface PluginContext {
 	readonly term: XTerminal
@@ -8,6 +9,8 @@ export interface PluginContext {
 	readonly hooks: HookRegistry
 	readonly actions: ActionRegistry
 	readonly mobile: boolean
+	/** Contribute buttons to toolbar rows or drawer slots */
+	readonly ui: UIContributionCollector
 }
 
 export interface WebmuxPlugin {

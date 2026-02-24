@@ -3,7 +3,8 @@ import { createActionRegistry } from '../src/actions/registry'
 import { defaultConfig } from '../src/config'
 import { createHookRegistry } from '../src/hooks/registry'
 import { createPluginManager } from '../src/plugins/manager'
-import type { XTerminal } from '../src/types'
+import { createUIContributionCollector } from '../src/plugins/ui-contributions'
+import type { ControlButton, XTerminal } from '../src/types'
 
 function mockTerminal(): XTerminal {
 	return {
@@ -14,6 +15,10 @@ function mockTerminal(): XTerminal {
 			return { dispose() {} }
 		},
 	}
+}
+
+function btn(id: string): ControlButton {
+	return { id, label: id, description: id, action: { type: 'send', data: id } }
 }
 
 describe('createPluginManager', () => {
@@ -39,6 +44,7 @@ describe('createPluginManager', () => {
 			config: defaultConfig,
 			hooks: createHookRegistry(),
 			actions: createActionRegistry(),
+			ui: createUIContributionCollector(),
 			mobile: true,
 		})
 
@@ -74,6 +80,7 @@ describe('createPluginManager', () => {
 				config: defaultConfig,
 				hooks: createHookRegistry(),
 				actions: createActionRegistry(),
+				ui: createUIContributionCollector(),
 				mobile: false,
 			})
 
@@ -106,6 +113,7 @@ describe('createPluginManager', () => {
 				config: defaultConfig,
 				hooks: createHookRegistry(),
 				actions: createActionRegistry(),
+				ui: createUIContributionCollector(),
 				mobile: true,
 			})
 			await manager.dispose()
@@ -140,6 +148,7 @@ describe('createPluginManager', () => {
 			config: defaultConfig,
 			hooks: createHookRegistry(),
 			actions: createActionRegistry(),
+			ui: createUIContributionCollector(),
 			mobile: true,
 		})
 		await manager.dispose()
@@ -172,6 +181,7 @@ describe('createPluginManager', () => {
 			config: defaultConfig,
 			hooks: createHookRegistry(),
 			actions: createActionRegistry(),
+			ui: createUIContributionCollector(),
 			mobile: true,
 		})
 
@@ -209,6 +219,7 @@ describe('createPluginManager', () => {
 			config: defaultConfig,
 			hooks: createHookRegistry(),
 			actions: createActionRegistry(),
+			ui: createUIContributionCollector(),
 			mobile: true,
 		})
 
