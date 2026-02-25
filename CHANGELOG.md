@@ -4,6 +4,8 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Added: `webmux serve --no-sleep` flag — prevents macOS system sleep while serving by wrapping ttyd with `caffeinate -s -w <pid>`. The assertion is held for exactly the lifetime of the server and dropped automatically on shutdown. Gracefully ignored with a warning on non-macOS platforms.
+- Added: keep-awake guide (`docs/guides/keep-awake.md`) covering `--no-sleep`, persistent pmset settings, nix-darwin config, and lid-close behaviour.
 - Added: mobile-friendly tmux config guide (`docs/guides/mobile-tmux.md`) and optional tmux optimisation step in setup skill.
 - Added: agent setup skill (`skills/webmux-setup/SKILL.md`), guide (`docs/guides/agent-setup.md`), and README collapsible prompt for AI-assisted configuration.
 - Added: `webmux serve` — single command to run webmux with full PWA support. Builds overlay in memory, manages ttyd lifecycle, serves manifest + icons + WebSocket relay. Replaces the multi-step build + ttyd + proxy workflow.

@@ -21,7 +21,7 @@ function usage(): void {
 	console.log(`webmux v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
 
 Usage:
-  webmux serve [--config <path>] [--port <n>] [-- <command...>]
+  webmux serve [--config <path>] [--port <n>] [--no-sleep] [-- <command...>]
     Build overlay in memory, manage ttyd, serve with PWA support.
     Default port: 7681. Default command: tmux new-session -A -s main
 
@@ -46,9 +46,11 @@ Flags:
   -o, --output <path>  Build output path (build only)
   -p, --port <n>       Port to serve on (serve only, default 7681)
   -n, --dry-run        Validate + print plan only (build/inject)
+      --no-sleep       Prevent macOS sleep while serving (caffeinate -s, serve only)
 
 Examples:
   webmux serve
+  webmux serve --no-sleep
   webmux serve --port 8080 -- tmux new -As dev
   webmux build -c ./webmux.config.ts -o ./dist/index.html
   webmux build --dry-run
@@ -219,7 +221,7 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
-	const { command, configPath, outputPath, dryRun, port, command_ } = parsed.value
+	const { command, configPath, outputPath, dryRun, port, noSleep, command_ } = parsed.value
 
 	switch (command) {
 		case 'serve': {
@@ -229,6 +231,7 @@ async function main(): Promise<void> {
 				loaded.pluginImports,
 				port,
 				command_.length > 0 ? command_ : undefined,
+				noSleep,
 			)
 			break
 		}

@@ -197,4 +197,49 @@ describe('parseCliArgs', () => {
 			expect(result.error).toContain('only valid as a top-level command')
 		}
 	})
+
+	test('parses serve with --no-sleep flag', () => {
+		const result = parseCliArgs(['serve', '--no-sleep'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.command).toBe('serve')
+			expect(result.value.noSleep).toBe(true)
+		}
+	})
+
+	test('noSleep defaults to false on serve', () => {
+		const result = parseCliArgs(['serve'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.noSleep).toBe(false)
+		}
+	})
+
+	test('rejects --no-sleep outside serve command', () => {
+		const result = parseCliArgs(['build', '--no-sleep'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain("only valid for 'serve'")
+		}
+	})
+
+	test('parses serve with --no-sleep combined with --port and trailing command', () => {
+		const result = parseCliArgs([
+			'serve',
+			'--no-sleep',
+			'--port',
+			'8080',
+			'--',
+			'tmux',
+			'new',
+			'-As',
+			'dev',
+		])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.noSleep).toBe(true)
+			expect(result.value.port).toBe(8080)
+			expect(result.value.command_).toEqual(['tmux', 'new', '-As', 'dev'])
+		}
+	})
 })

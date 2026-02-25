@@ -66,12 +66,29 @@ function readIcon(filename: string): Uint8Array | undefined {
 	}
 }
 
+/** Spawn caffeinate to prevent system sleep while ttyd is running (macOS only).
+ * Uses -s (system sleep on AC) and -w <pid> so the assertion drops when ttyd exits. */
+function spawnCaffeinate(pid: number): ReturnType<typeof Bun.spawn> | null {
+	try {
+		const proc = Bun.spawn(['caffeinate', '-s', '-w', String(pid)], {
+			stdout: 'ignore',
+			stderr: 'ignore',
+		})
+		console.log(`webmux: sleep prevention active (caffeinate -s -w ${pid})`)
+		return proc
+	} catch {
+		console.warn('webmux: --no-sleep requires caffeinate (macOS only), ignoring')
+		return null
+	}
+}
+
 /** Start webmux serve: builds overlay in memory, manages ttyd, serves HTTP + WS */
 export async function serve(
 	config: WebmuxConfig,
 	pluginImports: readonly string[],
 	port: number = DEFAULT_PORT,
 	command: readonly string[] = DEFAULT_COMMAND,
+	noSleep = false,
 ): Promise<void> {
 	console.log('webmux: building overlay...')
 	const { js, css } = await bundleOverlay(config, pluginImports)
@@ -84,6 +101,8 @@ export async function serve(
 		stdout: 'ignore',
 		stderr: 'ignore',
 	})
+
+	const caffeinateProc = noSleep ? spawnCaffeinate(ttydProc.pid) : null
 
 	await waitForTtyd(internalPort)
 
@@ -199,6 +218,7 @@ export async function serve(
 		console.log('\nwebmux: shutting down...')
 		server.stop()
 		ttydProc.kill()
+		caffeinateProc?.kill()
 		process.exit(0)
 	}
 

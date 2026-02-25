@@ -6,6 +6,7 @@ export interface ParsedCliArgs {
 	readonly outputPath?: string
 	readonly dryRun: boolean
 	readonly port?: number
+	readonly noSleep: boolean
 	readonly command_: readonly string[]
 }
 
@@ -36,11 +37,11 @@ function isMissingOptionValue(value: string | undefined): boolean {
 export function parseCliArgs(args: readonly string[]): ParseCliResult {
 	const commandToken = args[0]
 	if (!commandToken || isHelpCommand(commandToken)) {
-		return { ok: true, value: { command: 'help', dryRun: false, command_: [] } }
+		return { ok: true, value: { command: 'help', dryRun: false, noSleep: false, command_: [] } }
 	}
 
 	if (isVersionCommand(commandToken)) {
-		return { ok: true, value: { command: 'version', dryRun: false, command_: [] } }
+		return { ok: true, value: { command: 'version', dryRun: false, noSleep: false, command_: [] } }
 	}
 
 	if (
@@ -56,6 +57,7 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 	let outputPath: string | undefined
 	let dryRun = false
 	let port: number | undefined
+	let noSleep = false
 	let trailingCommand: readonly string[] = []
 
 	for (let index = 1; index < args.length; index++) {
@@ -72,7 +74,7 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 		}
 
 		if (arg === '--help' || arg === '-h') {
-			return { ok: true, value: { command: 'help', dryRun: false, command_: [] } }
+			return { ok: true, value: { command: 'help', dryRun: false, noSleep: false, command_: [] } }
 		}
 
 		if (!arg.startsWith('-')) {
@@ -127,6 +129,14 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 			continue
 		}
 
+		if (arg === '--no-sleep') {
+			if (commandToken !== 'serve') {
+				return { ok: false, error: `${arg} is only valid for 'serve'` }
+			}
+			noSleep = true
+			continue
+		}
+
 		if (isVersionCommand(arg)) {
 			return { ok: false, error: `${arg} is only valid as a top-level command` }
 		}
@@ -142,6 +152,7 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 			outputPath,
 			dryRun,
 			port,
+			noSleep,
 			command_: trailingCommand,
 		},
 	}
