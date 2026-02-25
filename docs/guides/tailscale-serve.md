@@ -36,6 +36,16 @@ pkill -f "webmux serve"
 tailscale serve --https=443 off
 ```
 
+> **Tip — keep your Mac awake:** Add `--no-sleep` so the Mac doesn't go to
+> sleep while you're away:
+>
+> ```bash
+> webmux serve --no-sleep
+> ```
+>
+> See [Keeping your Mac awake](keep-awake.md) for persistent options (pmset,
+> nix-darwin) and lid-close caveats.
+
 ## Shell function
 
 ```zsh
@@ -47,7 +57,7 @@ function webtermup() {
   pkill -f "webmux serve.*--port $port" 2>/dev/null
   pkill -f "ttyd.*--port $port" 2>/dev/null
 
-  webmux serve --port $port -- tmux new-session -A -s "$session" &!
+  webmux serve --no-sleep --port $port -- tmux new-session -A -s "$session" &!
 
   tailscale serve --bg $port
   echo "Terminal ($session): https://$(tailscale status --self --json | jq -r '.Self.DNSName' | sed 's/\.\$//')"

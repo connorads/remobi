@@ -201,6 +201,7 @@ You can also pass plugins to `init(config, hooks, plugins)`. Plugin setup/dispos
 ## Deployment guides
 
 - [Tailscale Serve](docs/guides/tailscale-serve.md) — expose over your tailnet with HTTPS
+- [Keeping your Mac awake](docs/guides/keep-awake.md) — prevent sleep during remote sessions
 - [ttyd flags](docs/guides/ttyd-flags.md) — recommended ttyd options and theme flags
 - [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
 - [Mobile-friendly tmux config](docs/guides/mobile-tmux.md) — responsive status bar, popup sizing, binding ergonomics
