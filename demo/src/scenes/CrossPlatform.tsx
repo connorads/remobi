@@ -131,29 +131,17 @@ export const CrossPlatform: React.FC = () => {
 						<Terminal screen={crossPlatformScreen} fontSize={5} padding={4} lineHeight={1.3} />
 						<TmuxStatusBar {...crossPlatformStatus} />
 					</LaptopMockup>
-					{/* Device labels */}
-					<div
+					<span
 						style={{
-							display: 'flex',
-							justifyContent: 'center',
-							gap: 12,
+							fontSize: 11,
+							color: colours.subtext,
+							fontFamily: `"${FONT_FAMILY}", monospace`,
 							marginTop: 8,
 							opacity: labelOpacity,
 						}}
 					>
-						{['Mac mini', 'MacBook', 'VPS'].map((label) => (
-							<span
-								key={label}
-								style={{
-									fontSize: 9,
-									color: colours.subtext,
-									fontFamily: `"${FONT_FAMILY}", monospace`,
-								}}
-							>
-								{label}
-							</span>
-						))}
-					</div>
+						MacBook
+					</span>
 				</div>
 			</div>
 
