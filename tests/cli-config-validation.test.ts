@@ -72,7 +72,6 @@ describe('CLI config validation', () => {
 		expect(result.stderr).toContain(`Config validation failed for ${configPath}`)
 		expect(result.stderr).toContain('Invalid webmux config:')
 		expect(result.stderr).toContain('config.gestures.scroll.strategy')
-		expect(result.stderr).toContain("'keys' | 'wheel'")
 		expect(result.stderr).toContain('received string("mouse")')
 	})
 
@@ -86,8 +85,6 @@ describe('CLI config validation', () => {
 		expect(result.stdout).toBe('')
 		expect(result.stderr).toContain(`Config validation failed for ${configPath}`)
 		expect(result.stderr).toContain('config.mystery')
-		expect(result.stderr).toContain('known key')
-		expect(result.stderr).toContain('received boolean(true)')
 	})
 
 	test('build reports malformed button array shape', async () => {

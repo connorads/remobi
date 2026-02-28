@@ -40,5 +40,8 @@
 	"license": "MIT",
 	"author": "Connor",
 	"keywords": ["ttyd", "tmux", "terminal", "mobile", "overlay", "touch", "bun"],
-	"trustedDependencies": ["@biomejs/biome"]
+	"trustedDependencies": ["@biomejs/biome"],
+	"dependencies": {
+		"valibot": "^1.2.0"
+	}
 }
