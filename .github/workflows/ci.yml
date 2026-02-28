@@ -14,6 +14,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - run: bun test
+      - run: bun run build
       - run: bun run check
       - run: bun run lint:ox
       - run: bunx tsc --noEmit
