@@ -12,15 +12,18 @@ export function resizeTerm(): void {
 
 /**
  * Wait for `window.term` to become available (ttyd sets it).
- * Resolves with the terminal instance.
+ * Resolves with the terminal instance, rejects after maxRetries (default 100 = 10s).
  */
-export function waitForTerm(): Promise<XTerminal> {
-	return new Promise((resolve) => {
+export function waitForTerm(maxRetries = 100): Promise<XTerminal> {
+	return new Promise((resolve, reject) => {
+		let attempts = 0
 		function check(): void {
-			const win = window as unknown as Record<string, unknown>
-			if (win.term) {
-				resolve(win.term as XTerminal)
+			if (window.term) {
+				resolve(window.term)
+			} else if (attempts >= maxRetries) {
+				reject(new Error(`waitForTerm: window.term not available after ${maxRetries * 100}ms`))
 			} else {
+				attempts += 1
 				setTimeout(check, 100)
 			}
 		}

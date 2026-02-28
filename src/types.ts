@@ -202,3 +202,10 @@ export interface XTerminal {
 	focus(): void
 	onData(handler: (data: string) => void): { dispose(): void }
 }
+
+/** ttyd sets window.term — typed globally to avoid unsafe casts */
+declare global {
+	interface Window {
+		term?: XTerminal
+	}
+}
