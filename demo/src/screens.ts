@@ -4,7 +4,7 @@
  */
 import type { TerminalScreen } from './components/Terminal'
 import type { TmuxStatusBarProps } from './components/TmuxStatusBar'
-import { colours } from './theme'
+import { claude, colours } from './theme'
 
 // ── Scene 1: Shell prompt ──────────────────────────────────────────
 
@@ -84,68 +84,77 @@ export const claudeCodeStatus: TmuxStatusBarProps = {
 
 export const claudeCodeScreen: TerminalScreen = {
 	lines: [
+		// ── Read tool block (lavender borders) ──
 		{
 			spans: [
-				{ text: '\u256D\u2500 ', colour: colours.subtext },
-				{ text: 'Read', colour: colours.blue, bold: true },
-				{ text: ' ', colour: colours.subtext },
-				{ text: 'src/login.ts', colour: colours.teal },
-				{ text: ' \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256E', colour: colours.subtext },
+				{ text: '╭─ ', colour: claude.lavender },
+				{ text: 'Read', colour: claude.lavender, bold: true },
+				{ text: ' src/login.ts', colour: claude.lavender },
+				{ text: ' ────────────╮', colour: claude.lavender },
 			],
 		},
 		{
 			spans: [
-				{ text: '\u2502', colour: colours.subtext },
-				{ text: ' ...', colour: colours.fg, dim: true },
+				{ text: '│', colour: claude.lavender },
+				{ text: ' 47 lines', colour: colours.fg, dim: true },
 			],
 		},
 		{
 			spans: [
-				{ text: '\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256F', colour: colours.subtext },
+				{ text: '╰────────────────────────────╯', colour: claude.lavender },
+			],
+		},
+		{ spans: [] },
+		// ── Response text (plain white) ──
+		{
+			spans: [{ text: ' I found the issue.', colour: claude.responseText }],
+		},
+		{ spans: [] },
+		// ── Edit tool block with diff backgrounds ──
+		{
+			spans: [
+				{ text: '╭─ ', colour: claude.lavender },
+				{ text: 'Edit', colour: claude.lavender, bold: true },
+				{ text: ' src/login.ts', colour: claude.lavender },
+				{ text: ' ───────────╮', colour: claude.lavender },
+			],
+		},
+		{
+			spans: [
+				{ text: '│ ', colour: claude.lavender },
+				{ text: '- if (token.expiresAt > ...)', colour: claude.diffRemWord, background: claude.diffRemBg },
+			],
+		},
+		{
+			spans: [
+				{ text: '│ ', colour: claude.lavender },
+				{ text: '+ if (token.expiresAt < ...)', colour: claude.diffAddWord, background: claude.diffAddBg },
+			],
+		},
+		{
+			spans: [
+				{ text: '╰────────────────────────────╯', colour: claude.lavender },
 			],
 		},
 		{ spans: [] },
 		{
-			spans: [{ text: ' I found the issue.', colour: colours.fg }],
-		},
-		{ spans: [] },
-		{
 			spans: [
-				{ text: '\u256D\u2500 ', colour: colours.subtext },
-				{ text: 'Edit', colour: colours.blue, bold: true },
-				{ text: ' ', colour: colours.subtext },
-				{ text: 'src/login.ts', colour: colours.teal },
-				{ text: ' \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256E', colour: colours.subtext },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502 ', colour: colours.subtext },
-				{ text: '- if (token.expiresAt > ...)', colour: colours.red },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502 ', colour: colours.subtext },
-				{ text: '+ if (token.expiresAt < ...)', colour: colours.green },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256F', colour: colours.subtext },
-			],
-		},
-		{ spans: [] },
-		{
-			spans: [
-				{ text: ' \u2713', colour: colours.green, bold: true },
+				{ text: ' ✓', colour: claude.successGreen, bold: true },
 				{ text: ' Applied edit', colour: colours.fg },
 			],
 		},
 		{ spans: [] },
+		// ── Input prompt (terracotta bordered box) ──
 		{
 			spans: [
-				{ text: ' >', colour: colours.peach, bold: true },
+				{ text: '╭─ ', colour: claude.terracotta },
+				{ text: 'claude-opus-4-6', colour: claude.terracotta, bold: true },
+				{ text: ' ─────╮', colour: claude.terracotta },
+			],
+		},
+		{
+			spans: [
+				{ text: '│ ', colour: claude.terracotta },
 			],
 		},
 	],
@@ -243,89 +252,103 @@ export const claudeCodeDetailStatus: TmuxStatusBarProps = {
 
 export const claudeCodeDetailScreen: TerminalScreen = {
 	lines: [
+		// ── Thinking shimmer ──
 		{
-			spans: [
-				{ text: '\u256D\u2500 ', colour: colours.subtext },
-				{ text: 'Edit', colour: colours.blue, bold: true },
-				{ text: ' ', colour: colours.subtext },
-				{ text: 'src/api/routes.ts', colour: colours.teal },
-				{ text: ' \u2500\u2500\u2500\u2500\u2500\u256E', colour: colours.subtext },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502 ', colour: colours.subtext },
-				{ text: '+ import { rateLimit }', colour: colours.green },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502 ', colour: colours.subtext },
-				{ text: "+   from './rateLimit'", colour: colours.green },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502', colour: colours.subtext },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502 ', colour: colours.subtext },
-				{ text: '+ app.use(rateLimit({', colour: colours.green },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502 ', colour: colours.subtext },
-				{ text: '+   window: 60_000,', colour: colours.green },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502 ', colour: colours.subtext },
-				{ text: '+   max: 100,', colour: colours.green },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2502 ', colour: colours.subtext },
-				{ text: '+ }))', colour: colours.green },
-			],
-		},
-		{
-			spans: [
-				{ text: '\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256F', colour: colours.subtext },
-			],
+			spans: [{ text: ' ⠿ Thinking…', colour: claude.terracotta }],
+			shimmer: true,
 		},
 		{ spans: [] },
+		// ── Edit tool block (lavender borders + diff backgrounds) ──
 		{
 			spans: [
-				{ text: ' \u2713', colour: colours.green, bold: true },
-				{ text: ' Updated ', colour: colours.fg },
-				{ text: 'src/api/routes.ts', colour: colours.teal },
+				{ text: '╭─ ', colour: claude.lavender },
+				{ text: 'Edit', colour: claude.lavender, bold: true },
+				{ text: ' src/api/routes.ts', colour: claude.lavender },
+				{ text: ' ────╮', colour: claude.lavender },
 			],
-			appearAt: 10,
+			appearAt: 8,
 		},
 		{
 			spans: [
-				{ text: ' \u2713', colour: colours.green, bold: true },
-				{ text: ' Created ', colour: colours.fg },
-				{ text: 'src/api/rateLimit.ts', colour: colours.teal },
+				{ text: '│ ', colour: claude.lavender },
+				{ text: '+ import { rateLimit }', colour: claude.diffAddWord, background: claude.diffAddBg },
 			],
-			appearAt: 15,
+			appearAt: 8,
 		},
-		{ spans: [], appearAt: 20 },
-		{
-			spans: [{ text: ' Rate limiting is now active.', colour: colours.fg }],
-			appearAt: 20,
-		},
-		{ spans: [], appearAt: 25 },
 		{
 			spans: [
-				{ text: ' >', colour: colours.peach, bold: true },
+				{ text: '│ ', colour: claude.lavender },
+				{ text: "+   from './rateLimit'", colour: claude.diffAddWord, background: claude.diffAddBg },
 			],
-			appearAt: 25,
+			appearAt: 8,
+		},
+		{
+			spans: [{ text: '│', colour: claude.lavender }],
+			appearAt: 8,
+		},
+		{
+			spans: [
+				{ text: '│ ', colour: claude.lavender },
+				{ text: '+ app.use(rateLimit({', colour: claude.diffAddWord, background: claude.diffAddBg },
+			],
+			appearAt: 8,
+		},
+		{
+			spans: [
+				{ text: '│ ', colour: claude.lavender },
+				{ text: '+   window: 60_000,', colour: claude.diffAddWord, background: claude.diffAddBg },
+			],
+			appearAt: 8,
+		},
+		{
+			spans: [
+				{ text: '│ ', colour: claude.lavender },
+				{ text: '+   max: 100,', colour: claude.diffAddWord, background: claude.diffAddBg },
+			],
+			appearAt: 8,
+		},
+		{
+			spans: [
+				{ text: '│ ', colour: claude.lavender },
+				{ text: '+ }))', colour: claude.diffAddWord, background: claude.diffAddBg },
+			],
+			appearAt: 8,
+		},
+		{
+			spans: [
+				{ text: '╰────────────────────────────╯', colour: claude.lavender },
+			],
+			appearAt: 8,
+		},
+		{ spans: [], appearAt: 12 },
+		{
+			spans: [
+				{ text: ' ✓', colour: claude.successGreen, bold: true },
+				{ text: ' Applied edit', colour: colours.fg },
+			],
+			appearAt: 12,
+		},
+		{ spans: [], appearAt: 18 },
+		// ── Response ──
+		{
+			spans: [{ text: ' Rate limiting is now active.', colour: claude.responseText }],
+			appearAt: 18,
+		},
+		{ spans: [], appearAt: 24 },
+		// ── Input prompt (terracotta bordered box) ──
+		{
+			spans: [
+				{ text: '╭─ ', colour: claude.terracotta },
+				{ text: 'claude-opus-4-6', colour: claude.terracotta, bold: true },
+				{ text: ' ─────╮', colour: claude.terracotta },
+			],
+			appearAt: 24,
+		},
+		{
+			spans: [
+				{ text: '│ ', colour: claude.terracotta },
+			],
+			appearAt: 24,
 		},
 	],
 	cursorAtEnd: true,
