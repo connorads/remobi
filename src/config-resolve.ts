@@ -65,7 +65,7 @@ function applyPatch<T extends { readonly id: string }>(
 		const { id, buttons } = patch.insertBefore
 		const idx = result.findIndex((btn) => btn.id === id)
 		if (idx === -1) {
-			// target not found: fall back to prepend
+			console.warn(`webmux: insertBefore target '${id}' not found, falling back to prepend`)
 			result = [...buttons, ...result]
 		} else {
 			result = [...result.slice(0, idx), ...buttons, ...result.slice(idx)]
@@ -77,7 +77,7 @@ function applyPatch<T extends { readonly id: string }>(
 		const { id, buttons } = patch.insertAfter
 		const idx = result.findIndex((btn) => btn.id === id)
 		if (idx === -1) {
-			// target not found: fall back to append
+			console.warn(`webmux: insertAfter target '${id}' not found, falling back to append`)
 			result = [...result, ...buttons]
 		} else {
 			result = [...result.slice(0, idx + 1), ...buttons, ...result.slice(idx + 1)]

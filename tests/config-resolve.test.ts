@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, spyOn, test } from 'bun:test'
 import { resolveButtonArray } from '../src/config-resolve'
 import type { ControlButton } from '../src/types'
 
@@ -99,9 +99,14 @@ describe('resolveButtonArray', () => {
 			expect(result).toEqual([X, A, B])
 		})
 
-		test('falls back to prepend when target not found', () => {
+		test('falls back to prepend when target not found and warns', () => {
+			const spy = spyOn(console, 'warn').mockImplementation(() => {})
 			const result = resolveButtonArray([A, B], { insertBefore: { id: 'z', buttons: [X] } })
 			expect(result).toEqual([X, A, B])
+			expect(spy).toHaveBeenCalledWith(
+				"webmux: insertBefore target 'z' not found, falling back to prepend",
+			)
+			spy.mockRestore()
 		})
 	})
 
@@ -116,9 +121,14 @@ describe('resolveButtonArray', () => {
 			expect(result).toEqual([A, B, X])
 		})
 
-		test('falls back to append when target not found', () => {
+		test('falls back to append when target not found and warns', () => {
+			const spy = spyOn(console, 'warn').mockImplementation(() => {})
 			const result = resolveButtonArray([A, B], { insertAfter: { id: 'z', buttons: [X] } })
 			expect(result).toEqual([A, B, X])
+			expect(spy).toHaveBeenCalledWith(
+				"webmux: insertAfter target 'z' not found, falling back to append",
+			)
+			spy.mockRestore()
 		})
 	})
 
