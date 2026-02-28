@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { createActionRegistry } from '../src/actions/registry'
 import { defaultConfig } from '../src/config'
 import { createHookRegistry } from '../src/hooks/registry'
-import { createPluginManager } from '../src/plugins/manager'
+import { type WebmuxPlugin, createPluginManager } from '../src/plugins/manager'
 import { createUIContributionCollector } from '../src/plugins/ui-contributions'
 import type { XTerminal } from '../src/types'
 
@@ -227,5 +227,58 @@ describe('createPluginManager', () => {
 		await Promise.all([first, second])
 
 		expect(disposeCount).toBe(1)
+	})
+
+	describe('plugin validation', () => {
+		let warnings: string[]
+		const originalWarn = console.warn
+
+		beforeEach(() => {
+			warnings = []
+			console.warn = (...args: unknown[]) => {
+				warnings.push(args.map(String).join(' '))
+			}
+		})
+
+		afterEach(() => {
+			console.warn = originalWarn
+		})
+
+		function makeContext() {
+			return {
+				term: mockTerminal(),
+				config: defaultConfig,
+				hooks: createHookRegistry(),
+				actions: createActionRegistry(),
+				ui: createUIContributionCollector(),
+				mobile: false,
+			}
+		}
+
+		test('skips plugin with missing name', async () => {
+			let ran = false
+			const manager = createPluginManager([
+				{
+					setup() {
+						ran = true
+					},
+				} as unknown as WebmuxPlugin,
+			])
+			await manager.init(makeContext())
+			expect(ran).toBe(false)
+			expect(warnings.some((w) => w.includes("no valid 'name'"))).toBe(true)
+		})
+
+		test('skips plugin with missing setup', async () => {
+			const manager = createPluginManager([{ name: 'bad' } as unknown as WebmuxPlugin])
+			await manager.init(makeContext())
+			expect(warnings.some((w) => w.includes("no 'setup' function"))).toBe(true)
+		})
+
+		test('skips null plugin entry', async () => {
+			const manager = createPluginManager([null as unknown as WebmuxPlugin])
+			await manager.init(makeContext())
+			expect(warnings.some((w) => w.includes('not an object'))).toBe(true)
+		})
 	})
 })

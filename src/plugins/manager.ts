@@ -28,6 +28,23 @@ function logPluginError(phase: 'setup' | 'dispose', name: string, error: unknown
 	console.error(`webmux: plugin '${name}' ${phase} failed`, error)
 }
 
+/** Runtime check — plugins from dynamic imports may not match the interface */
+function isValidPlugin(value: unknown, index: number): value is WebmuxPlugin {
+	if (typeof value !== 'object' || value === null) {
+		console.warn(`webmux: plugin[${index}] is not an object, skipping`)
+		return false
+	}
+	if (!('name' in value) || typeof value.name !== 'string' || value.name.length === 0) {
+		console.warn(`webmux: plugin[${index}] has no valid 'name', skipping`)
+		return false
+	}
+	if (!('setup' in value) || typeof value.setup !== 'function') {
+		console.warn(`webmux: plugin '${value.name}' has no 'setup' function, skipping`)
+		return false
+	}
+	return true
+}
+
 export function createPluginManager(plugins: readonly WebmuxPlugin[]): PluginManager {
 	const disposers: Array<{ readonly name: string; readonly dispose: () => void | Promise<void> }> =
 		[]
@@ -38,7 +55,9 @@ export function createPluginManager(plugins: readonly WebmuxPlugin[]): PluginMan
 	async function init(context: PluginContext): Promise<void> {
 		disposeRequested = false
 		const run = async (): Promise<void> => {
-			for (const plugin of plugins) {
+			for (let i = 0; i < plugins.length; i++) {
+				const plugin: unknown = plugins[i]
+				if (!isValidPlugin(plugin, i)) continue
 				if (disposeRequested) break
 				if (plugin.dispose) {
 					disposers.push({ name: plugin.name, dispose: plugin.dispose })
