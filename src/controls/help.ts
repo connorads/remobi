@@ -3,66 +3,62 @@ import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
 
-function escapeHtml(value: unknown): string {
-	const text =
-		typeof value === 'string' ? value : value === null || value === undefined ? '' : String(value)
-	return text
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;')
+/** Create a table row with two cells — textContent auto-escapes */
+function row(left: string, right: string): HTMLTableRowElement {
+	return el('tr', {}, el('td', {}, left), el('td', {}, right))
 }
 
-function renderButtonTable(title: string, buttons: readonly ControlButton[]): string {
-	const rows = buttons
-		.map((button) => {
-			const label = escapeHtml(button.label || button.id || 'Unnamed')
-			const description = escapeHtml(button.description || 'No description')
-			return `<tr><td>${label}</td><td>${description}</td></tr>`
-		})
-		.join('')
-
-	return `<h2>${escapeHtml(title)}</h2><table>${rows}</table>`
+function renderButtonTable(title: string, buttons: readonly ControlButton[]): DocumentFragment {
+	const frag = document.createDocumentFragment()
+	frag.appendChild(el('h2', {}, title))
+	const table = el('table')
+	for (const button of buttons) {
+		table.appendChild(
+			row(button.label || button.id || 'Unnamed', button.description || 'No description'),
+		)
+	}
+	frag.appendChild(table)
+	return frag
 }
 
-function renderGestures(config: WebmuxConfig): string {
-	const rows: string[] = []
+function renderGestures(config: WebmuxConfig): DocumentFragment {
+	const frag = document.createDocumentFragment()
+	frag.appendChild(el('h2', {}, 'Gestures'))
+	const table = el('table')
 
 	if (config.gestures.swipe.enabled) {
-		rows.push(
-			`<tr><td>Swipe right</td><td>${escapeHtml(config.gestures.swipe.rightLabel)}</td></tr>`,
-		)
-		rows.push(`<tr><td>Swipe left</td><td>${escapeHtml(config.gestures.swipe.leftLabel)}</td></tr>`)
+		table.appendChild(row('Swipe right', config.gestures.swipe.rightLabel))
+		table.appendChild(row('Swipe left', config.gestures.swipe.leftLabel))
 	}
 
 	if (config.gestures.pinch.enabled) {
-		rows.push('<tr><td>Pinch in/out</td><td>Decrease/increase font size</td></tr>')
+		table.appendChild(row('Pinch in/out', 'Decrease/increase font size'))
 	}
 
 	if (config.gestures.scroll.enabled) {
 		if (config.gestures.scroll.strategy === 'wheel') {
-			rows.push('<tr><td>Finger drag</td><td>Send wheel scroll events to terminal apps</td></tr>')
-			rows.push('<tr><td>Side ▲ ▼</td><td>Send wheel-up / wheel-down at terminal centre</td></tr>')
+			table.appendChild(row('Finger drag', 'Send wheel scroll events to terminal apps'))
+			table.appendChild(row('Side \u25B2 \u25BC', 'Send wheel-up / wheel-down at terminal centre'))
 		} else {
-			rows.push('<tr><td>Finger drag</td><td>Send PageUp / PageDown keys</td></tr>')
-			rows.push('<tr><td>Side ▲ ▼</td><td>Send PageUp / PageDown keys</td></tr>')
+			table.appendChild(row('Finger drag', 'Send PageUp / PageDown keys'))
+			table.appendChild(row('Side \u25B2 \u25BC', 'Send PageUp / PageDown keys'))
 		}
 	}
 
-	if (!rows.length) {
-		rows.push('<tr><td>None</td><td>All gestures are disabled in config</td></tr>')
+	if (table.rows.length === 0) {
+		table.appendChild(row('None', 'All gestures are disabled in config'))
 	}
 
-	return `<h2>Gestures</h2><table>${rows.join('')}</table>`
+	frag.appendChild(table)
+	return frag
 }
 
-/** Build the help overlay HTML */
-function buildHelpContent(config: WebmuxConfig): string {
+/** Build the help overlay content as a DocumentFragment — no innerHTML */
+function buildHelpContent(config: WebmuxConfig): DocumentFragment {
 	const topRightButtons: readonly ControlButton[] = [
 		{
 			id: 'font-size',
-			label: '− / +',
+			label: '\u2212 / +',
 			description: 'Decrease / increase font size',
 			action: { type: 'send', data: '' },
 		},
@@ -74,27 +70,29 @@ function buildHelpContent(config: WebmuxConfig): string {
 		},
 	]
 
-	const sections = [
-		'<button class="wt-help-close">×</button>',
-		renderButtonTable('Toolbar — Row 1', config.toolbar.row1),
-		renderButtonTable('Toolbar — Row 2', config.toolbar.row2),
-		renderButtonTable('Drawer Buttons', config.drawer.buttons),
-		renderGestures(config),
-		renderButtonTable('Top-Right Controls', topRightButtons),
-	]
+	const frag = document.createDocumentFragment()
+
+	const closeBtn = el('button', { class: 'wt-help-close' }, '\u00D7')
+	frag.appendChild(closeBtn)
+
+	frag.appendChild(renderButtonTable('Toolbar \u2014 Row 1', config.toolbar.row1))
+	frag.appendChild(renderButtonTable('Toolbar \u2014 Row 2', config.toolbar.row2))
+	frag.appendChild(renderButtonTable('Drawer Buttons', config.drawer.buttons))
+	frag.appendChild(renderGestures(config))
+	frag.appendChild(renderButtonTable('Top-Right Controls', topRightButtons))
 
 	if (config.floatingButtons.length > 0) {
 		const groups: readonly FloatingButtonGroup[] = config.floatingButtons
 		if (groups.length === 1 && groups[0] !== undefined) {
-			sections.push(renderButtonTable('Floating Buttons', groups[0].buttons))
+			frag.appendChild(renderButtonTable('Floating Buttons', groups[0].buttons))
 		} else {
 			for (const group of groups) {
-				sections.push(renderButtonTable(`Floating Buttons (${group.position})`, group.buttons))
+				frag.appendChild(renderButtonTable(`Floating Buttons (${group.position})`, group.buttons))
 			}
 		}
 	}
 
-	return sections.join('')
+	return frag
 }
 
 export interface HelpOverlayResult {
@@ -110,7 +108,7 @@ export function createHelpOverlay(
 	config: WebmuxConfig,
 ): HelpOverlayResult {
 	const overlay = el('div', { id: 'wt-help' })
-	overlay.innerHTML = buildHelpContent(config)
+	overlay.appendChild(buildHelpContent(config))
 
 	function open(): void {
 		overlay.style.display = 'block'

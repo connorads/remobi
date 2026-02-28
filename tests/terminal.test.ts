@@ -19,7 +19,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-	delete window.term
+	window.term = undefined
 	GlobalRegistrator.unregister()
 })
 
@@ -41,6 +41,8 @@ describe('waitForTerm', () => {
 	})
 
 	test('rejects with descriptive error on timeout', async () => {
-		await expect(waitForTerm(2)).rejects.toThrow('waitForTerm: window.term not available after 200ms')
+		await expect(waitForTerm(2)).rejects.toThrow(
+			'waitForTerm: window.term not available after 200ms',
+		)
 	})
 })
