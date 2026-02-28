@@ -29,12 +29,12 @@ async function waitForTtyd(port: number, retries = 40, intervalMs = 200): Promis
 }
 
 /** Pick a random internal port */
-function randomInternalPort(): number {
+export function randomInternalPort(): number {
 	return 19000 + Math.floor(Math.random() * 1000)
 }
 
 /** Build ttyd args from webmux config */
-function buildTtydArgs(
+export function buildTtydArgs(
 	config: WebmuxConfig,
 	internalPort: number,
 	command: readonly string[],
