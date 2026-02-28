@@ -151,6 +151,12 @@ describe('escapeAttr', () => {
 		expect(escapeAttr('a&b"c')).toBe('a&amp;b&quot;c')
 	})
 
+	test('escapes angle brackets', () => {
+		expect(escapeAttr('<script>alert("xss")</script>')).toBe(
+			'&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;',
+		)
+	})
+
 	test('passes through safe strings unchanged', () => {
 		expect(escapeAttr('#1e1e2e')).toBe('#1e1e2e')
 	})

@@ -3,7 +3,11 @@ import { ICON_SVG, svgToDataUri } from './icon'
 
 /** Escape a string for safe use in HTML attribute values */
 export function escapeAttr(value: string): string {
-	return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/"/g, '&quot;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
 }
 
 /** Generate PWA HTML to inject into </head> */

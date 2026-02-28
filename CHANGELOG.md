@@ -4,6 +4,14 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Added: oxlint with `consistent-type-assertions: never` rule to prevent unsafe type assertions.
+- Changed: `waitForTerm` now rejects after timeout (default 10s) instead of polling indefinitely.
+- Changed: plugin manager validates plugin shape at init — invalid plugins are skipped with a warning.
+- Changed: `insertBefore`/`insertAfter` button operations log a `console.warn` when target ID not found.
+- Changed: help overlay rewritten to DOM API (no innerHTML), eliminating XSS surface.
+- Changed: PWA meta-tag values are now HTML-attribute-escaped.
+- Added: unit tests for `buildTtydArgs`, `randomInternalPort`, `waitForTerm`, and plugin validation.
+- Added: `bun run build` step in CI workflow.
 - Added: `webmux serve --no-sleep` flag — prevents macOS system sleep while serving by wrapping ttyd with `caffeinate -s -w <pid>`. The assertion is held for exactly the lifetime of the server and dropped automatically on shutdown. Gracefully ignored with a warning on non-macOS platforms.
 - Added: keep-awake guide (`docs/guides/keep-awake.md`) covering `--no-sleep`, persistent pmset settings, nix-darwin config, and lid-close behaviour.
 - Added: mobile-friendly tmux config guide (`docs/guides/mobile-tmux.md`) and optional tmux optimisation step in setup skill.

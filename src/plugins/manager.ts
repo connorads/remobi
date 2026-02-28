@@ -57,8 +57,8 @@ export function createPluginManager(plugins: readonly WebmuxPlugin[]): PluginMan
 		const run = async (): Promise<void> => {
 			for (let i = 0; i < plugins.length; i++) {
 				const plugin: unknown = plugins[i]
-				if (!isValidPlugin(plugin, i)) continue
 				if (disposeRequested) break
+				if (!isValidPlugin(plugin, i)) continue
 				if (plugin.dispose) {
 					disposers.push({ name: plugin.name, dispose: plugin.dispose })
 				}
