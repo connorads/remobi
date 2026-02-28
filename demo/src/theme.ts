@@ -41,3 +41,27 @@ export const colours = {
 	/** Overlay — muted borders (#6c7086) */
 	overlay: '#6c7086',
 } as const
+
+/** Authentic Claude Code UI colours (from React + Ink source) */
+export const claude = {
+	/** Signature terracotta orange — input borders, prompt accent */
+	terracotta: 'rgb(215,119,87)',
+	/** Lighter terracotta — shimmer target for thinking state */
+	terracottaLight: 'rgb(235,159,127)',
+	/** Lavender blue — tool block borders */
+	lavender: 'rgb(177,185,249)',
+	/** Hot pink — rarely used, available for emphasis */
+	hotPink: 'rgb(253,93,177)',
+	/** Success green — "Applied edit" checkmarks */
+	successGreen: 'rgb(78,186,101)',
+	/** Diff addition background */
+	diffAddBg: 'rgb(34,92,43)',
+	/** Diff removal background */
+	diffRemBg: 'rgb(122,41,54)',
+	/** Diff addition word-level text */
+	diffAddWord: 'rgb(56,166,96)',
+	/** Diff removal word-level text */
+	diffRemWord: 'rgb(179,89,107)',
+	/** Response text — plain white */
+	responseText: 'rgb(255,255,255)',
+} as const

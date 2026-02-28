@@ -1,7 +1,7 @@
 import type React from 'react'
 import { interpolate, useCurrentFrame, useVideoConfig } from 'remotion'
 import { FONT_FAMILY } from '../fonts'
-import { colours } from '../theme'
+import { claude, colours } from '../theme'
 
 /** A single styled span within a terminal line */
 export type TerminalSpan = {
@@ -9,6 +9,10 @@ export type TerminalSpan = {
 	readonly colour?: string
 	readonly bold?: boolean
 	readonly dim?: boolean
+	/** Background colour — used for diff line highlighting */
+	readonly background?: string
+	/** If set, types out character by character (tracked per-span with cumulative offset) */
+	readonly typewriter?: boolean
 }
 
 /** A line of terminal output */
@@ -16,8 +20,8 @@ export type TerminalLine = {
 	readonly spans: readonly TerminalSpan[]
 	/** Delay in frames before this line appears (from the start of the sequence) */
 	readonly appearAt?: number
-	/** If set, types out character by character starting at appearAt */
-	readonly typewriter?: boolean
+	/** Oscillates text colour between terracotta and terracottaLight (for "Thinking..." lines) */
+	readonly shimmer?: boolean
 }
 
 /** Complete terminal screen content */
@@ -34,7 +38,6 @@ export const Terminal: React.FC<{
 	padding?: number
 }> = ({ screen, fontSize = 13, lineHeight = 1.5, padding = 10 }) => {
 	const frame = useCurrentFrame()
-	const { fps } = useVideoConfig()
 
 	return (
 		<div
@@ -55,40 +58,103 @@ export const Terminal: React.FC<{
 				if (frame < appearFrame) return null
 
 				return (
-					<div key={i} style={{ minHeight: fontSize * lineHeight }}>
-						{line.spans.map((span, j) => {
-							let text = span.text
-
-							// Typewriter effect
-							if (line.typewriter && line.appearAt !== undefined) {
-								const elapsed = frame - line.appearAt
-								const charsPerFrame = 0.5
-								const visibleChars = Math.floor(elapsed * charsPerFrame)
-								text = span.text.slice(0, Math.max(0, visibleChars))
-							}
-
-							return (
-								<span
-									key={j}
-									style={{
-										color: span.colour ?? colours.fg,
-										fontWeight: span.bold ? 700 : 400,
-										opacity: span.dim ? 0.5 : 1,
-									}}
-								>
-									{text}
-								</span>
-							)
-						})}
-						{/* Cursor at end of last line */}
-						{screen.cursorAtEnd && i === screen.lines.length - 1 && (
-							<BlinkingCursor fontSize={fontSize} />
-						)}
-					</div>
+					<TerminalLineRow
+						key={i}
+						line={line}
+						isLast={i === screen.lines.length - 1}
+						cursorAtEnd={screen.cursorAtEnd ?? false}
+						fontSize={fontSize}
+						lineHeight={lineHeight}
+					/>
 				)
 			})}
 		</div>
 	)
+}
+
+/** Single terminal line with stagger animation, shimmer, and span-level typewriter */
+const TerminalLineRow: React.FC<{
+	line: TerminalLine
+	isLast: boolean
+	cursorAtEnd: boolean
+	fontSize: number
+	lineHeight: number
+}> = ({ line, isLast, cursorAtEnd, fontSize, lineHeight }) => {
+	const frame = useCurrentFrame()
+	const appearFrame = line.appearAt ?? 0
+
+	// Line stagger: 3-frame fade-in + 6px slide-up
+	const age = frame - appearFrame
+	const staggerOpacity = interpolate(age, [0, 3], [0, 1], { extrapolateRight: 'clamp' })
+	const staggerY = interpolate(age, [0, 3], [6, 0], { extrapolateRight: 'clamp' })
+
+	// Shimmer: oscillate between terracotta and terracottaLight
+	const shimmerColour = line.shimmer
+		? interpolateColour(frame, claude.terracotta, claude.terracottaLight, 40)
+		: undefined
+
+	// Track cumulative char offset for span-level typewriter
+	let cumulativeChars = 0
+
+	return (
+		<div
+			style={{
+				minHeight: fontSize * lineHeight,
+				opacity: staggerOpacity,
+				transform: `translateY(${staggerY}px)`,
+			}}
+		>
+			{line.spans.map((span, j) => {
+				let text = span.text
+				const spanStart = cumulativeChars
+				cumulativeChars += span.text.length
+
+				// Span-level typewriter
+				if (span.typewriter && line.appearAt !== undefined) {
+					const elapsed = frame - line.appearAt
+					const charsPerFrame = 0.5
+					const totalVisible = Math.floor(elapsed * charsPerFrame)
+					const visibleInSpan = Math.max(0, totalVisible - spanStart)
+					text = span.text.slice(0, visibleInSpan)
+				}
+
+				const colour = shimmerColour ?? span.colour ?? colours.fg
+
+				return (
+					<span
+						key={j}
+						style={{
+							color: colour,
+							fontWeight: span.bold ? 700 : 400,
+							opacity: span.dim ? 0.5 : 1,
+							background: span.background,
+						}}
+					>
+						{text}
+					</span>
+				)
+			})}
+			{/* Cursor at end of last line */}
+			{cursorAtEnd && isLast && <BlinkingCursor fontSize={fontSize} />}
+		</div>
+	)
+}
+
+/** Interpolate between two colours using a sine wave */
+function interpolateColour(frame: number, colourA: string, colourB: string, period: number): string {
+	const t = (Math.sin((frame / period) * Math.PI * 2) + 1) / 2
+	const [rA, gA, bA] = parseRgb(colourA)
+	const [rB, gB, bB] = parseRgb(colourB)
+	const r = Math.round(rA + (rB - rA) * t)
+	const g = Math.round(gA + (gB - gA) * t)
+	const b = Math.round(bA + (bB - bA) * t)
+	return `rgb(${r},${g},${b})`
+}
+
+function parseRgb(rgb: string): [number, number, number] {
+	const match = rgb.match(/(\d+),\s*(\d+),\s*(\d+)/)
+	if (!match) return [255, 255, 255]
+	return [Number(match[1]), Number(match[2]), Number(match[3])]
 }
 
 const BlinkingCursor: React.FC<{ fontSize: number }> = ({ fontSize }) => {
