@@ -1,14 +1,16 @@
 import type React from 'react'
 import { AbsoluteFill, spring, interpolate, useCurrentFrame, useVideoConfig } from 'remotion'
+import { FONT_FAMILY } from '../fonts'
 import { colours } from '../theme'
 
 /**
- * Scene 6: "webmux" logo + subtitle, hold, fade (3s / 90 frames)
+ * Scene 6: "webmux" logo + subtitle + GitHub URL, hold, fade (3.5s / 105 frames)
  *
  * Timeline:
- * 0-20:  Title springs in
+ * 0-20:  Title springs in (JetBrains Mono, glow)
  * 10-30: Subtitle fades in
- * 30-90: Hold
+ * 25-40: GitHub URL fades in
+ * 40-105: Hold
  */
 export const Tagline: React.FC = () => {
 	const frame = useCurrentFrame()
@@ -24,16 +26,22 @@ export const Tagline: React.FC = () => {
 		fps,
 		config: { damping: 200 },
 	})
+	const urlEntrance = spring({
+		frame: frame - 25,
+		fps,
+		config: { damping: 200 },
+	})
 
 	const titleScale = interpolate(titleEntrance, [0, 1], [0.8, 1])
 	const titleOpacity = interpolate(titleEntrance, [0, 1], [0, 1])
 	const subtitleOpacity = interpolate(subtitleEntrance, [0, 1], [0, 1])
 	const subtitleY = interpolate(subtitleEntrance, [0, 1], [15, 0])
+	const urlOpacity = interpolate(urlEntrance, [0, 1], [0, 1])
 
 	return (
 		<AbsoluteFill
 			style={{
-				background: colours.bg,
+				background: `radial-gradient(ellipse at center, #242438 0%, ${colours.bg} 70%)`,
 				display: 'flex',
 				flexDirection: 'column',
 				alignItems: 'center',
@@ -52,8 +60,9 @@ export const Tagline: React.FC = () => {
 						fontSize: 56,
 						fontWeight: 700,
 						color: colours.blue,
-						fontFamily: 'system-ui, -apple-system, sans-serif',
+						fontFamily: `"${FONT_FAMILY}", monospace`,
 						letterSpacing: -1,
+						textShadow: `0 0 30px rgba(137,180,250,0.35), 0 0 60px rgba(137,180,250,0.15)`,
 					}}
 				>
 					webmux
@@ -79,6 +88,23 @@ export const Tagline: React.FC = () => {
 					Mobile-friendly terminal overlay
 					<br />
 					for ttyd + tmux
+				</div>
+			</div>
+			<div
+				style={{
+					opacity: urlOpacity,
+					marginTop: 20,
+					textAlign: 'center',
+				}}
+			>
+				<div
+					style={{
+						fontSize: 13,
+						color: colours.overlay,
+						fontFamily: `"${FONT_FAMILY}", monospace`,
+					}}
+				>
+					github.com/connorads/webmux
 				</div>
 			</div>
 		</AbsoluteFill>

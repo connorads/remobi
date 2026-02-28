@@ -18,19 +18,19 @@ const TRANSITION_FRAMES = 15
 /**
  * Main composition (~20s): 6 scenes with varied transitions.
  *
- * | Scene           | Duration | Transition out        |
- * |-----------------|----------|-----------------------|
- * | Phone Intro     | 3s (90f) | slide from-left       |
- * | Swipe Demo      | 4s (120f)| wipe from-bottom      |
- * | Drawer Demo     | 4s (120f)| fade                  |
- * | AI Tools        | 3s (90f) | slide from-right      |
- * | Cross-Platform  | 3s (90f) | clockWipe             |
- * | Tagline         | 3s (90f) | —                     |
+ * | Scene           | Duration   | Transition out        |
+ * |-----------------|------------|-----------------------|
+ * | Phone Intro     | 3.5s (105f)| slide from-left       |
+ * | Swipe Demo      | 4s (120f)  | wipe from-bottom      |
+ * | Drawer Demo     | 4s (120f)  | fade                  |
+ * | AI Tools        | 2.5s (75f) | slide from-right      |
+ * | Cross-Platform  | 3s (90f)   | clockWipe             |
+ * | Tagline         | 3.5s (105f)| —                     |
  */
 export const DemoVideo: React.FC = () => {
 	return (
 		<TransitionSeries>
-			<TransitionSeries.Sequence durationInFrames={3 * FPS}>
+			<TransitionSeries.Sequence durationInFrames={3.5 * FPS}>
 				<PhoneIntro />
 			</TransitionSeries.Sequence>
 
@@ -57,7 +57,7 @@ export const DemoVideo: React.FC = () => {
 				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
 			/>
 
-			<TransitionSeries.Sequence durationInFrames={3 * FPS}>
+			<TransitionSeries.Sequence durationInFrames={2.5 * FPS}>
 				<AITools />
 			</TransitionSeries.Sequence>
 
@@ -75,7 +75,7 @@ export const DemoVideo: React.FC = () => {
 				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
 			/>
 
-			<TransitionSeries.Sequence durationInFrames={3 * FPS}>
+			<TransitionSeries.Sequence durationInFrames={3.5 * FPS}>
 				<Tagline />
 			</TransitionSeries.Sequence>
 		</TransitionSeries>

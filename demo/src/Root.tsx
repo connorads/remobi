@@ -7,10 +7,10 @@ const FPS = 30
 
 /**
  * Total duration: 6 scenes × durations − 5 transitions × 15 frames overlap
- * = (90 + 120 + 120 + 90 + 90 + 90) - (5 × 15)
- * = 600 - 75 = 525 frames (~17.5s)
+ * = (105 + 120 + 120 + 75 + 90 + 105) - (5 × 15)
+ * = 615 - 75 = 540 frames (18s)
  */
-const TOTAL_FRAMES = 525
+const TOTAL_FRAMES = 540
 
 /** Wrapper that delays rendering until fonts are loaded */
 const DemoVideoWithFonts: React.FC = () => {
