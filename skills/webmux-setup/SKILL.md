@@ -70,7 +70,7 @@ Every button in toolbar rows, drawer, and floatingButtons uses this schema:
 
 ### Button array forms (`toolbar.row1`, `toolbar.row2`, `drawer.buttons`)
 
-Three forms are accepted — pick the least invasive:
+Two forms are accepted — pick the least invasive:
 
 ```typescript
 // 1. Replace entirely (plain array)
@@ -79,14 +79,12 @@ toolbar: { row1: [{ id, label, description, action }, ...] }
 // 2. Transform (function receives defaults, returns new array)
 toolbar: { row2: (defaults) => defaults.filter(b => b.id !== 'q') }
 
-// 3. Patch (apply operations against defaults — preferred for small changes)
-toolbar: {
-  row2: {
-    append: [{ id: 'my-btn', label: 'X', description: 'Send x', action: { type: 'send', data: 'x' } }],
-    remove: ['q'],
-  }
-}
-// Patch keys: remove | replace | insertBefore | insertAfter | prepend | append
+// Function form covers all operations via standard JS:
+// - Append:  (d) => [...d, newBtn]
+// - Prepend: (d) => [newBtn, ...d]
+// - Remove:  (d) => d.filter(b => b.id !== 'q')
+// - Replace: (d) => d.map(b => b.id === 'tmux-prefix' ? newBtn : b)
+// - Insert:  (d) => { const i = d.findIndex(b => b.id === 'tab'); return [...d.slice(0,i), newBtn, ...d.slice(i)] }
 ```
 
 ### Floating buttons
@@ -168,16 +166,11 @@ import { defineConfig } from 'webmux'
 export default defineConfig({
   name: 'dev',
   toolbar: {
-    row1: {
-      replace: [
-        {
-          id: 'tmux-prefix',
-          label: 'Prefix',
-          description: 'Send tmux prefix key (Ctrl-A)',
-          action: { type: 'send', data: '\x01' },
-        },
-      ],
-    },
+    row1: (defaults) => defaults.map(b =>
+      b.id === 'tmux-prefix'
+        ? { ...b, description: 'Send tmux prefix key (Ctrl-A)', action: { type: 'send', data: '\x01' } }
+        : b
+    ),
   },
   gestures: {
     swipe: {
@@ -188,19 +181,13 @@ export default defineConfig({
     },
   },
   drawer: {
-    buttons: {
-      replace: [
-        { id: 'tmux-new-window',        label: '+ Win',    description: 'New window',          action: { type: 'send', data: '\x01c' } },
-        { id: 'tmux-split-vertical',    label: 'Split |',  description: 'Split vertically',     action: { type: 'send', data: '\x01|' } },
-        { id: 'tmux-split-horizontal',  label: 'Split —',  description: 'Split horizontally',   action: { type: 'send', data: '\x01-' } },
-        { id: 'tmux-zoom',              label: 'Zoom',     description: 'Toggle pane zoom',     action: { type: 'send', data: '\x01z' } },
-        { id: 'tmux-sessions',          label: 'Sessions', description: 'Sessions picker',      action: { type: 'send', data: '\x01S' } },
-        { id: 'tmux-windows',           label: 'Windows',  description: 'Windows picker',       action: { type: 'send', data: '\x01W' } },
-        { id: 'page-up',                label: 'PgUp',     description: 'Page Up',              action: { type: 'send', data: '\x1b[5~' } },
-        { id: 'page-down',              label: 'PgDn',     description: 'Page Down',            action: { type: 'send', data: '\x1b[6~' } },
-        { id: 'combo-picker',           label: 'Combo',    description: 'Ctrl/Alt + key',       action: { type: 'combo-picker' } },
-      ],
-    },
+    buttons: (defaults) => defaults.map(b => {
+      // Remap tmux-prefixed buttons from Ctrl-B (\x02) to Ctrl-A (\x01)
+      if (b.action.type === 'send' && b.action.data.startsWith('\x02')) {
+        return { ...b, action: { ...b.action, data: '\x01' + b.action.data.slice(1) } }
+      }
+      return b
+    }),
   },
 })
 ```

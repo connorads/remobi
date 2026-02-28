@@ -179,7 +179,7 @@ describe('defaultConfig', () => {
 })
 
 describe('defineConfig with ButtonArrayInput', () => {
-	test('plain array replaces toolbar row1 (backwards compat)', () => {
+	test('plain array replaces toolbar row1', () => {
 		const custom = [
 			{ id: 'x', label: 'X', description: 'X', action: { type: 'send' as const, data: 'x' } },
 		]
@@ -197,112 +197,50 @@ describe('defineConfig with ButtonArrayInput', () => {
 		expect(config.toolbar.row2.length).toBe(defaultConfig.toolbar.row2.length - 1)
 	})
 
-	test('patch append to toolbar row1', () => {
+	test('function form appends to toolbar row1', () => {
 		const extra = {
 			id: 'x',
 			label: 'X',
 			description: 'X',
 			action: { type: 'send' as const, data: 'x' },
 		}
-		const config = defineConfig({ toolbar: { row1: { append: [extra] } } })
+		const config = defineConfig({ toolbar: { row1: (defaults) => [...defaults, extra] } })
 		expect(config.toolbar.row1).toHaveLength(defaultConfig.toolbar.row1.length + 1)
 		expect(config.toolbar.row1[config.toolbar.row1.length - 1]).toEqual(extra)
 	})
 
-	test('patch prepend to toolbar row2', () => {
+	test('function form prepends to toolbar row2', () => {
 		const extra = {
 			id: 'x',
 			label: 'X',
 			description: 'X',
 			action: { type: 'send' as const, data: 'x' },
 		}
-		const config = defineConfig({ toolbar: { row2: { prepend: [extra] } } })
+		const config = defineConfig({ toolbar: { row2: (defaults) => [extra, ...defaults] } })
 		expect(config.toolbar.row2[0]).toEqual(extra)
 	})
 
-	test('patch remove from toolbar row1', () => {
-		const config = defineConfig({ toolbar: { row1: { remove: ['esc'] } } })
+	test('function form removes from toolbar row1', () => {
+		const config = defineConfig({
+			toolbar: { row1: (defaults) => defaults.filter((b) => b.id !== 'esc') },
+		})
 		expect(config.toolbar.row1.find((b) => b.id === 'esc')).toBeUndefined()
 		expect(config.toolbar.row1.length).toBe(defaultConfig.toolbar.row1.length - 1)
 	})
 
-	test('patch replace in toolbar row1', () => {
-		const escReplaced = {
-			id: 'esc',
-			label: 'ESC2',
-			description: 'Esc2',
-			action: { type: 'send' as const, data: '\x1b\x1b' },
-		}
-		const config = defineConfig({ toolbar: { row1: { replace: [escReplaced] } } })
+	test('function form replaces in toolbar row1', () => {
+		const config = defineConfig({
+			toolbar: {
+				row1: (defaults) =>
+					defaults.map((b) =>
+						b.id === 'esc'
+							? { ...b, label: 'ESC2', action: { type: 'send' as const, data: '\x1b\x1b' } }
+							: b,
+					),
+			},
+		})
 		const esc = config.toolbar.row1.find((b) => b.id === 'esc')
 		expect(esc?.label).toBe('ESC2')
-	})
-
-	test('patch insertBefore in toolbar row1', () => {
-		const newBtn = {
-			id: 'new',
-			label: 'New',
-			description: 'New',
-			action: { type: 'send' as const, data: 'n' },
-		}
-		const config = defineConfig({
-			toolbar: { row1: { insertBefore: { id: 'tab', buttons: [newBtn] } } },
-		})
-		const tabIdx = config.toolbar.row1.findIndex((b) => b.id === 'tab')
-		const newIdx = config.toolbar.row1.findIndex((b) => b.id === 'new')
-		expect(newIdx).toBe(tabIdx - 1)
-	})
-
-	test('patch insertAfter in toolbar row1', () => {
-		const newBtn = {
-			id: 'new',
-			label: 'New',
-			description: 'New',
-			action: { type: 'send' as const, data: 'n' },
-		}
-		const config = defineConfig({
-			toolbar: { row1: { insertAfter: { id: 'tab', buttons: [newBtn] } } },
-		})
-		const tabIdx = config.toolbar.row1.findIndex((b) => b.id === 'tab')
-		const newIdx = config.toolbar.row1.findIndex((b) => b.id === 'new')
-		expect(newIdx).toBe(tabIdx + 1)
-	})
-
-	test('patch insertBefore missing target falls back to prepend', () => {
-		const newBtn = {
-			id: 'new',
-			label: 'New',
-			description: 'New',
-			action: { type: 'send' as const, data: 'n' },
-		}
-		const config = defineConfig({
-			toolbar: { row1: { insertBefore: { id: 'nonexistent', buttons: [newBtn] } } },
-		})
-		expect(config.toolbar.row1[0]).toEqual(newBtn)
-	})
-
-	test('patch insertAfter missing target falls back to append', () => {
-		const newBtn = {
-			id: 'new',
-			label: 'New',
-			description: 'New',
-			action: { type: 'send' as const, data: 'n' },
-		}
-		const config = defineConfig({
-			toolbar: { row1: { insertAfter: { id: 'nonexistent', buttons: [newBtn] } } },
-		})
-		expect(config.toolbar.row1[config.toolbar.row1.length - 1]).toEqual(newBtn)
-	})
-
-	test('patch drawer buttons', () => {
-		const extra = {
-			id: 'x',
-			label: 'X',
-			description: 'X',
-			action: { type: 'send' as const, data: 'x' },
-		}
-		const config = defineConfig({ drawer: { buttons: { append: [extra] } } })
-		expect(config.drawer.buttons).toHaveLength(defaultConfig.drawer.buttons.length + 1)
 	})
 
 	test('drawer function form', () => {
@@ -322,13 +260,15 @@ describe('mergeConfig', () => {
 		expect(result.toolbar.row1).toEqual(base.toolbar.row1)
 	})
 
-	test('patch resolves against base buttons, not defaults', () => {
+	test('function resolves against base buttons, not defaults', () => {
 		const custom = [
 			{ id: 'x', label: 'X', description: 'X', action: { type: 'send' as const, data: 'x' } },
 			{ id: 'y', label: 'Y', description: 'Y', action: { type: 'send' as const, data: 'y' } },
 		]
 		const base = defineConfig({ toolbar: { row1: custom } })
-		const result = mergeConfig(base, { toolbar: { row1: { remove: ['x'] } } })
+		const result = mergeConfig(base, {
+			toolbar: { row1: (defaults) => defaults.filter((b) => b.id !== 'x') },
+		})
 		expect(result.toolbar.row1).toHaveLength(1)
 		expect(result.toolbar.row1[0]?.id).toBe('y')
 	})

@@ -8,7 +8,6 @@ This project has not been published yet. On first release, rename this section t
 - Added: oxlint with `consistent-type-assertions: never` rule to prevent unsafe type assertions.
 - Changed: `waitForTerm` now rejects after timeout (default 10s) instead of polling indefinitely.
 - Changed: plugin manager validates plugin shape at init — invalid plugins are skipped with a warning.
-- Changed: `insertBefore`/`insertAfter` button operations log a `console.warn` when target ID not found.
 - Changed: help overlay rewritten to DOM API (no innerHTML), eliminating XSS surface.
 - Changed: PWA meta-tag values are now HTML-attribute-escaped.
 - Added: unit tests for `buildTtydArgs`, `randomInternalPort`, `waitForTerm`, and plugin validation.
@@ -29,7 +28,7 @@ This project has not been published yet. On first release, rename this section t
 - Added: stable public API surface defined in README — semver policy documents which import paths are public, what constitutes major/minor/patch. Closes #4.
 - Added: UI contribution API for plugins — `context.ui.add(slot, button, priority?)` lets plugins contribute buttons to `'toolbar.row1'`, `'toolbar.row2'`, or `'drawer'` slots. Contributions are merged (appended) after config buttons, sorted by priority. Closes #8.
 - Added: per-machine config overrides via `.local` config file — place `webmux.config.local.ts` next to your shared `webmux.config.ts` to apply machine-specific overrides (gitignore the `.local` file). Merged on top of the shared config using the same `WebmuxConfigOverrides` schema. Closes #12.
-- Added: declarative button customisation — toolbar rows and drawer buttons now accept `ButtonArrayInput`: a plain array (replace), a function `(defaults) => newArray`, or a patch object with `append`, `prepend`, `remove`, `replace`, `insertBefore`, `insertAfter` operations. Closes #13.
+- Added: declarative button customisation — toolbar rows and drawer buttons now accept `ButtonArrayInput`: a plain array (replace) or a function `(defaults) => newArray`. Standard JS array methods cover all customisation needs (filter, map, spread, etc.). Closes #13.
 
 - Breaking: unified toolbar/drawer model to `ControlButton` (`id`, `label`, `description`, `action`) and renamed `drawer.commands` to `drawer.buttons`.
 - Changed: touch scrolling defaults to wheel semantics for better behaviour across OpenCode, Claude Code, and plain tmux shells.

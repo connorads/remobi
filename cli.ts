@@ -301,7 +301,7 @@ export default defineConfig({
   // },
   // plugins: ['./plugins/logger.ts', 'webmux-plugin-demo'],
   //
-  // Toolbar/drawer accept a plain array (replace), a function (transform), or a patch:
+  // Toolbar/drawer accept a plain array (replace) or a function (transform):
   //
   // toolbar: { row1: [{ id, label, description, action }], row2: [...] },
   //
@@ -309,14 +309,12 @@ export default defineConfig({
   //   row2: (defaults) => defaults.filter((b) => b.id !== 'q'),
   // },
   //
-  // toolbar: {
-  //   row2: {
-  //     append: [{ id: 'my-btn', label: 'X', description: 'Send x', action: { type: 'send', data: 'x' } }],
-  //     remove: ['q'],
-  //   },
+  // drawer: {
+  //   buttons: (defaults) => [
+  //     ...defaults,
+  //     { id: 'my-btn', label: 'X', description: 'Send x', action: { type: 'send', data: 'x' } },
+  //   ],
   // },
-  //
-  // drawer: { buttons: { append: [{ id, label, description, action }] } },
   //
   // gestures: {
   //   swipe: {

@@ -401,9 +401,9 @@ describe('assertValidConfigOverrides: ButtonArrayInput forms', () => {
 		).not.toThrow()
 	})
 
-	test('accepts patch object for toolbar row2', () => {
-		expect(() =>
-			assertValidConfigOverrides({
+	test('rejects object (patch) for toolbar row2', () => {
+		const message = getValidationMessage(
+			{
 				toolbar: {
 					row2: {
 						append: [
@@ -417,90 +417,16 @@ describe('assertValidConfigOverrides: ButtonArrayInput forms', () => {
 						remove: ['q'],
 					},
 				},
-			}),
-		).not.toThrow()
-	})
-
-	test('accepts patch with insertBefore/insertAfter', () => {
-		expect(() =>
-			assertValidConfigOverrides({
-				toolbar: {
-					row1: {
-						insertBefore: {
-							id: 'tab',
-							buttons: [
-								{
-									id: 'x',
-									label: 'X',
-									description: 'X',
-									action: { type: 'send', data: 'x' },
-								},
-							],
-						},
-					},
-				},
-			}),
-		).not.toThrow()
-	})
-
-	test('rejects unknown patch keys', () => {
-		const message = getValidationMessage(
-			{ toolbar: { row1: { unknown: true } } },
-			assertValidConfigOverrides,
-		)
-		expect(message).toContain('config.toolbar.row1.unknown')
-		expect(message).toContain('known key')
-	})
-
-	test('rejects malformed button in patch prepend', () => {
-		const message = getValidationMessage(
-			{ toolbar: { row1: { prepend: [{ id: 123 }] } } },
-			assertValidConfigOverrides,
-		)
-		expect(message).toContain('config.toolbar.row1.prepend[0].id')
-		expect(message).toContain('string')
-	})
-
-	test('rejects non-string remove ids', () => {
-		const message = getValidationMessage(
-			{ toolbar: { row1: { remove: [123] } } },
-			assertValidConfigOverrides,
-		)
-		expect(message).toContain('config.toolbar.row1.remove[0]')
-		expect(message).toContain('string')
-	})
-
-	test('rejects non-array remove field', () => {
-		const message = getValidationMessage(
-			{ toolbar: { row1: { remove: 'q' } } },
-			assertValidConfigOverrides,
-		)
-		expect(message).toContain('config.toolbar.row1.remove')
-		expect(message).toContain('array')
-	})
-
-	test('rejects malformed insertBefore (missing id)', () => {
-		const message = getValidationMessage(
-			{
-				toolbar: {
-					row1: {
-						insertBefore: {
-							buttons: [
-								{ id: 'x', label: 'X', description: 'X', action: { type: 'send', data: 'x' } },
-							],
-						},
-					},
-				},
 			},
 			assertValidConfigOverrides,
 		)
-		expect(message).toContain('config.toolbar.row1.insertBefore.id')
-		expect(message).toContain('string')
+		expect(message).toContain('config.toolbar.row2')
+		expect(message).toContain('array or function')
 	})
 
-	test('rejects non-object patch value', () => {
+	test('rejects non-array/non-function value', () => {
 		const message = getValidationMessage({ toolbar: { row1: 42 } }, assertValidConfigOverrides)
 		expect(message).toContain('config.toolbar.row1')
-		expect(message).toContain('array, function, or patch object')
+		expect(message).toContain('array or function')
 	})
 })
