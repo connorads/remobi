@@ -285,7 +285,7 @@ function deepMerge(
 
 /**
  * Merge a config overrides object against a base config.
- * Button arrays support array, function, or patch form via `ButtonArrayInput`.
+ * Button arrays support array or function form via `ButtonArrayInput`.
  */
 export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides): WebmuxConfig {
 	// Extract button array inputs before deep-merging (they are not plain arrays)
@@ -294,7 +294,7 @@ export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides
 	const drawerInput = overrides.drawer?.buttons
 
 	// Strip button array inputs from overrides before deep-merge so deepMerge
-	// doesn't try to replace them (they may be functions or patch objects, not arrays)
+	// doesn't try to replace them (they may be functions, not arrays)
 	const strippedOverrides: DeepPartial<WebmuxConfig> = {
 		...overrides,
 		toolbar:

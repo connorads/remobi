@@ -29,7 +29,6 @@ export type {
 	WebmuxConfigOverrides,
 	ButtonAction,
 	ButtonArrayInput,
-	ButtonArrayPatch,
 	ControlButton,
 	TermTheme,
 	FloatingButtonGroup,

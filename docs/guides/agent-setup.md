@@ -39,7 +39,7 @@ If you cannot install the skill, paste this self-contained prompt directly into 
 > - Allowed root keys: `name theme font plugins toolbar drawer gestures mobile floatingButtons pwa`
 > - `action.type` must be one of: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`
 > - `send` actions require `data: string`; no other action type may have `data`
-> - Button arrays (`toolbar.row1`, `toolbar.row2`, `drawer.buttons`) accept a plain array, a function `(defaults) => newArray`, or a patch object with keys `append | prepend | remove | replace | insertBefore | insertAfter`
+> - Button arrays (`toolbar.row1`, `toolbar.row2`, `drawer.buttons`) accept a plain array or a function `(defaults) => newArray`
 > - `floatingButtons` is an array of groups: `{ position, direction?, buttons }` — never a flat button array
 > - `drawer.buttons` not `drawer.commands`
 > - Tmux sequences: prefix byte + key char (e.g. Ctrl-B prefix = `\x02`, so new window = `\x02c`)
@@ -120,16 +120,11 @@ import { defineConfig } from 'webmux'
 export default defineConfig({
   name: 'dev',
   toolbar: {
-    row1: {
-      replace: [
-        {
-          id: 'tmux-prefix',
-          label: 'Prefix',
-          description: 'Send tmux prefix key (Ctrl-A)',
-          action: { type: 'send', data: '\x01' },
-        },
-      ],
-    },
+    row1: (defaults) => defaults.map(b =>
+      b.id === 'tmux-prefix'
+        ? { ...b, description: 'Send tmux prefix key (Ctrl-A)', action: { type: 'send', data: '\x01' } }
+        : b
+    ),
   },
   gestures: {
     swipe: {
@@ -140,19 +135,13 @@ export default defineConfig({
     },
   },
   drawer: {
-    buttons: {
-      replace: [
-        { id: 'tmux-new-window',       label: '+ Win',   description: 'New window',         action: { type: 'send', data: '\x01c' } },
-        { id: 'tmux-split-vertical',   label: 'Split |', description: 'Split vertically',    action: { type: 'send', data: '\x01|' } },
-        { id: 'tmux-split-horizontal', label: 'Split —', description: 'Split horizontally',  action: { type: 'send', data: '\x01-' } },
-        { id: 'tmux-zoom',             label: 'Zoom',    description: 'Toggle pane zoom',    action: { type: 'send', data: '\x01z' } },
-        { id: 'tmux-sessions',         label: 'Sessions',description: 'Sessions picker',     action: { type: 'send', data: '\x01S' } },
-        { id: 'tmux-windows',          label: 'Windows', description: 'Windows picker',      action: { type: 'send', data: '\x01W' } },
-        { id: 'page-up',               label: 'PgUp',    description: 'Page Up',             action: { type: 'send', data: '\x1b[5~' } },
-        { id: 'page-down',             label: 'PgDn',    description: 'Page Down',           action: { type: 'send', data: '\x1b[6~' } },
-        { id: 'combo-picker',          label: 'Combo',   description: 'Ctrl/Alt + key',      action: { type: 'combo-picker' } },
-      ],
-    },
+    buttons: (defaults) => defaults.map(b => {
+      // Remap tmux-prefixed buttons from Ctrl-B (\x02) to Ctrl-A (\x01)
+      if (b.action.type === 'send' && b.action.data.startsWith('\x02')) {
+        return { ...b, action: { ...b.action, data: '\x01' + b.action.data.slice(1) } }
+      }
+      return b
+    }),
   },
 })
 ```

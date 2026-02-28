@@ -60,15 +60,6 @@ const PINCH_KEYS = ['enabled']
 const SCROLL_KEYS = ['enabled', 'sensitivity', 'strategy', 'wheelIntervalMs']
 const BUTTON_KEYS = ['id', 'label', 'description', 'action']
 const ACTION_KEYS = ['type', 'data', 'keyLabel']
-const BUTTON_ARRAY_PATCH_KEYS = [
-	'remove',
-	'replace',
-	'insertBefore',
-	'insertAfter',
-	'prepend',
-	'append',
-]
-const INSERT_OP_KEYS = ['id', 'buttons']
 const FLOATING_POSITIONS = [
 	'top-left',
 	'top-right',
@@ -319,56 +310,7 @@ function validateButtonArrayInput(value: unknown, path: string, issues: Validati
 		return
 	}
 
-	// Patch object
-	if (isRecord(value)) {
-		checkUnknownKeys(value, BUTTON_ARRAY_PATCH_KEYS, path, issues)
-
-		if ('remove' in value && value.remove !== undefined) {
-			if (!Array.isArray(value.remove)) {
-				pushIssue(issues, `${path}.remove`, 'array of string ids', value.remove)
-			} else {
-				for (let i = 0; i < value.remove.length; i++) {
-					validateString(value.remove[i], `${path}.remove[${i}]`, issues)
-				}
-			}
-		}
-
-		if ('replace' in value && value.replace !== undefined) {
-			validateButtonsArray(value.replace, `${path}.replace`, issues)
-		}
-
-		if ('prepend' in value && value.prepend !== undefined) {
-			validateButtonsArray(value.prepend, `${path}.prepend`, issues)
-		}
-
-		if ('append' in value && value.append !== undefined) {
-			validateButtonsArray(value.append, `${path}.append`, issues)
-		}
-
-		for (const op of ['insertBefore', 'insertAfter'] as const) {
-			if (op in value && value[op] !== undefined) {
-				const opVal = value[op]
-				if (!isRecord(opVal)) {
-					pushIssue(issues, `${path}.${op}`, 'object', opVal)
-				} else {
-					checkUnknownKeys(opVal, INSERT_OP_KEYS, `${path}.${op}`, issues)
-					if (!('id' in opVal)) {
-						pushIssue(issues, `${path}.${op}.id`, 'string', undefined)
-					} else {
-						validateString(opVal.id, `${path}.${op}.id`, issues)
-					}
-					if (!('buttons' in opVal)) {
-						pushIssue(issues, `${path}.${op}.buttons`, 'array of control buttons', undefined)
-					} else {
-						validateButtonsArray(opVal.buttons, `${path}.${op}.buttons`, issues)
-					}
-				}
-			}
-		}
-		return
-	}
-
-	pushIssue(issues, path, 'array, function, or patch object', value)
+	pushIssue(issues, path, 'array or function', value)
 }
 
 function validateFloatingGroups(value: unknown, path: string, issues: ValidationIssue[]): void {
