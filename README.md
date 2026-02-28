@@ -8,6 +8,11 @@ Mobile-friendly terminal overlay for [ttyd](https://github.com/tsl0922/ttyd) + [
 
 Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gesture support, and a command drawer. Produces a single `index.html` for `ttyd --index`.
 
+<div align="center">
+  <!-- Upload demo/out/demo.mp4 via GitHub issue/PR drag-and-drop, then replace the src below -->
+  <video src="https://github.com/user-attachments/assets/PLACEHOLDER" width="300" autoplay loop muted playsinline></video>
+</div>
+
 ## Features
 
 - **`webmux serve`** — one command to run webmux: builds overlay in memory, manages ttyd, serves manifest + icons
