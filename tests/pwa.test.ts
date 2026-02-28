@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { ICON_SVG, svgToDataUri } from '../src/pwa/icon'
 import { generateManifest, manifestToJson } from '../src/pwa/manifest'
-import { generatePwaHtml } from '../src/pwa/meta-tags'
+import { escapeAttr, generatePwaHtml } from '../src/pwa/meta-tags'
 import type { PwaConfig } from '../src/types'
 
 const defaultPwa: PwaConfig = {
@@ -137,5 +137,21 @@ describe('generatePwaHtml', () => {
 	test('uses name arg in apple-mobile-web-app-title', () => {
 		const html = generatePwaHtml('My Terminal', defaultPwa)
 		expect(html).toContain('content="My Terminal"')
+	})
+
+	test('escapes quotes in name and themeColor', () => {
+		const html = generatePwaHtml('My "Terminal"', { ...defaultPwa, themeColor: '#1e1e2e"bad' })
+		expect(html).toContain('content="My &quot;Terminal&quot;"')
+		expect(html).toContain('content="#1e1e2e&quot;bad"')
+	})
+})
+
+describe('escapeAttr', () => {
+	test('escapes ampersands and double quotes', () => {
+		expect(escapeAttr('a&b"c')).toBe('a&amp;b&quot;c')
+	})
+
+	test('passes through safe strings unchanged', () => {
+		expect(escapeAttr('#1e1e2e')).toBe('#1e1e2e')
 	})
 })
