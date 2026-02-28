@@ -1,5 +1,19 @@
 import type { ButtonArrayInput, ButtonArrayPatch } from './types'
 
+/** Type predicate — Array.isArray doesn't narrow `readonly T[]` from generic unions */
+function isReadonlyArray<T extends { readonly id: string }>(
+	input: ButtonArrayInput<T>,
+): input is readonly T[] {
+	return Array.isArray(input)
+}
+
+/** Type predicate — typeof 'function' doesn't narrow generic callable union members */
+function isTransformFn<T extends { readonly id: string }>(
+	input: ButtonArrayInput<T>,
+): input is (defaults: readonly T[]) => readonly T[] {
+	return typeof input === 'function'
+}
+
 /**
  * Resolve a ButtonArrayInput against the defaults array.
  *
@@ -17,15 +31,15 @@ export function resolveButtonArray<T extends { readonly id: string }>(
 		return defaults
 	}
 
-	if (Array.isArray(input)) {
-		return input as readonly T[]
+	if (isReadonlyArray(input)) {
+		return input
 	}
 
-	if (typeof input === 'function') {
-		return (input as (d: readonly T[]) => readonly T[])(defaults)
+	if (isTransformFn(input)) {
+		return input(defaults)
 	}
 
-	return applyPatch(defaults, input as ButtonArrayPatch<T>)
+	return applyPatch(defaults, input)
 }
 
 function applyPatch<T extends { readonly id: string }>(
