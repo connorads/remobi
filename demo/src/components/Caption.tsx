@@ -9,9 +9,7 @@ export const Caption: React.FC<{
 	subtitle?: string
 	/** Frame when caption appears (default: 10) */
 	appearAt?: number
-	/** Optional keyword to highlight in blue within the main text */
-	highlight?: string
-}> = ({ text, subtitle, appearAt = 10, highlight }) => {
+}> = ({ text, subtitle, appearAt = 10 }) => {
 	const frame = useCurrentFrame()
 	const { fps } = useVideoConfig()
 
@@ -42,7 +40,7 @@ export const Caption: React.FC<{
 					textShadow: '0 0 20px rgba(137,180,250,0.25)',
 				}}
 			>
-				{highlight ? renderHighlighted(text, highlight) : text}
+				{text}
 			</div>
 			{subtitle && (
 				<div
@@ -57,18 +55,5 @@ export const Caption: React.FC<{
 				</div>
 			)}
 		</div>
-	)
-}
-
-/** Renders text with the first occurrence of `keyword` coloured in blue */
-function renderHighlighted(text: string, keyword: string): React.ReactNode {
-	const idx = text.indexOf(keyword)
-	if (idx === -1) return text
-	return (
-		<>
-			{text.slice(0, idx)}
-			<span style={{ color: colours.blue }}>{keyword}</span>
-			{text.slice(idx + keyword.length)}
-		</>
 	)
 }

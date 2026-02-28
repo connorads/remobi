@@ -1,7 +1,7 @@
 import type React from 'react'
 import { TransitionSeries, linearTiming } from '@remotion/transitions'
-import { clockWipe } from '@remotion/transitions/clock-wipe'
 import { fade } from '@remotion/transitions/fade'
+import { flip } from '@remotion/transitions/flip'
 import { slide } from '@remotion/transitions/slide'
 import { wipe } from '@remotion/transitions/wipe'
 import { PhoneIntro } from './scenes/PhoneIntro'
@@ -24,7 +24,7 @@ const TRANSITION_FRAMES = 15
  * | Swipe Demo      | 4s (120f)  | wipe from-bottom      |
  * | Drawer Demo     | 4s (120f)  | fade                  |
  * | AI Tools        | 2.5s (75f) | slide from-right      |
- * | Cross-Platform  | 3s (90f)   | clockWipe             |
+ * | Cross-Platform  | 3s (90f)   | flip                  |
  * | Tagline         | 3.5s (105f)| —                     |
  */
 export const DemoVideo: React.FC = () => {
@@ -71,7 +71,7 @@ export const DemoVideo: React.FC = () => {
 			</TransitionSeries.Sequence>
 
 			<TransitionSeries.Transition
-				presentation={clockWipe()}
+				presentation={flip()}
 				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
 			/>
 

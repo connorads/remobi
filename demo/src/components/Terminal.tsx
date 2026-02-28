@@ -93,9 +93,6 @@ const TerminalLineRow: React.FC<{
 		? interpolateColour(frame, claude.terracotta, claude.terracottaLight, 40)
 		: undefined
 
-	// Track cumulative char offset for span-level typewriter
-	let cumulativeChars = 0
-
 	return (
 		<div
 			style={{
@@ -106,16 +103,13 @@ const TerminalLineRow: React.FC<{
 		>
 			{line.spans.map((span, j) => {
 				let text = span.text
-				const spanStart = cumulativeChars
-				cumulativeChars += span.text.length
 
-				// Span-level typewriter
+				// Span-level typewriter: type from 0 relative to the line's appearAt
 				if (span.typewriter && line.appearAt !== undefined) {
 					const elapsed = frame - line.appearAt
 					const charsPerFrame = 0.5
-					const totalVisible = Math.floor(elapsed * charsPerFrame)
-					const visibleInSpan = Math.max(0, totalVisible - spanStart)
-					text = span.text.slice(0, visibleInSpan)
+					const visibleChars = Math.floor(elapsed * charsPerFrame)
+					text = span.text.slice(0, Math.max(0, visibleChars))
 				}
 
 				const colour = shimmerColour ?? span.colour ?? colours.fg
