@@ -83,9 +83,11 @@ export function attachSwipeGestures(
 			setTimeout(attach, 200)
 			return
 		}
+		// oxlint-disable-next-line typescript/consistent-type-assertions -- DOM addEventListener types Event, not TouchEvent
 		screen.addEventListener('touchstart', (e: Event) => onTouchStart(e as TouchEvent), {
 			passive: true,
 		})
+		// oxlint-disable-next-line typescript/consistent-type-assertions -- DOM addEventListener types Event, not TouchEvent
 		screen.addEventListener('touchend', (e: Event) => onTouchEnd(e as TouchEvent), {
 			passive: true,
 		})

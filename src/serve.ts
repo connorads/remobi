@@ -141,18 +141,21 @@ export async function serve(
 			}
 
 			if (url.pathname === '/apple-touch-icon.png' && icon180) {
+				// oxlint-disable-next-line typescript/consistent-type-assertions -- Bun typing gap: Uint8Array not assignable to BodyInit
 				return new Response(icon180 as unknown as BodyInit, {
 					headers: { 'content-type': 'image/png' },
 				})
 			}
 
 			if (url.pathname === '/icon-192.png' && icon192) {
+				// oxlint-disable-next-line typescript/consistent-type-assertions -- Bun typing gap: Uint8Array not assignable to BodyInit
 				return new Response(icon192 as unknown as BodyInit, {
 					headers: { 'content-type': 'image/png' },
 				})
 			}
 
 			if (url.pathname === '/icon-512.png' && icon512) {
+				// oxlint-disable-next-line typescript/consistent-type-assertions -- Bun typing gap: Uint8Array not assignable to BodyInit
 				return new Response(icon512 as unknown as BodyInit, {
 					headers: { 'content-type': 'image/png' },
 				})
@@ -183,6 +186,7 @@ export async function serve(
 					if (event.data instanceof ArrayBuffer) {
 						ws.sendBinary(new Uint8Array(event.data))
 					} else {
+						// oxlint-disable-next-line typescript/consistent-type-assertions -- WebSocket onmessage doesn't narrow else branch
 						ws.send(event.data as string)
 					}
 				}
@@ -201,6 +205,7 @@ export async function serve(
 					backend.send(data)
 				} else {
 					buffer.push(
+						// oxlint-disable-next-line typescript/consistent-type-assertions -- Bun Buffer → ArrayBuffer for Uint8Array ctor
 						typeof data === 'string' ? data : new Uint8Array(data as unknown as ArrayBuffer),
 					)
 				}

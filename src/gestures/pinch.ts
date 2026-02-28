@@ -73,9 +73,11 @@ export function attachPinchGestures(term: XTerminal, font: FontConfig, lock: Ges
 			setTimeout(attach, 200)
 			return
 		}
+		// oxlint-disable-next-line typescript/consistent-type-assertions -- DOM addEventListener types Event, not TouchEvent
 		screen.addEventListener('touchstart', (e: Event) => onPinchStart(e as TouchEvent), {
 			passive: true,
 		})
+		// oxlint-disable-next-line typescript/consistent-type-assertions -- DOM addEventListener types Event, not TouchEvent
 		screen.addEventListener('touchmove', (e: Event) => onPinchMove(e as TouchEvent), {
 			passive: false,
 		})

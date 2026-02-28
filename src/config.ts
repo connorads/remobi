@@ -270,10 +270,12 @@ function deepMerge(
 			typeof overrideVal === 'object' &&
 			!Array.isArray(overrideVal)
 		) {
+			/* oxlint-disable typescript/consistent-type-assertions -- generic deepMerge on runtime-narrowed objects */
 			result[key] = deepMerge(
 				baseVal as Record<string, unknown>,
 				overrideVal as Record<string, unknown>,
 			)
+			/* oxlint-enable typescript/consistent-type-assertions */
 		} else {
 			result[key] = overrideVal
 		}
@@ -298,6 +300,7 @@ export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides
 		toolbar:
 			overrides.toolbar !== undefined
 				? {
+						// oxlint-disable-next-line typescript/consistent-type-assertions -- bridge typed overrides to untyped merge
 						...(overrides.toolbar as DeepPartial<WebmuxConfig['toolbar']>),
 						row1: undefined,
 						row2: undefined,
@@ -306,16 +309,19 @@ export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides
 		drawer:
 			overrides.drawer !== undefined
 				? {
+						// oxlint-disable-next-line typescript/consistent-type-assertions -- bridge typed overrides to untyped merge
 						...(overrides.drawer as DeepPartial<WebmuxConfig['drawer']>),
 						buttons: undefined,
 					}
 				: undefined,
 	}
 
+	/* oxlint-disable typescript/consistent-type-assertions -- bridge typed config to untyped deepMerge */
 	const merged = deepMerge(
 		base as unknown as Record<string, unknown>,
 		strippedOverrides as unknown as Record<string, unknown>,
 	) as unknown as WebmuxConfig
+	/* oxlint-enable typescript/consistent-type-assertions */
 
 	// Resolve button arrays
 	const row1 = resolveButtonArray(base.toolbar.row1, row1Input)

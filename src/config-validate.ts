@@ -391,6 +391,7 @@ function validateFloatingGroups(value: unknown, path: string, issues: Validation
 		if (!('position' in group)) {
 			pushIssue(issues, `${groupPath}.position`, `'${FLOATING_POSITIONS.join("' | '")}'`, undefined)
 		} else if (
+			// oxlint-disable-next-line typescript/consistent-type-assertions -- TS limitation: const array .includes() needs cast
 			!FLOATING_POSITIONS.includes(group.position as (typeof FLOATING_POSITIONS)[number])
 		) {
 			pushIssue(
@@ -402,6 +403,7 @@ function validateFloatingGroups(value: unknown, path: string, issues: Validation
 		}
 
 		if ('direction' in group && group.direction !== undefined) {
+			// oxlint-disable-next-line typescript/consistent-type-assertions -- TS limitation: const array .includes() needs cast
 			if (!FLOATING_DIRECTIONS.includes(group.direction as (typeof FLOATING_DIRECTIONS)[number])) {
 				pushIssue(
 					issues,

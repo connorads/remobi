@@ -1,0 +1,11 @@
+{
+	"rules": {
+		"typescript/consistent-type-assertions": [
+			"error",
+			{
+				"assertionStyle": "never"
+			}
+		]
+	},
+	"ignorePatterns": ["tests/"]
+}
