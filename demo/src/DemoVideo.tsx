@@ -1,6 +1,9 @@
 import type React from 'react'
 import { TransitionSeries, linearTiming } from '@remotion/transitions'
+import { clockWipe } from '@remotion/transitions/clock-wipe'
 import { fade } from '@remotion/transitions/fade'
+import { slide } from '@remotion/transitions/slide'
+import { wipe } from '@remotion/transitions/wipe'
 import { PhoneIntro } from './scenes/PhoneIntro'
 import { SwipeDemo } from './scenes/SwipeDemo'
 import { DrawerDemo } from './scenes/DrawerDemo'
@@ -13,16 +16,16 @@ const FPS = 30
 const TRANSITION_FRAMES = 15
 
 /**
- * Main composition (~20s): 6 scenes with crossfade transitions.
+ * Main composition (~20s): 6 scenes with varied transitions.
  *
- * | Scene           | Duration |
- * |-----------------|----------|
- * | Phone Intro     | 3s (90f) |
- * | Swipe Demo      | 4s (120f)|
- * | Drawer Demo     | 4s (120f)|
- * | AI Tools        | 3s (90f) |
- * | Cross-Platform  | 3s (90f) |
- * | Tagline         | 3s (90f) |
+ * | Scene           | Duration | Transition out        |
+ * |-----------------|----------|-----------------------|
+ * | Phone Intro     | 3s (90f) | slide from-left       |
+ * | Swipe Demo      | 4s (120f)| wipe from-bottom      |
+ * | Drawer Demo     | 4s (120f)| fade                  |
+ * | AI Tools        | 3s (90f) | slide from-right      |
+ * | Cross-Platform  | 3s (90f) | clockWipe             |
+ * | Tagline         | 3s (90f) | —                     |
  */
 export const DemoVideo: React.FC = () => {
 	return (
@@ -32,7 +35,7 @@ export const DemoVideo: React.FC = () => {
 			</TransitionSeries.Sequence>
 
 			<TransitionSeries.Transition
-				presentation={fade()}
+				presentation={slide({ direction: 'from-left' })}
 				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
 			/>
 
@@ -41,7 +44,7 @@ export const DemoVideo: React.FC = () => {
 			</TransitionSeries.Sequence>
 
 			<TransitionSeries.Transition
-				presentation={fade()}
+				presentation={wipe({ direction: 'from-bottom' })}
 				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
 			/>
 
@@ -59,7 +62,7 @@ export const DemoVideo: React.FC = () => {
 			</TransitionSeries.Sequence>
 
 			<TransitionSeries.Transition
-				presentation={fade()}
+				presentation={slide({ direction: 'from-right' })}
 				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
 			/>
 
@@ -68,7 +71,7 @@ export const DemoVideo: React.FC = () => {
 			</TransitionSeries.Sequence>
 
 			<TransitionSeries.Transition
-				presentation={fade()}
+				presentation={clockWipe()}
 				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
 			/>
 
