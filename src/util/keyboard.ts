@@ -1,7 +1,7 @@
 import type { XTerminal } from '../types'
 
 /** Threshold in pixels — if the gap between innerHeight and viewport height exceeds this, the keyboard is open */
-const KB_THRESHOLD = 150
+export const KB_THRESHOLD = 150
 
 /** Check whether the virtual keyboard appears to be open */
 export function isKeyboardOpen(): boolean {

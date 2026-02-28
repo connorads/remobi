@@ -1,3 +1,5 @@
+import { KB_THRESHOLD } from '../util/keyboard'
+
 /**
  * Detect landscape orientation + keyboard open state.
  * In landscape with keyboard, hides row 2 and shrinks buttons via CSS class.
@@ -6,7 +8,7 @@ export function checkLandscapeKeyboard(toolbar: HTMLDivElement): void {
 	const vp = window.visualViewport
 	if (!vp) return
 
-	const kbOpen = window.innerHeight - vp.height > 150
+	const kbOpen = window.innerHeight - vp.height > KB_THRESHOLD
 	const landscape = window.innerWidth > window.innerHeight
 
 	if (kbOpen && landscape) {
