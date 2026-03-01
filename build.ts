@@ -5,66 +5,19 @@ import type { WebmuxConfig } from './src/types'
 
 const PROJECT_ROOT = import.meta.dir
 
-function escapeJsString(value: string): string {
-	return value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")
-}
-
-function pluginImportsCode(pluginImports: readonly string[]): {
-	readonly imports: string
-	readonly setupCode: string
-} {
-	if (pluginImports.length === 0) {
-		return { imports: '', setupCode: 'const plugins = []' }
-	}
-
-	const imports: string[] = []
-	const refs: string[] = []
-	const specs: string[] = []
-	for (let index = 0; index < pluginImports.length; index++) {
-		const ref = `pluginModule${index}`
-		const spec = pluginImports[index]
-		if (!spec) continue
-		refs.push(ref)
-		specs.push(spec)
-		imports.push(`import * as ${ref} from '${escapeJsString(spec)}'`)
-	}
-
-	const setupCode = `
-const pluginSpecs = ${JSON.stringify(specs)}
-const pluginModules = [${refs.join(', ')}]
-const plugins = pluginModules.flatMap((moduleRef, index) => {
-	const candidate = moduleRef.default
-	if (candidate && typeof candidate === 'object' && typeof candidate.setup === 'function') {
-		return [candidate]
-	}
-	console.error('webmux: invalid plugin export (expected default WebmuxPlugin):', pluginSpecs[index])
-	return []
-})`
-
-	return {
-		imports: `${imports.join('\n')}\n`,
-		setupCode,
-	}
-}
-
 /** Bundle the overlay JS + CSS into strings */
-export async function bundleOverlay(
-	config: WebmuxConfig,
-	pluginImports: readonly string[] = [],
-): Promise<{ js: string; css: string }> {
+export async function bundleOverlay(config: WebmuxConfig): Promise<{ js: string; css: string }> {
 	// Read CSS
 	const cssPath = resolve(PROJECT_ROOT, 'styles/base.css')
 	const css = readFileSync(cssPath, 'utf-8')
 
 	// Create a temp entry that imports init and calls it with embedded config
 	const configJson = JSON.stringify(config)
-	const pluginsCode = pluginImportsCode(pluginImports)
 	const entryCode = `
 import { init, createHookRegistry } from './src/index.ts'
-${pluginsCode.imports}${pluginsCode.setupCode}
 const hooks = createHookRegistry()
 const config = ${configJson}
-;(function() { init(config, hooks, plugins) })()
+;(function() { init(config, hooks) })()
 `
 
 	// Write temp entry
@@ -160,23 +113,16 @@ export function injectOverlay(html: string, js: string, css: string, config: Web
 }
 
 /** Full build pipeline: bundle → fetch ttyd HTML → inject → write output */
-export async function build(
-	config: WebmuxConfig,
-	outputPath: string,
-	pluginImports: readonly string[] = [],
-): Promise<void> {
-	const { js, css } = await bundleOverlay(config, pluginImports)
+export async function build(config: WebmuxConfig, outputPath: string): Promise<void> {
+	const { js, css } = await bundleOverlay(config)
 	const baseHtml = await fetchTtydHtml()
 	const patched = injectOverlay(baseHtml, js, css, config)
 	await Bun.write(outputPath, patched)
 }
 
 /** Build from stdin HTML (pipe mode) */
-export async function injectFromStdin(
-	config: WebmuxConfig,
-	pluginImports: readonly string[] = [],
-): Promise<string> {
-	const { js, css } = await bundleOverlay(config, pluginImports)
+export async function injectFromStdin(config: WebmuxConfig): Promise<string> {
+	const { js, css } = await bundleOverlay(config)
 	const stdin = await Bun.stdin.text()
 	if (stdin.trim().length === 0) {
 		throw new Error('webmux inject expects piped ttyd HTML on stdin')

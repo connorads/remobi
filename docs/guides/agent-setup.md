@@ -36,7 +36,7 @@ If you cannot install the skill, paste this self-contained prompt directly into 
 > Rules:
 > - Use `import { defineConfig } from 'webmux'` and `export default defineConfig({...})`
 > - Only include keys that differ from defaults; omit everything else
-> - Allowed root keys: `name theme font plugins toolbar drawer gestures mobile floatingButtons pwa reconnect`
+> - Allowed root keys: `name theme font toolbar drawer gestures mobile floatingButtons pwa reconnect`
 > - `action.type` must be one of: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`
 > - `send` actions require `data: string`; no other action type may have `data`
 > - Button arrays (`toolbar.row1`, `toolbar.row2`, `drawer.buttons`) accept a plain array or a function `(defaults) => newArray`
@@ -186,7 +186,6 @@ webmux build --dry-run
 Dry run: build
 - config: /path/to/webmux.config.ts
 - output: /path/to/dist/index.html
-- plugins: 0
 - action: would bundle overlay, fetch ttyd base HTML, inject, and write file
 ```
 
@@ -201,7 +200,7 @@ Invalid webmux config:
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| `config.<unknown-key>: expected known key` | Invented or legacy root key | Remove it; only `name theme font plugins toolbar drawer gestures mobile floatingButtons pwa` are valid |
+| `config.<unknown-key>: expected known key` | Invented or legacy root key | Remove it; only `name theme font toolbar drawer gestures mobile floatingButtons pwa reconnect` are valid |
 | `config.drawer.commands` | Old key name | Rename to `drawer.buttons` |
 | `config.toolbar.buttons` | Wrong toolbar shape | Use `toolbar.row1` and/or `toolbar.row2` |
 | `action.type: expected 'send' \| ...` | Wrong type string | Use exact literal: `send`, `ctrl-modifier`, `paste`, `combo-picker`, or `drawer-toggle` |

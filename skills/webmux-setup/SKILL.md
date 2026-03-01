@@ -40,7 +40,7 @@ export default defineConfig({
 Exactly these — validation rejects anything else:
 
 ```
-name  theme  font  plugins  toolbar  drawer  gestures  mobile  floatingButtons  pwa  reconnect
+name  theme  font  toolbar  drawer  gestures  mobile  floatingButtons  pwa  reconnect
 ```
 
 ### ButtonAction union — exact allowed values for `action.type`
@@ -243,7 +243,6 @@ For each missing item, offer a concrete snippet the user can paste into `tmux.co
 - **Non-`send` actions must not have `data` or `keyLabel`** — validator rejects them.
 - **`floatingButtons` is an array of groups** — wrap buttons in `{ position, buttons }`.
 - **`toolbar` has `row1` and `row2`** — there is no `row3` or flat `buttons` key on toolbar.
-- **`plugins` is a string array** — each entry is a module specifier; no objects.
 - **`mobile.initData`** is `string | null` — set to `null` to disable, not `false` or `''`.
 - **`reconnect`** has only `enabled: boolean` — defaults to `true`. Set `{ enabled: false }` to disable.
 

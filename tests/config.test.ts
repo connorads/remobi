@@ -106,13 +106,6 @@ describe('defineConfig', () => {
 		expect(config.pwa.enabled).toBe(true)
 		expect(config.pwa.themeColor).toBe('#1e1e2e')
 	})
-
-	test('replaces plugins array', () => {
-		const config = defineConfig({
-			plugins: ['./plugins/logger.ts', 'webmux-plugin-demo'],
-		})
-		expect(config.plugins).toEqual(['./plugins/logger.ts', 'webmux-plugin-demo'])
-	})
 })
 
 describe('defaultConfig', () => {
@@ -146,10 +139,6 @@ describe('defaultConfig', () => {
 
 	test('font size range is [8, 32]', () => {
 		expect(defaultConfig.font.sizeRange).toEqual([8, 32])
-	})
-
-	test('defaults to no plugins', () => {
-		expect(defaultConfig.plugins).toEqual([])
 	})
 
 	test('mobile defaults to null initData and 768 widthThreshold', () => {

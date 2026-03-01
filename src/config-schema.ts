@@ -8,15 +8,6 @@ import * as v from 'valibot'
 
 const finiteNumber = v.pipe(v.number(), v.finite())
 
-// --- Plugin specifier ---
-
-const pluginSpecifierSchema = v.pipe(
-	v.string(),
-	v.check((s) => s.trim().length > 0, 'non-empty plugin specifier'),
-	v.check((s) => s.trim() === s, 'trimmed plugin specifier (no leading/trailing whitespace)'),
-	v.check((s) => !/[\r\n]/.test(s), 'single-line plugin specifier with no control characters'),
-)
-
 // --- Button action (discriminated union) ---
 
 const sendActionSchema = v.strictObject({
@@ -275,7 +266,6 @@ export const webmuxConfigOverridesSchema = v.strictObject({
 	name: v.optional(v.string()),
 	theme: v.optional(termThemeOverridesSchema),
 	font: v.optional(fontOverridesSchema),
-	plugins: v.optional(v.array(pluginSpecifierSchema)),
 	toolbar: v.optional(
 		v.strictObject({
 			row1: v.optional(buttonArrayInputSchema),
@@ -299,7 +289,6 @@ export const webmuxConfigResolvedSchema = v.strictObject({
 	name: v.string(),
 	theme: termThemeResolvedSchema,
 	font: fontResolvedSchema,
-	plugins: v.array(pluginSpecifierSchema),
 	toolbar: v.strictObject({
 		row1: v.array(controlButtonSchema),
 		row2: v.array(controlButtonSchema),

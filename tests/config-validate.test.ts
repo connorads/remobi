@@ -57,33 +57,6 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('received string("mouse")')
 	})
 
-	test('rejects non-string plugin specifier', () => {
-		const message = getValidationMessage({ plugins: ['ok-plugin', 42] }, assertValidConfigOverrides)
-		expect(message).toContain('config.plugins[1]')
-		expect(message).toContain('received number(42)')
-	})
-
-	test('rejects blank plugin specifier', () => {
-		const message = getValidationMessage({ plugins: ['   '] }, assertValidConfigOverrides)
-		expect(message).toContain('config.plugins[0]')
-		expect(message).toContain('non-empty plugin specifier')
-	})
-
-	test('rejects plugin specifier with surrounding whitespace', () => {
-		const message = getValidationMessage(
-			{ plugins: [' ./plugins/logger.ts '] },
-			assertValidConfigOverrides,
-		)
-		expect(message).toContain('config.plugins[0]')
-		expect(message).toContain('trimmed plugin specifier')
-	})
-
-	test('rejects plugin specifier with newline', () => {
-		const message = getValidationMessage({ plugins: ['bad\nplugin'] }, assertValidConfigOverrides)
-		expect(message).toContain('config.plugins[0]')
-		expect(message).toContain('single-line plugin specifier')
-	})
-
 	test('rejects invalid toolbar button shape', () => {
 		const message = getValidationMessage(
 			{
@@ -316,7 +289,6 @@ describe('assertValidResolvedConfig', () => {
 		expect(message).toContain('config.name')
 		expect(message).toContain('config.theme')
 		expect(message).toContain('config.font')
-		expect(message).toContain('config.plugins')
 		expect(message).toContain('config.mobile')
 		expect(message).toContain('config.floatingButtons')
 		expect(message).toContain('config.pwa')
@@ -333,7 +305,6 @@ describe('assertValidResolvedConfig', () => {
 					mobileSizeDefault: 16,
 					sizeRange: [8, 32],
 				},
-				plugins: [],
 				toolbar: { row1: [], row2: [] },
 				drawer: { buttons: [] },
 				gestures: {

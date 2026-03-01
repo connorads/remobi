@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 import { existsSync } from 'node:fs'
-import { createRequire } from 'node:module'
 import { homedir } from 'node:os'
-import { dirname, isAbsolute, join, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
 import pkg from './package.json'
 import { parseCliArgs } from './src/cli/args'
@@ -60,7 +59,6 @@ Examples:
 interface LoadedConfig {
 	readonly config: WebmuxConfig
 	readonly source: string
-	readonly pluginImports: readonly string[]
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -77,33 +75,6 @@ function ensureInjectInputMode(context: string): void {
 	if (process.stdin.isTTY) {
 		throw new Error(`${context} expects piped ttyd HTML on stdin`)
 	}
-}
-
-function resolvePluginSpecifier(specifier: string, baseDir: string): string {
-	const clean = specifier.trim()
-	if (clean.startsWith('.')) {
-		return resolve(baseDir, clean)
-	}
-
-	if (isAbsolute(clean)) {
-		return clean
-	}
-
-	const requireFromBase = createRequire(join(baseDir, '__webmux_plugin_resolver__.cjs'))
-	try {
-		return requireFromBase.resolve(clean)
-	} catch {
-		// keep bare specifier and let the bundler report detailed resolution errors
-	}
-
-	return clean
-}
-
-function resolvePluginSpecifiers(
-	specifiers: readonly string[],
-	baseDir: string,
-): readonly string[] {
-	return specifiers.map((specifier) => resolvePluginSpecifier(specifier, baseDir))
 }
 
 function throwConfigValidationError(source: string, error: ConfigValidationError): never {
@@ -200,8 +171,7 @@ async function loadConfig(configPath: string | undefined): Promise<LoadedConfig>
 
 		const sourceLabel = localOverrides !== undefined ? `${abs} + ${localPath}` : abs
 		assertValidResolvedOrThrow(config, sourceLabel)
-		const pluginImports = resolvePluginSpecifiers(config.plugins, dirname(abs))
-		return { config, source: sourceLabel, pluginImports }
+		return { config, source: sourceLabel }
 	}
 
 	assertValidResolvedOrThrow(defaultConfig, 'built-in defaults')
@@ -209,7 +179,6 @@ async function loadConfig(configPath: string | undefined): Promise<LoadedConfig>
 	return {
 		config: defaultConfig,
 		source: 'built-in defaults',
-		pluginImports: resolvePluginSpecifiers(defaultConfig.plugins, process.cwd()),
 	}
 }
 
@@ -226,13 +195,7 @@ async function main(): Promise<void> {
 	switch (command) {
 		case 'serve': {
 			const loaded = await loadConfig(configPath)
-			await serve(
-				loaded.config,
-				loaded.pluginImports,
-				port,
-				command_.length > 0 ? command_ : undefined,
-				noSleep,
-			)
+			await serve(loaded.config, port, command_.length > 0 ? command_ : undefined, noSleep)
 			break
 		}
 
@@ -246,7 +209,6 @@ async function main(): Promise<void> {
 				console.log('Dry run: build')
 				console.log(`- config: ${loaded.source}`)
 				console.log(`- output: ${targetPath}`)
-				console.log(`- plugins: ${loaded.pluginImports.length}`)
 				console.log('- action: would bundle overlay, fetch ttyd base HTML, inject, and write file')
 				break
 			}
@@ -256,7 +218,7 @@ async function main(): Promise<void> {
 			const { dirname } = await import('node:path')
 			mkdirSync(dirname(targetPath), { recursive: true })
 
-			await build(loaded.config, targetPath, loaded.pluginImports)
+			await build(loaded.config, targetPath)
 			console.log(`Built: ${targetPath}`)
 			break
 		}
@@ -271,14 +233,13 @@ async function main(): Promise<void> {
 				}
 				console.log('Dry run: inject')
 				console.log(`- config: ${loaded.source}`)
-				console.log(`- plugins: ${loaded.pluginImports.length}`)
 				console.log('- stdin: piped input detected')
 				console.log('- action: would read stdin HTML, inject overlay, and write to stdout')
 				break
 			}
 
 			ensureInjectInputMode('webmux inject')
-			const result = await injectFromStdin(loaded.config, loaded.pluginImports)
+			const result = await injectFromStdin(loaded.config)
 			process.stdout.write(result)
 			break
 		}
@@ -299,7 +260,6 @@ export default defineConfig({
   //   mobileSizeDefault: 16,
   //   sizeRange: [8, 32],
   // },
-  // plugins: ['./plugins/logger.ts', 'webmux-plugin-demo'],
   //
   // Toolbar/drawer accept a plain array (replace) or a function (transform):
   //
