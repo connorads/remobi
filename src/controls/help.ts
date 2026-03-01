@@ -95,7 +95,7 @@ function buildHelpContent(config: WebmuxConfig): DocumentFragment {
 	return frag
 }
 
-export interface HelpOverlayResult {
+interface HelpOverlayResult {
 	readonly element: HTMLDivElement
 	readonly open: () => void
 	readonly close: () => void

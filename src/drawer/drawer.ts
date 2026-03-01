@@ -7,7 +7,7 @@ import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
 import { sendData } from '../util/terminal'
 
-export interface DrawerResult {
+interface DrawerResult {
 	readonly backdrop: HTMLDivElement
 	readonly drawer: HTMLDivElement
 	readonly open: () => void

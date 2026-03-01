@@ -181,7 +181,7 @@ export function parseComboInput(value: string): ComboParseResult {
 	return { ok: true, data }
 }
 
-export interface ComboPickerResult {
+interface ComboPickerResult {
 	readonly element: HTMLDivElement
 	readonly open: (dispatch: ComboDispatch) => void
 	readonly close: () => void
