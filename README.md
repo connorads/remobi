@@ -94,10 +94,6 @@ export default defineConfig({
     mobileSizeDefault: 16,
     sizeRange: [8, 32],
   },
-  plugins: [
-    './plugins/logger.ts',
-    'webmux-plugin-demo',
-  ],
   toolbar: {
     row1: [
       { id: 'esc', label: 'Esc', description: 'Send Escape key', action: { type: 'send', data: '\x1b' } },
@@ -164,7 +160,7 @@ For a specific agent only (e.g. Claude Code, globally): `npx skills add connorad
 
 ### Or paste this prompt
 
-> Inspect my tmux config (`tmux show-options -g prefix` and `tmux list-keys`), then generate a `webmux.config.ts` tailored to my setup. Allowed root keys: `name theme font plugins toolbar drawer gestures mobile floatingButtons pwa`. Action types: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`. Use `drawer.buttons` not `drawer.commands`. Validate with `webmux build --dry-run` and fix any errors. Summarise what was configured.
+> Inspect my tmux config (`tmux show-options -g prefix` and `tmux list-keys`), then generate a `webmux.config.ts` tailored to my setup. Allowed root keys: `name theme font toolbar drawer gestures mobile floatingButtons pwa reconnect`. Action types: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`. Use `drawer.buttons` not `drawer.commands`. Validate with `webmux build --dry-run` and fix any errors. Summarise what was configured.
 
 See the full [agent setup guide](docs/guides/agent-setup.md) for examples and escape-code reference.
 
@@ -185,7 +181,6 @@ At runtime, webmux validates the config object shape and rejects unknown keys wi
 import { defineConfig, serialiseThemeForTtyd } from 'webmux/config'
 import type { WebmuxConfig, ControlButton } from 'webmux/types'
 import { init } from 'webmux'
-import type { WebmuxPlugin } from 'webmux'
 ```
 
 Advanced consumers can use hook registry primitives to observe lifecycle and terminal-send events:
@@ -200,8 +195,6 @@ hooks.on('beforeSendData', (ctx) => {
 
 init(undefined, hooks)
 ```
-
-You can also pass plugins to `init(config, hooks, plugins)`. Plugin setup/dispose failures are isolated and logged.
 
 ## Deployment guides
 
@@ -228,17 +221,13 @@ Key modules:
 | `src/viewport/` | Height management, landscape detection |
 | `src/util/` | DOM helpers, terminal, keyboard, haptics |
 
-## Docs
-
-- [Plugin author guide](docs/guides/plugins.md) — hooks, UI contributions, custom actions, cleanup
-
 ## Public API and semver
 
 webmux follows semantic versioning. The public API is defined by the following import paths:
 
 | Import path | Contents | Stability |
 |---|---|---|
-| `webmux` | `init`, `defineConfig`, `createHookRegistry`, `WebmuxConfig`, `ControlButton`, `ButtonAction`, `ButtonArrayPatch`, `ButtonArrayInput`, `WebmuxConfigOverrides`, `WebmuxPlugin`, `HookRegistry`, `UISlot`, `UIContributionCollector` | Public — breaking changes are semver-major |
+| `webmux` | `init`, `defineConfig`, `createHookRegistry`, `WebmuxConfig`, `ControlButton`, `ButtonAction`, `ButtonArrayPatch`, `ButtonArrayInput`, `WebmuxConfigOverrides`, `HookRegistry` | Public — breaking changes are semver-major |
 | `webmux/config` | `defineConfig`, `mergeConfig`, `defaultConfig`, `serialiseThemeForTtyd` | Public |
 | `webmux/types` | All types in `src/types.ts` | Public |
 

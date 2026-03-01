@@ -85,13 +85,12 @@ function spawnCaffeinate(pid: number): ReturnType<typeof Bun.spawn> | null {
 /** Start webmux serve: builds overlay in memory, manages ttyd, serves HTTP + WS */
 export async function serve(
 	config: WebmuxConfig,
-	pluginImports: readonly string[],
 	port: number = DEFAULT_PORT,
 	command: readonly string[] = DEFAULT_COMMAND,
 	noSleep = false,
 ): Promise<void> {
 	console.log('webmux: building overlay...')
-	const { js, css } = await bundleOverlay(config, pluginImports)
+	const { js, css } = await bundleOverlay(config)
 
 	const internalPort = randomInternalPort()
 	const ttydArgs = buildTtydArgs(config, internalPort, command)

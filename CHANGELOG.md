@@ -4,6 +4,8 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Removed: plugin system (`WebmuxPlugin`, `UISlot`, `UIContributionCollector`, plugin manager, UI contributions, build-time resolution, `config.plugins`). Hooks and actions remain as core infrastructure. The plugin API can be reintroduced when there's a concrete second use case.
+
 - Fixed: visibilitychange listener leak in reconnect dispose path — the anonymous listener was never removed, causing a leak on each dispose/re-init cycle.
 - Fixed: unhandled promise rejection when `document.fonts.ready` fails — font loading failure is non-critical, terminal still works.
 - Internal: `bun test --coverage` reporting via `test:coverage` script.
