@@ -95,8 +95,8 @@ export function init(
 			try {
 				await hooks.runOverlayInitStart({ term, config, mobile })
 
-				// Resize after fonts load
-				document.fonts.ready.then(() => resizeTerm())
+				// Resize after fonts load — catch silently; font failure is non-critical
+				document.fonts.ready.then(() => resizeTerm()).catch(() => {})
 
 				document.title = `${config.name} · ${location.hostname.replace(/\..*/, '')}`
 
