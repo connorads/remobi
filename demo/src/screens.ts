@@ -19,6 +19,7 @@ export const shellStatus: TmuxStatusBarProps = {
 
 export const shellScreen: TerminalScreen = {
 	lines: [
+		// Prompt + command visible as phone settles (~frame 30)
 		{
 			spans: [
 				{ text: 'connor@rpi5', colour: colours.green, bold: true },
@@ -27,36 +28,38 @@ export const shellScreen: TerminalScreen = {
 				{ text: '$ ', colour: colours.fg },
 				{ text: 'ls -la', colour: colours.fg },
 			],
+			appearAt: 30,
 		},
 		{
 			spans: [{ text: 'total 42', colour: colours.fg, dim: true }],
-			appearAt: 8,
+			appearAt: 35,
 		},
 		{
 			spans: [{ text: 'drwxr-xr-x  5 connor  4096 Feb 28 .', colour: colours.fg }],
-			appearAt: 10,
+			appearAt: 38,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor   847 Feb 28 ', colour: colours.fg },
 				{ text: 'index.ts', colour: colours.blue },
 			],
-			appearAt: 12,
+			appearAt: 41,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor  1203 Feb 28 ', colour: colours.fg },
 				{ text: 'config.ts', colour: colours.blue },
 			],
-			appearAt: 14,
+			appearAt: 44,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor   394 Feb 28 ', colour: colours.fg },
 				{ text: 'README.md', colour: colours.blue },
 			],
-			appearAt: 16,
+			appearAt: 47,
 		},
+		// Second prompt with typewriter — types `claude`
 		{
 			spans: [
 				{ text: 'connor@rpi5', colour: colours.green, bold: true },
@@ -65,7 +68,7 @@ export const shellScreen: TerminalScreen = {
 				{ text: '$ ', colour: colours.fg },
 				{ text: 'claude', colour: colours.yellow, typewriter: true },
 			],
-			appearAt: 30,
+			appearAt: 55,
 		},
 	],
 	cursorAtEnd: true,
@@ -84,7 +87,7 @@ export const claudeCodeStatus: TmuxStatusBarProps = {
 
 export const claudeCodeScreen: TerminalScreen = {
 	lines: [
-		// ── Read tool block (lavender borders) ──
+		// ── Read tool block (appears right after swipe lands) ──
 		{
 			spans: [
 				{ text: '╭─ ', colour: claude.lavender },
@@ -92,22 +95,26 @@ export const claudeCodeScreen: TerminalScreen = {
 				{ text: ' src/login.ts', colour: claude.lavender },
 				{ text: ' ────────────╮', colour: claude.lavender },
 			],
+			appearAt: 44,
 		},
 		{
 			spans: [
 				{ text: '│', colour: claude.lavender },
 				{ text: ' 47 lines', colour: colours.fg, dim: true },
 			],
+			appearAt: 46,
 		},
 		{
 			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
+			appearAt: 48,
 		},
-		{ spans: [] },
-		// ── Response text (plain white) ──
+		{ spans: [], appearAt: 58 },
+		// ── Response text ──
 		{
 			spans: [{ text: ' I found the issue.', colour: claude.responseText }],
+			appearAt: 58,
 		},
-		{ spans: [] },
+		{ spans: [], appearAt: 68 },
 		// ── Edit tool block with diff backgrounds ──
 		{
 			spans: [
@@ -116,6 +123,7 @@ export const claudeCodeScreen: TerminalScreen = {
 				{ text: ' src/login.ts', colour: claude.lavender },
 				{ text: ' ───────────╮', colour: claude.lavender },
 			],
+			appearAt: 68,
 		},
 		{
 			spans: [
@@ -126,6 +134,7 @@ export const claudeCodeScreen: TerminalScreen = {
 					background: claude.diffRemBg,
 				},
 			],
+			appearAt: 72,
 		},
 		{
 			spans: [
@@ -136,18 +145,22 @@ export const claudeCodeScreen: TerminalScreen = {
 					background: claude.diffAddBg,
 				},
 			],
+			appearAt: 75,
 		},
 		{
 			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
+			appearAt: 78,
 		},
-		{ spans: [] },
+		{ spans: [], appearAt: 85 },
+		// ── "✓ Applied edit" ──
 		{
 			spans: [
 				{ text: ' ✓', colour: claude.successGreen, bold: true },
 				{ text: ' Applied edit', colour: colours.fg },
 			],
+			appearAt: 85,
 		},
-		{ spans: [] },
+		{ spans: [], appearAt: 100 },
 		// ── Input prompt (terracotta bordered box) ──
 		{
 			spans: [
@@ -155,9 +168,11 @@ export const claudeCodeScreen: TerminalScreen = {
 				{ text: 'claude-opus-4-6', colour: claude.terracotta, bold: true },
 				{ text: ' ─────╮', colour: claude.terracotta },
 			],
+			appearAt: 100,
 		},
 		{
 			spans: [{ text: '│ ', colour: claude.terracotta }],
+			appearAt: 100,
 		},
 	],
 	cursorAtEnd: true,
@@ -263,13 +278,13 @@ export const claudeCodeDetailStatus: TmuxStatusBarProps = {
 
 export const claudeCodeDetailScreen: TerminalScreen = {
 	lines: [
-		// ── Thinking shimmer ──
+		// ── Thinking shimmer (frame 0) ──
 		{
 			spans: [{ text: ' ⠿ Thinking…', colour: claude.terracotta }],
 			shimmer: true,
 		},
 		{ spans: [] },
-		// ── Edit tool block (lavender borders + diff backgrounds) ──
+		// ── Edit tool block — lines stagger in (frames 8–30) ──
 		{
 			spans: [
 				{ text: '╭─ ', colour: claude.lavender },
@@ -288,7 +303,7 @@ export const claudeCodeDetailScreen: TerminalScreen = {
 					background: claude.diffAddBg,
 				},
 			],
-			appearAt: 8,
+			appearAt: 12,
 		},
 		{
 			spans: [
@@ -299,71 +314,74 @@ export const claudeCodeDetailScreen: TerminalScreen = {
 					background: claude.diffAddBg,
 				},
 			],
-			appearAt: 8,
+			appearAt: 15,
 		},
 		{
 			spans: [{ text: '│', colour: claude.lavender }],
-			appearAt: 8,
+			appearAt: 18,
 		},
 		{
 			spans: [
 				{ text: '│ ', colour: claude.lavender },
 				{ text: '+ app.use(rateLimit({', colour: claude.diffAddWord, background: claude.diffAddBg },
 			],
-			appearAt: 8,
+			appearAt: 21,
 		},
 		{
 			spans: [
 				{ text: '│ ', colour: claude.lavender },
 				{ text: '+   window: 60_000,', colour: claude.diffAddWord, background: claude.diffAddBg },
 			],
-			appearAt: 8,
+			appearAt: 24,
 		},
 		{
 			spans: [
 				{ text: '│ ', colour: claude.lavender },
 				{ text: '+   max: 100,', colour: claude.diffAddWord, background: claude.diffAddBg },
 			],
-			appearAt: 8,
+			appearAt: 27,
 		},
 		{
 			spans: [
 				{ text: '│ ', colour: claude.lavender },
 				{ text: '+ }))', colour: claude.diffAddWord, background: claude.diffAddBg },
 			],
-			appearAt: 8,
+			appearAt: 30,
 		},
 		{
 			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
-			appearAt: 8,
+			appearAt: 33,
 		},
-		{ spans: [], appearAt: 12 },
+		{ spans: [], appearAt: 50 },
+		// ── "✓ Applied edit" (frame 50) ──
 		{
 			spans: [
 				{ text: ' ✓', colour: claude.successGreen, bold: true },
 				{ text: ' Applied edit', colour: colours.fg },
 			],
-			appearAt: 12,
+			appearAt: 50,
 		},
-		{ spans: [], appearAt: 18 },
-		// ── Response ──
+		{ spans: [], appearAt: 60 },
+		// ── Response with typewriter (frame 60) ──
 		{
-			spans: [{ text: ' Rate limiting is now active.', colour: claude.responseText }],
-			appearAt: 18,
+			spans: [
+				{ text: ' Rate limiting is now active.', colour: claude.responseText, typewriter: true },
+			],
+			appearAt: 60,
 		},
-		{ spans: [], appearAt: 24 },
-		// ── Input prompt (terracotta bordered box) ──
+		{ spans: [], appearAt: 75 },
+		// ── Input prompt (frame 75) ──
 		{
 			spans: [
 				{ text: '╭─ ', colour: claude.terracotta },
 				{ text: 'claude-opus-4-6', colour: claude.terracotta, bold: true },
 				{ text: ' ─────╮', colour: claude.terracotta },
 			],
-			appearAt: 24,
+			appearAt: 75,
 		},
 		{
 			spans: [{ text: '│ ', colour: claude.terracotta }],
-			appearAt: 24,
+			appearAt: 75,
 		},
 	],
 	cursorAtEnd: true,
