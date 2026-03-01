@@ -1,13 +1,16 @@
 /**
  * Load JetBrains Mono for consistent terminal rendering.
  * Uses @remotion/fonts to load local woff2 files from public/.
+ * Blocks Remotion render until fonts are ready (prevents FOUT).
  */
 import { loadFont } from '@remotion/fonts'
-import { staticFile } from 'remotion'
+import { continueRender, delayRender, staticFile } from 'remotion'
 
 export const FONT_FAMILY = 'JetBrains Mono'
 
-const fontsLoaded = Promise.all([
+const waitForFonts = delayRender('Loading JetBrains Mono')
+
+Promise.all([
 	loadFont({
 		family: FONT_FAMILY,
 		url: staticFile('JetBrainsMono-Regular.woff2'),
@@ -19,5 +22,8 @@ const fontsLoaded = Promise.all([
 		weight: '700',
 	}),
 ])
-
-export { fontsLoaded }
+	.then(() => continueRender(waitForFonts))
+	.catch((err) => {
+		console.error('Font load failed:', err)
+		continueRender(waitForFonts)
+	})

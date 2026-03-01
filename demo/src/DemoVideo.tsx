@@ -10,7 +10,15 @@ import { SMOOTH } from './springs'
 
 /** Frame counts at 30fps */
 export const FPS = 30
-const TRANSITION_FRAMES = 15
+export const TRANSITION_FRAMES = 15
+
+/** Scene durations in seconds — order matches TransitionSeries below */
+export const SCENE_DURATIONS_S = [5, 6, 5, 6] as const
+
+/** Total frames accounting for overlapping transitions */
+export const TOTAL_FRAMES =
+	SCENE_DURATIONS_S.reduce((sum, s) => sum + s * FPS, 0) -
+	(SCENE_DURATIONS_S.length - 1) * TRANSITION_FRAMES
 
 /**
  * Main composition (~20.5s): 4 scenes, organic spring transitions.
@@ -26,7 +34,7 @@ export const DemoVideo: React.FC = () => {
 	return (
 		<TransitionSeries>
 			{/* Scene 1: The Hook — phone arrives, terminal comes alive */}
-			<TransitionSeries.Sequence durationInFrames={5 * FPS}>
+			<TransitionSeries.Sequence durationInFrames={SCENE_DURATIONS_S[0] * FPS}>
 				<PhoneIntro />
 			</TransitionSeries.Sequence>
 
@@ -36,7 +44,7 @@ export const DemoVideo: React.FC = () => {
 			/>
 
 			{/* Scene 2: The Magic — one deliberate swipe */}
-			<TransitionSeries.Sequence durationInFrames={6 * FPS}>
+			<TransitionSeries.Sequence durationInFrames={SCENE_DURATIONS_S[1] * FPS}>
 				<SwipeDemo />
 			</TransitionSeries.Sequence>
 
@@ -46,7 +54,7 @@ export const DemoVideo: React.FC = () => {
 			/>
 
 			{/* Scene 3: The Power — Claude Code writing real code */}
-			<TransitionSeries.Sequence durationInFrames={5 * FPS}>
+			<TransitionSeries.Sequence durationInFrames={SCENE_DURATIONS_S[2] * FPS}>
 				<AITools />
 			</TransitionSeries.Sequence>
 
@@ -56,7 +64,7 @@ export const DemoVideo: React.FC = () => {
 			/>
 
 			{/* Scene 4: The Close — logo, tagline, hold */}
-			<TransitionSeries.Sequence durationInFrames={6 * FPS}>
+			<TransitionSeries.Sequence durationInFrames={SCENE_DURATIONS_S[3] * FPS}>
 				<Tagline />
 			</TransitionSeries.Sequence>
 		</TransitionSeries>

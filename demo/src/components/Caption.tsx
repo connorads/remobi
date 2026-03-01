@@ -1,5 +1,6 @@
 import type React from 'react'
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
+import { SMOOTH } from '../springs'
 import { colours } from '../theme'
 
 /** Feature text displayed below the phone mockup */
@@ -16,7 +17,7 @@ export const Caption: React.FC<{
 	const entrance = spring({
 		frame: frame - appearAt,
 		fps,
-		config: { damping: 200 },
+		config: SMOOTH,
 	})
 
 	const opacity = interpolate(entrance, [0, 1], [0, 1])
