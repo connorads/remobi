@@ -4,26 +4,7 @@ import { defineConfig } from '../src/config'
 import { createDrawer } from '../src/drawer/drawer'
 import { createHookRegistry } from '../src/hooks/registry'
 import { createToolbar } from '../src/toolbar/toolbar'
-import type { XTerminal } from '../src/types'
-
-interface MockTerm extends XTerminal {
-	readonly sent: string[]
-}
-
-function mockTerminal(): MockTerm {
-	const sent: string[] = []
-	return {
-		sent,
-		options: { fontSize: 14 },
-		input(data: string, _wasUserInput: boolean) {
-			sent.push(data)
-		},
-		focus() {},
-		onData(_handler: (data: string) => void) {
-			return { dispose() {} }
-		},
-	}
-}
+import { mockTerminalWithSent } from './fixtures'
 
 function findButtonByLabel(root: HTMLElement, label: string): HTMLButtonElement {
 	const buttons = root.querySelectorAll('button')
@@ -45,7 +26,7 @@ afterEach(() => {
 
 describe('toolbar action behaviour', () => {
 	test('paste does not consume ctrl sticky modifier', async () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithSent()
 		const hooks = createHookRegistry()
 		const config = defineConfig({
 			toolbar: {

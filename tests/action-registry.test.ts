@@ -1,18 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { createActionRegistry, createDefaultActionRegistry } from '../src/actions/registry'
-import type { ButtonAction, XTerminal } from '../src/types'
-
-function mockTerminal(): XTerminal {
-	return {
-		options: { fontSize: 14 },
-		input(_data: string, _wasUserInput: boolean) {},
-		focus() {},
-		onData(_handler: (data: string) => void) {
-			return { dispose() {} }
-		},
-	}
-}
+import type { ButtonAction } from '../src/types'
+import { mockTerminal } from './fixtures'
 
 beforeEach(() => {
 	GlobalRegistrator.register()

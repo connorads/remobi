@@ -2,24 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { defaultConfig } from '../src/config'
 import { createScrollButtons } from '../src/controls/scroll-buttons'
-import type { XTerminal } from '../src/types'
-
-function mockTerminal(): XTerminal & { sent: string[] } {
-	const sent: string[] = []
-	return {
-		sent,
-		cols: 80,
-		rows: 24,
-		options: { fontSize: 14 },
-		input(data: string, _wasUserInput: boolean) {
-			sent.push(data)
-		},
-		focus() {},
-		onData(_handler: (data: string) => void) {
-			return { dispose() {} }
-		},
-	}
-}
+import { mockTerminalWithSent } from './fixtures'
 
 beforeEach(() => {
 	GlobalRegistrator.register()
@@ -31,20 +14,20 @@ afterEach(() => {
 
 describe('createScrollButtons', () => {
 	test('creates container with correct id', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithSent()
 		const { element } = createScrollButtons(term, defaultConfig.gestures.scroll)
 		expect(element.id).toBe('wt-scroll-buttons')
 	})
 
 	test('has two buttons', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithSent()
 		const { element } = createScrollButtons(term, defaultConfig.gestures.scroll)
 		const buttons = element.querySelectorAll('button')
 		expect(buttons).toHaveLength(2)
 	})
 
 	test('buttons have aria-labels', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithSent()
 		const { element } = createScrollButtons(term, defaultConfig.gestures.scroll)
 		const buttons = element.querySelectorAll('button')
 		expect(buttons[0]?.getAttribute('aria-label')).toBe('Page Up')
@@ -52,7 +35,7 @@ describe('createScrollButtons', () => {
 	})
 
 	test('buttons have correct symbols', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithSent()
 		const { element } = createScrollButtons(term, defaultConfig.gestures.scroll)
 		const buttons = element.querySelectorAll('button')
 		expect(buttons[0]?.textContent).toBe('\u25B2')
@@ -60,7 +43,7 @@ describe('createScrollButtons', () => {
 	})
 
 	test('click sends wheel-up sequence by default', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithSent()
 		const { element } = createScrollButtons(term, defaultConfig.gestures.scroll)
 		document.body.appendChild(element)
 
@@ -72,7 +55,7 @@ describe('createScrollButtons', () => {
 	})
 
 	test('click sends wheel-down sequence by default', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithSent()
 		const { element } = createScrollButtons(term, defaultConfig.gestures.scroll)
 		document.body.appendChild(element)
 
@@ -84,7 +67,7 @@ describe('createScrollButtons', () => {
 	})
 
 	test('keys strategy sends page keys', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithSent()
 		const { element } = createScrollButtons(term, {
 			enabled: true,
 			sensitivity: 40,

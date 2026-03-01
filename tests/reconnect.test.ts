@@ -1,20 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { setupReconnect } from '../src/reconnect'
-import type { XTerminal } from '../src/types'
-
-function mockTerm(): XTerminal {
-	return {
-		cols: 80,
-		rows: 24,
-		options: { fontSize: 16 },
-		input() {},
-		focus() {},
-		onData() {
-			return { dispose() {} }
-		},
-	}
-}
+import { mockTerminal } from './fixtures'
 
 /** Minimal WebSocket-like object with url and EventTarget methods */
 function mockWebSocket(url: string): WebSocket {
@@ -46,7 +33,7 @@ afterEach(() => {
 
 describe('setupReconnect', () => {
 	test('overlay is hidden by default', () => {
-		const dispose = setupReconnect(mockTerm(), { enabled: true })
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		const overlay = getOverlay()
 		expect(overlay).not.toBeNull()
 		expect(overlay?.style.display).toBe('none')
@@ -57,7 +44,7 @@ describe('setupReconnect', () => {
 		const ws = mockWebSocket('ws://localhost:1234/ws')
 		window.__webmuxSockets = [ws]
 
-		const dispose = setupReconnect(mockTerm(), { enabled: true })
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
 		ws.dispatchEvent(new Event('close'))
 
@@ -70,7 +57,7 @@ describe('setupReconnect', () => {
 		const ws = mockWebSocket('ws://localhost:1234/ws')
 		window.__webmuxSockets = [ws]
 
-		const dispose = setupReconnect(mockTerm(), { enabled: true })
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
 		ws.dispatchEvent(new Event('error'))
 
@@ -80,13 +67,13 @@ describe('setupReconnect', () => {
 	})
 
 	test('does nothing when disabled', () => {
-		const dispose = setupReconnect(mockTerm(), { enabled: false })
+		const dispose = setupReconnect(mockTerminal(), { enabled: false })
 		expect(getOverlay()).toBeNull()
 		dispose()
 	})
 
 	test('dispose removes overlay from DOM', () => {
-		const dispose = setupReconnect(mockTerm(), { enabled: true })
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		expect(getOverlay()).not.toBeNull()
 		dispose()
 		expect(getOverlay()).toBeNull()
@@ -95,7 +82,7 @@ describe('setupReconnect', () => {
 	test('falls back to offline events when no WebSocket found', () => {
 		window.__webmuxSockets = []
 
-		const dispose = setupReconnect(mockTerm(), { enabled: true })
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
 		window.dispatchEvent(new Event('offline'))
 
@@ -105,7 +92,7 @@ describe('setupReconnect', () => {
 	})
 
 	test('overlay contains reconnect button', () => {
-		const dispose = setupReconnect(mockTerm(), { enabled: true })
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		const overlay = getOverlay()
 		const button = overlay?.querySelector('button')
 		expect(button).not.toBeNull()
@@ -116,7 +103,7 @@ describe('setupReconnect', () => {
 	test('dispose removes visibilitychange listener in fallback path', () => {
 		window.__webmuxSockets = []
 
-		const dispose = setupReconnect(mockTerm(), { enabled: true })
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
 		// Trigger disconnect so overlay shows
 		window.dispatchEvent(new Event('offline'))
@@ -143,7 +130,7 @@ describe('setupReconnect', () => {
 		const ws = mockWebSocket('ws://localhost:1234/other')
 		window.__webmuxSockets = [ws]
 
-		const dispose = setupReconnect(mockTerm(), { enabled: true })
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
 		// No WS ending in /ws found → falls back to offline events
 		window.dispatchEvent(new Event('offline'))

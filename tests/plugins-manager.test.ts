@@ -4,18 +4,7 @@ import { defaultConfig } from '../src/config'
 import { createHookRegistry } from '../src/hooks/registry'
 import { type WebmuxPlugin, createPluginManager } from '../src/plugins/manager'
 import { createUIContributionCollector } from '../src/plugins/ui-contributions'
-import type { XTerminal } from '../src/types'
-
-function mockTerminal(): XTerminal {
-	return {
-		options: { fontSize: 14 },
-		input(_data: string, _wasUserInput: boolean) {},
-		focus() {},
-		onData(_handler: (data: string) => void) {
-			return { dispose() {} }
-		},
-	}
-}
+import { mockTerminal } from './fixtures'
 
 describe('createPluginManager', () => {
 	test('runs plugin setup in order', async () => {
