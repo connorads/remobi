@@ -1,0 +1,21 @@
+amends "package://github.com/jdx/hk/releases/download/v1.36.0/hk@1.36.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.36.0/hk@1.36.0#/Builtins.pkl"
+
+hooks {
+	["pre-commit"] {
+		fix = true
+		stash = "git"
+		steps {
+			["biome"] {
+				glob = List("*.ts", "*.tsx", "*.json", "*.css")
+				check = "bunx biome check {{files}}"
+				fix = "bunx biome check --fix {{files}}"
+			}
+			["oxlint"] {
+				glob = List("*.ts", "*.tsx")
+				check = "bunx oxlint --import-plugin --promise-plugin {{files}}"
+			}
+			["typos"] = (Builtins.typos)
+		}
+	}
+}
