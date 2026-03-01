@@ -1,33 +1,19 @@
-import React from 'react'
-import { Composition, continueRender, delayRender } from 'remotion'
-import { DemoVideo } from './DemoVideo'
-import { fontsLoaded } from './fonts'
-
-const FPS = 30
+import type React from 'react'
+import { Composition } from 'remotion'
+import { DemoVideo, FPS } from './DemoVideo'
 
 /**
- * Total duration: 6 scenes × durations − 5 transitions × 15 frames overlap
- * = (105 + 120 + 120 + 75 + 90 + 105) - (5 × 15)
- * = 615 - 75 = 540 frames (18s)
+ * Total duration: 4 scenes − 3 transitions × 15 frames overlap
+ * = (150 + 180 + 150 + 180) - (3 × 15)
+ * = 660 - 45 = 615 frames (~20.5s)
  */
-const TOTAL_FRAMES = 540
-
-/** Wrapper that delays rendering until fonts are loaded */
-const DemoVideoWithFonts: React.FC = () => {
-	const [handle] = React.useState(() => delayRender('Loading fonts'))
-
-	React.useEffect(() => {
-		fontsLoaded.then(() => continueRender(handle))
-	}, [handle])
-
-	return <DemoVideo />
-}
+const TOTAL_FRAMES = 615
 
 export const RemotionRoot: React.FC = () => {
 	return (
 		<Composition
 			id="DemoVideo"
-			component={DemoVideoWithFonts}
+			component={DemoVideo}
 			durationInFrames={TOTAL_FRAMES}
 			fps={FPS}
 			width={390}

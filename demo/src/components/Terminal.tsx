@@ -1,5 +1,5 @@
 import type React from 'react'
-import { interpolate, useCurrentFrame, useVideoConfig } from 'remotion'
+import { interpolate, interpolateColors, useCurrentFrame } from 'remotion'
 import { FONT_FAMILY } from '../fonts'
 import { claude, colours } from '../theme'
 
@@ -91,7 +91,11 @@ const TerminalLineRow: React.FC<{
 
 	// Shimmer: oscillate between terracotta and terracottaLight
 	const shimmerColour = line.shimmer
-		? interpolateColour(frame, claude.terracotta, claude.terracottaLight, 40)
+		? interpolateColors(
+				(Math.sin((frame / 40) * Math.PI * 2) + 1) / 2,
+				[0, 1],
+				[claude.terracotta, claude.terracottaLight],
+			)
 		: undefined
 
 	return (
@@ -136,32 +140,16 @@ const TerminalLineRow: React.FC<{
 	)
 }
 
-/** Interpolate between two colours using a sine wave */
-function interpolateColour(
-	frame: number,
-	colourA: string,
-	colourB: string,
-	period: number,
-): string {
-	const t = (Math.sin((frame / period) * Math.PI * 2) + 1) / 2
-	const [rA, gA, bA] = parseRgb(colourA)
-	const [rB, gB, bB] = parseRgb(colourB)
-	const r = Math.round(rA + (rB - rA) * t)
-	const g = Math.round(gA + (gB - gA) * t)
-	const b = Math.round(bA + (bB - bA) * t)
-	return `rgb(${r},${g},${b})`
-}
-
-function parseRgb(rgb: string): [number, number, number] {
-	const match = rgb.match(/(\d+),\s*(\d+),\s*(\d+)/)
-	if (!match) return [255, 255, 255]
-	return [Number(match[1]), Number(match[2]), Number(match[3])]
-}
-
 const BlinkingCursor: React.FC<{ fontSize: number }> = ({ fontSize }) => {
 	const frame = useCurrentFrame()
-	// Blink every 30 frames
-	const opacity = Math.floor(frame / 15) % 2 === 0 ? 1 : 0.3
+	// Smooth blink: fade between full and dim over 16-frame cycle
+	const BLINK_FRAMES = 16
+	const opacity = interpolate(
+		frame % BLINK_FRAMES,
+		[0, BLINK_FRAMES / 2, BLINK_FRAMES],
+		[1, 0.3, 1],
+		{ extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+	)
 
 	return (
 		<span

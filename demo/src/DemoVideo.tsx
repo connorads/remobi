@@ -12,7 +12,7 @@ import { SwipeDemo } from './scenes/SwipeDemo'
 import { Tagline } from './scenes/Tagline'
 
 /** Frame counts at 30fps */
-const FPS = 30
+export const FPS = 30
 const TRANSITION_FRAMES = 15
 
 /**
