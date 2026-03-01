@@ -1,3 +1,4 @@
 [tools]
 bun = "latest"
 ttyd = "latest"
+typos = "latest"
