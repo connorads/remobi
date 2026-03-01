@@ -11,7 +11,7 @@ export interface BeforeSendDataContext {
 	readonly data: string
 }
 
-export interface BeforeSendDataResult {
+interface BeforeSendDataResult {
 	readonly data?: string
 	readonly block?: boolean
 }

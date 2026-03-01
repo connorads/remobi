@@ -4,7 +4,7 @@ import { haptic } from '../util/haptic'
 import { resizeTerm } from '../util/terminal'
 
 /** Change terminal font size by delta, clamped to config range */
-export function changeFontSize(term: XTerminal, delta: number, font: FontConfig): void {
+function changeFontSize(term: XTerminal, delta: number, font: FontConfig): void {
 	const current = term.options.fontSize
 	const next = Math.max(font.sizeRange[0], Math.min(font.sizeRange[1], current + delta))
 	if (next !== current) {
@@ -13,7 +13,7 @@ export function changeFontSize(term: XTerminal, delta: number, font: FontConfig)
 	}
 }
 
-export interface FontControlsResult {
+interface FontControlsResult {
 	readonly element: HTMLDivElement
 	readonly helpButton: HTMLButtonElement
 }

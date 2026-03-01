@@ -31,7 +31,7 @@ const buttonActionSchema = v.variant('type', [
 
 // --- Control button ---
 
-export const controlButtonSchema = v.strictObject({
+const controlButtonSchema = v.strictObject({
 	id: v.string(),
 	label: v.string(),
 	description: v.string(),

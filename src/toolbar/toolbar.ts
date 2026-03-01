@@ -181,7 +181,7 @@ function buildRow(
 	return row
 }
 
-export interface ToolbarResult {
+interface ToolbarResult {
 	readonly element: HTMLDivElement
 	readonly ctrlState: CtrlState
 }

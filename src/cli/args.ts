@@ -1,6 +1,6 @@
-export type CliCommand = 'build' | 'inject' | 'init' | 'serve' | 'help' | 'version'
+type CliCommand = 'build' | 'inject' | 'init' | 'serve' | 'help' | 'version'
 
-export interface ParsedCliArgs {
+interface ParsedCliArgs {
 	readonly command: CliCommand
 	readonly configPath?: string
 	readonly outputPath?: string
@@ -20,7 +20,7 @@ interface ParseFailure {
 	readonly error: string
 }
 
-export type ParseCliResult = ParseSuccess | ParseFailure
+type ParseCliResult = ParseSuccess | ParseFailure
 
 function isHelpCommand(value: string): boolean {
 	return value === '--help' || value === '-h' || value === 'help'
