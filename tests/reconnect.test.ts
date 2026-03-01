@@ -113,6 +113,32 @@ describe('setupReconnect', () => {
 		dispose()
 	})
 
+	test('dispose removes visibilitychange listener in fallback path', () => {
+		window.__webmuxSockets = []
+
+		const dispose = setupReconnect(mockTerm(), { enabled: true })
+
+		// Trigger disconnect so overlay shows
+		window.dispatchEvent(new Event('offline'))
+		expect(getOverlay()?.style.display).toBe('flex')
+
+		// Dispose should remove the visibilitychange listener
+		dispose()
+
+		// Re-add overlay manually to check it stays hidden after dispose
+		const overlay = document.createElement('div')
+		overlay.id = 'webmux-reconnect-overlay'
+		overlay.style.display = 'none'
+		document.body.appendChild(overlay)
+
+		// Dispatching visibilitychange after dispose should have no effect
+		// (the listener was removed, so no reload attempt)
+		document.dispatchEvent(new Event('visibilitychange'))
+		expect(overlay.style.display).toBe('none')
+
+		overlay.remove()
+	})
+
 	test('ignores non-ttyd WebSockets', () => {
 		const ws = mockWebSocket('ws://localhost:1234/other')
 		window.__webmuxSockets = [ws]

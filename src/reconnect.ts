@@ -80,6 +80,12 @@ export function setupReconnect(_term: XTerminal, config: ReconnectConfig): () =>
 		}
 	}
 
+	function onVisibilityChange(): void {
+		if (document.visibilityState === 'visible' && disconnected) {
+			location.reload()
+		}
+	}
+
 	// Try WebSocket interception first
 	const ws = findTtydSocket()
 	if (ws) {
@@ -88,11 +94,7 @@ export function setupReconnect(_term: XTerminal, config: ReconnectConfig): () =>
 	} else {
 		// Fallback: online/offline + visibilitychange heuristics
 		window.addEventListener('offline', onDisconnect)
-		document.addEventListener('visibilitychange', () => {
-			if (document.visibilityState === 'visible' && disconnected) {
-				location.reload()
-			}
-		})
+		document.addEventListener('visibilitychange', onVisibilityChange)
 	}
 
 	window.addEventListener('online', onOnline)
@@ -103,6 +105,7 @@ export function setupReconnect(_term: XTerminal, config: ReconnectConfig): () =>
 			ws.removeEventListener('error', onDisconnect)
 		} else {
 			window.removeEventListener('offline', onDisconnect)
+			document.removeEventListener('visibilitychange', onVisibilityChange)
 		}
 		window.removeEventListener('online', onOnline)
 		overlay.remove()
