@@ -5,12 +5,26 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
+			"complexity": {
+				"noExcessiveCognitiveComplexity": {
+					"level": "warn",
+					"options": { "maxAllowedComplexity": 25 }
+				}
+			},
 			"suspicious": {
 				"noExplicitAny": "error"
 			},
 			"style": {
 				"noNonNullAssertion": "error",
-				"useConst": "error"
+				"useConst": "error",
+				"useFilenamingConvention": {
+					"level": "warn",
+					"options": {
+						"strictCase": true,
+						"requireAscii": true,
+						"filenameCases": ["kebab-case"]
+					}
+				}
 			}
 		}
 	},
@@ -26,6 +40,6 @@
 		}
 	},
 	"files": {
-		"ignore": ["dist/", "node_modules/"]
+		"ignore": ["dist/", "node_modules/", "demo/"]
 	}
 }
