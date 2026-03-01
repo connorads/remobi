@@ -1,18 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { defaultConfig } from '../src/config'
 import { createHookRegistry } from '../src/hooks/registry'
-import type { XTerminal } from '../src/types'
-
-function mockTerminal(): XTerminal {
-	return {
-		options: { fontSize: 14 },
-		input(_data: string, _wasUserInput: boolean) {},
-		focus() {},
-		onData(_handler: (data: string) => void) {
-			return { dispose() {} }
-		},
-	}
-}
+import { mockTerminal } from './fixtures'
 
 describe('hook registry', () => {
 	test('runs beforeSend hooks in registration order', async () => {

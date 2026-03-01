@@ -8,18 +8,7 @@ import { createHelpOverlay } from '../src/controls/help'
 import { createDrawer } from '../src/drawer/drawer'
 import { createHookRegistry } from '../src/hooks/registry'
 import { createToolbar } from '../src/toolbar/toolbar'
-import type { XTerminal } from '../src/types'
-
-function mockTerminal(): XTerminal {
-	return {
-		options: { fontSize: 14 },
-		input(_data: string, _wasUserInput: boolean) {},
-		focus() {},
-		onData(_handler: (data: string) => void) {
-			return { dispose() {} }
-		},
-	}
-}
+import { mockTerminal } from './fixtures'
 
 beforeEach(() => {
 	GlobalRegistrator.register()

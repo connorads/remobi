@@ -1,21 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
-import type { XTerminal } from '../src/types'
 import { conditionalFocus, isKeyboardOpen } from '../src/util/keyboard'
-
-function mockTerminal(): XTerminal & { focused: boolean } {
-	return {
-		options: { fontSize: 14 },
-		input(_data: string, _wasUserInput: boolean) {},
-		focus() {
-			this.focused = true
-		},
-		onData(_handler: (data: string) => void) {
-			return { dispose() {} }
-		},
-		focused: false,
-	}
-}
+import { mockTerminalWithFocus } from './fixtures'
 
 beforeEach(() => {
 	GlobalRegistrator.register()
@@ -57,13 +43,13 @@ describe('isKeyboardOpen', () => {
 
 describe('conditionalFocus', () => {
 	test('focuses terminal when keyboard was open', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithFocus()
 		conditionalFocus(term, true)
 		expect(term.focused).toBe(true)
 	})
 
 	test('does not focus terminal when keyboard was closed', () => {
-		const term = mockTerminal()
+		const term = mockTerminalWithFocus()
 		conditionalFocus(term, false)
 		expect(term.focused).toBe(false)
 	})
