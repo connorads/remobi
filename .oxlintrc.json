@@ -1,11 +1,22 @@
 {
+	"categories": {
+		"correctness": "error",
+		"suspicious": "warn",
+		"perf": "warn"
+	},
 	"rules": {
 		"typescript/consistent-type-assertions": [
 			"error",
 			{
 				"assertionStyle": "never"
 			}
-		]
+		],
+		"unicorn/prefer-add-event-listener": "off",
+		"no-await-in-loop": "off",
+		"import/no-cycle": "error",
+		"import/no-self-import": "error",
+		"typescript/no-non-null-asserted-optional-chain": "error",
+		"unicorn/throw-new-error": "warn"
 	},
-	"ignorePatterns": ["tests/"]
+	"ignorePatterns": ["tests/", "demo/"]
 }

@@ -25,7 +25,7 @@
 		"build": "bun run cli.ts build",
 		"check": "biome check .",
 		"check:fix": "biome check --fix .",
-		"lint:ox": "oxlint",
+		"lint:ox": "oxlint --import-plugin --promise-plugin",
 		"test": "bun test",
 		"test:coverage": "bun test --coverage",
 		"prepublishOnly": "bun test && bun run check && bun run lint:ox"
