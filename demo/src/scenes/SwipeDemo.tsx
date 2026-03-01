@@ -49,7 +49,7 @@ export const SwipeDemo: React.FC = () => {
 				justifyContent: 'center',
 			}}
 		>
-			<div>
+			<div style={{ transform: 'scale(0.88)', transformOrigin: 'center center' }}>
 				<PhoneMockup>
 					<div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
 						{/* Terminal area with sliding panels */}
@@ -58,7 +58,7 @@ export const SwipeDemo: React.FC = () => {
 							<SlidingTerminal screen={claudeCodeScreen} offsetX={claudeOffset} />
 
 							{/* Swipe indicator */}
-							<SwipeIndicator direction="right" showAt={34} />
+							<SwipeIndicator direction="right" showAt={17} />
 
 							{/* Touch finger: 4-frame press-hold (20-24), then swipe (24-42) */}
 							<TouchFinger

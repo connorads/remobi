@@ -32,7 +32,7 @@ export const PhoneIntro: React.FC = () => {
 				justifyContent: 'center',
 			}}
 		>
-			<div style={{ transform: `translateY(${translateY}px)` }}>
+			<div style={{ transform: `translateY(${translateY}px) scale(0.88)`, transformOrigin: 'center center' }}>
 				<PhoneMockup>
 					<div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
 						<Terminal screen={shellScreen} />

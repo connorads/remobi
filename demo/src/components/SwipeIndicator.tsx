@@ -28,7 +28,7 @@ export const SwipeIndicator: React.FC<{
 				left: '50%',
 				transform: 'translate(-50%, -50%)',
 				fontSize: 48,
-				color: 'rgba(205,214,244,0.6)',
+				color: `${colours.fg}99`,
 				opacity,
 				zIndex: 9998,
 				pointerEvents: 'none',

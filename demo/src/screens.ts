@@ -19,7 +19,7 @@ export const shellStatus: TmuxStatusBarProps = {
 
 export const shellScreen: TerminalScreen = {
 	lines: [
-		// Prompt + command visible as phone settles (~frame 30)
+		// Prompt + command visible as phone settles (~frame 15)
 		{
 			spans: [
 				{ text: 'connor@rpi5', colour: colours.green, bold: true },
@@ -28,36 +28,36 @@ export const shellScreen: TerminalScreen = {
 				{ text: '$ ', colour: colours.fg },
 				{ text: 'ls -la', colour: colours.fg },
 			],
-			appearAt: 30,
+			appearAt: 15,
 		},
 		{
 			spans: [{ text: 'total 42', colour: colours.fg, dim: true }],
-			appearAt: 35,
+			appearAt: 19,
 		},
 		{
 			spans: [{ text: 'drwxr-xr-x  5 connor  4096 Feb 28 .', colour: colours.fg }],
-			appearAt: 38,
+			appearAt: 22,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor   847 Feb 28 ', colour: colours.fg },
 				{ text: 'index.ts', colour: colours.blue },
 			],
-			appearAt: 41,
+			appearAt: 25,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor  1203 Feb 28 ', colour: colours.fg },
 				{ text: 'config.ts', colour: colours.blue },
 			],
-			appearAt: 44,
+			appearAt: 28,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor   394 Feb 28 ', colour: colours.fg },
 				{ text: 'README.md', colour: colours.blue },
 			],
-			appearAt: 47,
+			appearAt: 31,
 		},
 		// Second prompt with typewriter — types `claude`
 		{
@@ -68,7 +68,7 @@ export const shellScreen: TerminalScreen = {
 				{ text: '$ ', colour: colours.fg },
 				{ text: 'claude', colour: colours.yellow, typewriter: true },
 			],
-			appearAt: 55,
+			appearAt: 38,
 		},
 	],
 	cursorAtEnd: true,
@@ -87,7 +87,7 @@ export const claudeCodeStatus: TmuxStatusBarProps = {
 
 export const claudeCodeScreen: TerminalScreen = {
 	lines: [
-		// ── Read tool block (appears right after swipe lands) ──
+		// ── Read tool block (landing beat: +6 frames after swipe) ──
 		{
 			spans: [
 				{ text: '╭─ ', colour: claude.lavender },
@@ -95,26 +95,26 @@ export const claudeCodeScreen: TerminalScreen = {
 				{ text: ' src/login.ts', colour: claude.lavender },
 				{ text: ' ────────────╮', colour: claude.lavender },
 			],
-			appearAt: 44,
+			appearAt: 50,
 		},
 		{
 			spans: [
 				{ text: '│', colour: claude.lavender },
 				{ text: ' 47 lines', colour: colours.fg, dim: true },
 			],
-			appearAt: 46,
+			appearAt: 52,
 		},
 		{
 			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
-			appearAt: 48,
+			appearAt: 54,
 		},
-		{ spans: [], appearAt: 58 },
+		{ spans: [], appearAt: 64 },
 		// ── Response text ──
 		{
 			spans: [{ text: ' I found the issue.', colour: claude.responseText }],
-			appearAt: 58,
+			appearAt: 64,
 		},
-		{ spans: [], appearAt: 68 },
+		{ spans: [], appearAt: 74 },
 		// ── Edit tool block with diff backgrounds ──
 		{
 			spans: [
@@ -123,7 +123,7 @@ export const claudeCodeScreen: TerminalScreen = {
 				{ text: ' src/login.ts', colour: claude.lavender },
 				{ text: ' ───────────╮', colour: claude.lavender },
 			],
-			appearAt: 68,
+			appearAt: 74,
 		},
 		{
 			spans: [
@@ -134,7 +134,7 @@ export const claudeCodeScreen: TerminalScreen = {
 					background: claude.diffRemBg,
 				},
 			],
-			appearAt: 72,
+			appearAt: 78,
 		},
 		{
 			spans: [
@@ -145,22 +145,22 @@ export const claudeCodeScreen: TerminalScreen = {
 					background: claude.diffAddBg,
 				},
 			],
-			appearAt: 75,
+			appearAt: 81,
 		},
 		{
 			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
-			appearAt: 78,
+			appearAt: 84,
 		},
-		{ spans: [], appearAt: 85 },
+		{ spans: [], appearAt: 91 },
 		// ── "✓ Applied edit" ──
 		{
 			spans: [
 				{ text: ' ✓', colour: claude.successGreen, bold: true },
 				{ text: ' Applied edit', colour: colours.fg },
 			],
-			appearAt: 85,
+			appearAt: 91,
 		},
-		{ spans: [], appearAt: 100 },
+		{ spans: [], appearAt: 106 },
 		// ── Input prompt (terracotta bordered box) ──
 		{
 			spans: [
@@ -168,17 +168,17 @@ export const claudeCodeScreen: TerminalScreen = {
 				{ text: 'claude-opus-4-6', colour: claude.terracotta, bold: true },
 				{ text: ' ─────╮', colour: claude.terracotta },
 			],
-			appearAt: 100,
+			appearAt: 106,
 		},
 		{
 			spans: [{ text: '│ ', colour: claude.terracotta }],
-			appearAt: 100,
+			appearAt: 106,
 		},
 	],
 	cursorAtEnd: true,
 }
 
-// ── Scene 4: Claude Code detail (AI Tools) ─────────────────────────
+// ── Scene 3: Claude Code detail (AI Tools) ─────────────────────────
 
 export const claudeCodeDetailStatus: TmuxStatusBarProps = {
 	session: 'main',
