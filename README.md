@@ -4,30 +4,21 @@
 [![npm](https://img.shields.io/npm/v/webmux)](https://www.npmjs.com/package/webmux)
 [![licence](https://img.shields.io/npm/l/webmux)](LICENSE)
 
-Mobile-friendly terminal overlay for [ttyd](https://github.com/tsl0922/ttyd) + [tmux](https://github.com/tmux/tmux).
+**Your terminal. Everywhere.**
 
-Turns a ttyd web terminal into a touch-optimised tmux client with toolbar, gesture support, and a command drawer. Produces a single `index.html` for `ttyd --index`.
+[ttyd](https://github.com/tsl0922/ttyd) gives you a terminal in a browser. On mobile, it's unusable — no toolbar, no gestures, tiny unresizable text. webmux fixes that. One command. Touch controls, swipe gestures, pinch-to-zoom. Install it like a native app.
 
 <div align="center">
   <!-- Upload demo/out/demo.mp4 via GitHub issue/PR drag-and-drop, then replace the src below -->
   <video src="https://github.com/user-attachments/assets/PLACEHOLDER" width="300" autoplay loop muted playsinline></video>
 </div>
 
-## Features
+## Why webmux
 
-- **`webmux serve`** — one command to run webmux: builds overlay in memory, manages ttyd, serves manifest + icons
-- **PWA installable** — "Add to Home Screen" on iOS and Android with proper icon and standalone mode
-- **Two-row toolbar** — Esc, Prefix (`C-b`), Tab, arrows, C-c, Enter, Alt+Enter, paste, backspace, drawer toggle
-- **Config-driven controls** — unified button model across toolbar + drawer with ids and descriptions
-- **Swipe gestures** — configurable swipe left/right with custom data and help overlay labels
-- **Floating buttons** — always-visible quick-action buttons (top-left, touch only) for zoom, pane cycling, etc.
-- **Touch scrolling modes** — default wheel scrolling for broad app compatibility, optional key paging
-- **Pinch-to-zoom** — adjust font size with two-finger pinch
-- **Font controls** — dedicated +/- buttons, top-right overlay
-- **Help overlay** — in-app reference for all controls and gestures
-- **Keyboard state preservation** — toolbar buttons don't force the virtual keyboard open
-- **Catppuccin Mocha** — default theme, fully customisable
-- **Landscape keyboard detection** — adapts toolbar layout in landscape + keyboard
+- **One command** — `webmux serve` builds the overlay, manages ttyd, serves with PWA support
+- **Swipe between panes** — gesture navigation, no prefix key fumbling on a phone screen
+- **Pinch to zoom** — resize text like every other app on your phone
+- **Install to your home screen** — standalone PWA, looks and feels native
 
 ## Requirements
 
