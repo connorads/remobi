@@ -4,6 +4,7 @@ import { interpolate, useCurrentFrame } from 'remotion'
 /**
  * Semi-transparent circle representing a finger touch.
  * Animates along a path defined by start/end coordinates.
+ * Optional `holdFrames` keeps finger pressed at `from` before moving.
  */
 export const TouchFinger: React.FC<{
 	/** Frame when the finger appears */
@@ -14,14 +15,18 @@ export const TouchFinger: React.FC<{
 	from: readonly [number, number]
 	/** End position [x, y] */
 	to: readonly [number, number]
+	/** Frames to hold at `from` before motion begins */
+	holdFrames?: number
 	/** Size of the finger circle */
 	size?: number
-}> = ({ startFrame, endFrame, from, to, size = 44 }) => {
+}> = ({ startFrame, endFrame, from, to, holdFrames = 0, size = 44 }) => {
 	const frame = useCurrentFrame()
 
 	if (frame < startFrame || frame > endFrame + 5) return null
 
-	const progress = interpolate(frame, [startFrame, endFrame], [0, 1], {
+	// Motion starts after hold period
+	const motionStart = startFrame + holdFrames
+	const progress = interpolate(frame, [motionStart, endFrame], [0, 1], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	})
@@ -29,7 +34,7 @@ export const TouchFinger: React.FC<{
 	const opacity = interpolate(
 		frame,
 		[startFrame, startFrame + 3, endFrame - 2, endFrame + 5],
-		[0, 0.7, 0.7, 0],
+		[0, 0.8, 0.8, 0],
 		{ extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
 	)
 
@@ -45,8 +50,9 @@ export const TouchFinger: React.FC<{
 				width: size,
 				height: size,
 				borderRadius: '50%',
-				background: 'rgba(255,255,255,0.35)',
-				border: '2px solid rgba(255,255,255,0.5)',
+				background: 'rgba(255,255,255,0.5)',
+				border: '2px solid rgba(255,255,255,0.6)',
+				boxShadow: '0 0 12px rgba(255,255,255,0.25)',
 				opacity,
 				zIndex: 20000,
 				pointerEvents: 'none',
@@ -73,7 +79,7 @@ export const TapFinger: React.FC<{
 	const scale = interpolate(elapsed, [0, 3, 6, duration], [0.6, 1.1, 1.0, 0.8], {
 		extrapolateRight: 'clamp',
 	})
-	const opacity = interpolate(elapsed, [0, 3, duration - 3, duration], [0, 0.7, 0.7, 0], {
+	const opacity = interpolate(elapsed, [0, 3, duration - 3, duration], [0, 0.8, 0.8, 0], {
 		extrapolateRight: 'clamp',
 	})
 
@@ -86,8 +92,9 @@ export const TapFinger: React.FC<{
 				width: size,
 				height: size,
 				borderRadius: '50%',
-				background: 'rgba(255,255,255,0.35)',
-				border: '2px solid rgba(255,255,255,0.5)',
+				background: 'rgba(255,255,255,0.5)',
+				border: '2px solid rgba(255,255,255,0.6)',
+				boxShadow: '0 0 12px rgba(255,255,255,0.25)',
 				opacity,
 				transform: `scale(${scale})`,
 				zIndex: 20000,

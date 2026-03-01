@@ -61,7 +61,13 @@ export const SwipeDemo: React.FC = () => {
 							<SwipeIndicator direction="right" showAt={34} />
 
 							{/* Touch finger: 4-frame press-hold (20-24), then swipe (24-42) */}
-							<TouchFinger startFrame={20} endFrame={42} from={[300, 350]} to={[80, 350]} />
+							<TouchFinger
+								startFrame={20}
+								endFrame={42}
+								from={[300, 350]}
+								to={[80, 350]}
+								holdFrames={4}
+							/>
 						</div>
 						<TmuxStatusBar {...status} />
 						<WebmuxToolbar />
