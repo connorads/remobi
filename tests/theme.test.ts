@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { catppuccinMocha } from '../src/theme/catppuccin-mocha'
 import { applyTheme } from '../src/theme/apply'
+import { catppuccinMocha } from '../src/theme/catppuccin-mocha'
 import type { TermTheme } from '../src/types'
 import { mockTerminal } from './fixtures'
 

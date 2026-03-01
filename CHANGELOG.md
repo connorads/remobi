@@ -4,6 +4,12 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Fixed: visibilitychange listener leak in reconnect dispose path — the anonymous listener was never removed, causing a leak on each dispose/re-init cycle.
+- Fixed: unhandled promise rejection when `document.fonts.ready` fails — font loading failure is non-critical, terminal still works.
+- Internal: `bun test --coverage` reporting via `test:coverage` script.
+- Internal: shared `mockTerminal` test fixture extracted from 9 test files.
+- Internal: new tests for `applyTheme`, `haptic`, and `checkLandscapeKeyboard`.
+
 - Added: reconnect overlay — detects connection loss via WebSocket interception and shows a full-screen "Connection lost" overlay with a Reconnect button. Auto-reconnects when the browser comes back online. Enabled by default (`reconnect: { enabled: true }`), disable with `reconnect: { enabled: false }`.
 
 - Added: Remotion-based demo video in `demo/` — programmatically rendered, Catppuccin Mocha themed.
