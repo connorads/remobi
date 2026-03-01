@@ -4,6 +4,14 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Internal: expanded oxlint — `suspicious` + `perf` categories, `import/no-cycle`, `import/no-self-import`, `typescript/no-non-null-asserted-optional-chain`, `unicorn/throw-new-error` (141 rules total).
+- Internal: expanded Biome — `noExcessiveCognitiveComplexity` (warn, max 25), `useFilenamingConvention` (kebab-case).
+- Internal: added knip for unused export/dependency detection. Removed 11 unused exports, removed redundant `happy-dom` devDep.
+- Internal: added publint for npm package validation. Fixed `pkg.repository.url` to `git+https://` convention.
+- Internal: added typos spell checker via mise.
+- Internal: added hk pre-commit hooks (biome, oxlint, typos).
+- Internal: added knip, publint, typos to CI pipeline and prepublishOnly gate.
+
 - Removed: plugin system (`WebmuxPlugin`, `UISlot`, `UIContributionCollector`, plugin manager, UI contributions, build-time resolution, `config.plugins`). Hooks and actions remain as core infrastructure. The plugin API can be reintroduced when there's a concrete second use case.
 
 - Fixed: visibilitychange listener leak in reconnect dispose path — the anonymous listener was never removed, causing a leak on each dispose/re-init cycle.
