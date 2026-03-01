@@ -41,7 +41,8 @@ function describeReceived(value: unknown): string {
 	if (typeof value === 'boolean') return `boolean(${String(value)})`
 	if (typeof value === 'bigint') return `bigint(${String(value)})`
 	if (typeof value === 'undefined') return 'undefined'
-	if (typeof value === 'function') return value.name.length > 0 ? `function(${value.name})` : 'function'
+	if (typeof value === 'function')
+		return value.name.length > 0 ? `function(${value.name})` : 'function'
 	if (typeof value === 'object') {
 		const keys = Object.keys(value)
 		if (keys.length === 0) return 'object(empty)'

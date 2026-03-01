@@ -25,7 +25,7 @@ function mockWebSocket(url: string): WebSocket {
 		removeEventListener: target.removeEventListener.bind(target),
 		dispatchEvent: target.dispatchEvent.bind(target),
 		close() {},
-	// oxlint-disable-next-line typescript/consistent-type-assertions -- mock object for testing
+		// oxlint-disable-next-line typescript/consistent-type-assertions -- mock object for testing
 	} as unknown as WebSocket
 }
 

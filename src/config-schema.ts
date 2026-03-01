@@ -14,10 +14,7 @@ const pluginSpecifierSchema = v.pipe(
 	v.string(),
 	v.check((s) => s.trim().length > 0, 'non-empty plugin specifier'),
 	v.check((s) => s.trim() === s, 'trimmed plugin specifier (no leading/trailing whitespace)'),
-	v.check(
-		(s) => !/[\r\n]/.test(s),
-		'single-line plugin specifier with no control characters',
-	),
+	v.check((s) => !/[\r\n]/.test(s), 'single-line plugin specifier with no control characters'),
 )
 
 // --- Button action (discriminated union) ---
@@ -55,9 +52,10 @@ export const controlButtonSchema = v.strictObject({
 // avoiding v.union which loses path context for nested issues.
 
 const buttonArrayInputSchema = v.pipe(
-	v.custom<
-		readonly Record<string, unknown>[] | ((...args: readonly unknown[]) => unknown)
-	>((input) => Array.isArray(input) || typeof input === 'function', 'array or function'),
+	v.custom<readonly Record<string, unknown>[] | ((...args: readonly unknown[]) => unknown)>(
+		(input) => Array.isArray(input) || typeof input === 'function',
+		'array or function',
+	),
 	v.rawCheck(({ dataset, addIssue }) => {
 		if (!dataset.typed || !Array.isArray(dataset.value)) return
 		const arr = dataset.value
