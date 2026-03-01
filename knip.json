@@ -2,5 +2,5 @@
 	"$schema": "https://unpkg.com/knip@latest/schema.json",
 	"entry": ["build.ts"],
 	"project": ["src/**/*.ts"],
-	"ignoreBinaries": ["mise"]
+	"ignoreBinaries": ["typos"]
 }
