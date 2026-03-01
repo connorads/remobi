@@ -340,6 +340,9 @@ export default defineConfig({
   //   shortName: 'webmux',        // short name for home screen icon (defaults to name)
   //   themeColor: '#1e1e2e',      // theme-color meta tag + manifest
   // },
+  // reconnect: {
+  //   enabled: true,              // show overlay + auto-reload on connection loss (default true)
+  // },
 })
 `
 			await Bun.write(targetPath, template)

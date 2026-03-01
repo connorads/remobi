@@ -17,6 +17,7 @@ import type { WebmuxPlugin } from './plugins/manager'
 import { createUIContributionCollector } from './plugins/ui-contributions'
 import { applyTheme } from './theme/apply'
 import { createToolbar } from './toolbar/toolbar'
+import { setupReconnect } from './reconnect'
 import type { WebmuxConfig } from './types'
 import { resizeTerm, sendData, waitForTerm } from './util/terminal'
 import { initHeightManager } from './viewport/height'
@@ -34,6 +35,7 @@ export type {
 	FloatingButtonGroup,
 	FloatingPosition,
 	FloatingDirection,
+	ReconnectConfig,
 } from './types'
 export type { HookRegistry, SendSource } from './hooks/registry'
 export type { WebmuxPlugin } from './plugins/manager'
@@ -56,6 +58,9 @@ export function init(
 ): void {
 	void waitForTerm()
 		.then(async (term) => {
+			// Reconnect overlay — works on both mobile and desktop
+			const disposeReconnect = setupReconnect(term, config.reconnect)
+
 			const mobile = isMobile()
 			const actions = createDefaultActionRegistry()
 			const uiContributions = createUIContributionCollector()
@@ -65,6 +70,7 @@ export function init(
 			function disposePlugins(): void {
 				if (disposed) return
 				disposed = true
+				disposeReconnect()
 				window.removeEventListener('pagehide', onPageHide)
 				void pluginsManager.dispose()
 			}

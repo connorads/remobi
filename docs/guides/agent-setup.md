@@ -36,7 +36,7 @@ If you cannot install the skill, paste this self-contained prompt directly into 
 > Rules:
 > - Use `import { defineConfig } from 'webmux'` and `export default defineConfig({...})`
 > - Only include keys that differ from defaults; omit everything else
-> - Allowed root keys: `name theme font plugins toolbar drawer gestures mobile floatingButtons pwa`
+> - Allowed root keys: `name theme font plugins toolbar drawer gestures mobile floatingButtons pwa reconnect`
 > - `action.type` must be one of: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`
 > - `send` actions require `data: string`; no other action type may have `data`
 > - Button arrays (`toolbar.row1`, `toolbar.row2`, `drawer.buttons`) accept a plain array or a function `(defaults) => newArray`

@@ -110,6 +110,11 @@ export interface FloatingButtonGroup {
 	readonly buttons: readonly ControlButton[]
 }
 
+/** Reconnect overlay configuration */
+export interface ReconnectConfig {
+	readonly enabled: boolean
+}
+
 /** PWA (Progressive Web App) configuration */
 export interface PwaConfig {
 	readonly enabled: boolean
@@ -134,6 +139,7 @@ export interface WebmuxConfig {
 	readonly mobile: MobileConfig
 	readonly floatingButtons: readonly FloatingButtonGroup[]
 	readonly pwa: PwaConfig
+	readonly reconnect: ReconnectConfig
 }
 
 /** Deep partial — allows overriding any nested subset of config */
@@ -186,5 +192,7 @@ export interface XTerminal {
 declare global {
 	interface Window {
 		term?: XTerminal
+		/** WebSocket instances captured by the reconnect interceptor script */
+		__webmuxSockets?: WebSocket[]
 	}
 }
