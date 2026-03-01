@@ -135,6 +135,10 @@ async function fetchTtydHtml(): Promise<string> {
 	return html
 }
 
+/** Synchronous script that captures WebSocket instances for reconnect detection */
+const WS_INTERCEPTOR =
+	'<script>(function(){var O=WebSocket,S=window.__webmuxSockets=[];window.WebSocket=class extends O{constructor(u,p){super(u,p);S.push(this)}}})()</script>'
+
 /** Inject webmux overlay into ttyd's HTML */
 export function injectOverlay(html: string, js: string, css: string, config: WebmuxConfig): string {
 	const fontLink = `<link rel="preload" href="${config.font.cdnUrl}" as="style" onload="this.rel='stylesheet'">`
@@ -144,8 +148,9 @@ export function injectOverlay(html: string, js: string, css: string, config: Web
 	const safeJs = js.replace(/<(?=\/script)/gi, '\\x3c')
 	const scriptTag = `<script type="module">${safeJs}</script>`
 	const pwaHtml = config.pwa.enabled ? `${generatePwaHtml(config.name, config.pwa)}\n` : ''
+	const wsScript = config.reconnect.enabled ? `${WS_INTERCEPTOR}\n` : ''
 
-	const injection = `${fontLink}\n${viewport}\n${pwaHtml}${styleTag}\n${scriptTag}\n`
+	const injection = `${wsScript}${fontLink}\n${viewport}\n${pwaHtml}${styleTag}\n${scriptTag}\n`
 
 	// Avoid String.replace() — minified JS may contain $& which .replace()
 	// interprets as a special replacement pattern, corrupting the output

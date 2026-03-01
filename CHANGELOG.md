@@ -4,6 +4,8 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Added: reconnect overlay — detects connection loss via WebSocket interception and shows a full-screen "Connection lost" overlay with a Reconnect button. Auto-reconnects when the browser comes back online. Enabled by default (`reconnect: { enabled: true }`), disable with `reconnect: { enabled: false }`.
+
 - Added: Remotion-based demo video in `demo/` — programmatically rendered, Catppuccin Mocha themed.
 - Added: oxlint with `consistent-type-assertions: never` rule to prevent unsafe type assertions.
 - Changed: `waitForTerm` now rejects after timeout (default 10s) instead of polling indefinitely.

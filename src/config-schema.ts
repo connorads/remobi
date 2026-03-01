@@ -260,6 +260,16 @@ const pwaResolvedSchema = v.strictObject({
 	themeColor: v.string(),
 })
 
+// --- Reconnect ---
+
+const reconnectOverridesSchema = v.strictObject({
+	enabled: v.optional(v.boolean()),
+})
+
+const reconnectResolvedSchema = v.strictObject({
+	enabled: v.boolean(),
+})
+
 // --- Top-level schemas ---
 
 /** Schema for config overrides (all fields optional, button arrays accept array | function) */
@@ -283,6 +293,7 @@ export const webmuxConfigOverridesSchema = v.strictObject({
 	mobile: v.optional(mobileOverridesSchema),
 	floatingButtons: v.optional(v.array(floatingButtonGroupSchema)),
 	pwa: v.optional(pwaOverridesSchema),
+	reconnect: v.optional(reconnectOverridesSchema),
 })
 
 /** Schema for fully resolved config (all required fields, plain button arrays) */
@@ -302,4 +313,5 @@ export const webmuxConfigResolvedSchema = v.strictObject({
 	mobile: mobileResolvedSchema,
 	floatingButtons: v.array(floatingButtonGroupSchema),
 	pwa: pwaResolvedSchema,
+	reconnect: reconnectResolvedSchema,
 })

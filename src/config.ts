@@ -250,6 +250,7 @@ export const defaultConfig: WebmuxConfig = {
 	mobile: defaultMobile,
 	floatingButtons: [],
 	pwa: defaultPwa,
+	reconnect: { enabled: true },
 }
 
 /** Deep merge two objects, with `override` taking precedence */
