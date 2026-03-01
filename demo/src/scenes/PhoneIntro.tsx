@@ -1,5 +1,5 @@
 import type React from 'react'
-import { AbsoluteFill, spring, interpolate, useCurrentFrame, useVideoConfig } from 'remotion'
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
 import { Caption } from '../components/Caption'
 import { FontControls } from '../components/FontControls'
 import { PhoneMockup } from '../components/PhoneMockup'

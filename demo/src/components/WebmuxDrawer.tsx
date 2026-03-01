@@ -5,9 +5,21 @@ import { colours } from '../theme'
 
 /** 15 drawer buttons from src/config.ts defaultDrawerButtons */
 const DRAWER_BUTTONS = [
-	'+ Win', 'Split |', 'Split \u2014', 'Zoom', 'Sessions',
-	'Windows', 'Git', 'Files', 'Links', 'PgUp',
-	'PgDn', 'Copy', 'Help', 'Kill', 'Combo',
+	'+ Win',
+	'Split |',
+	'Split \u2014',
+	'Zoom',
+	'Sessions',
+	'Windows',
+	'Git',
+	'Files',
+	'Links',
+	'PgUp',
+	'PgDn',
+	'Copy',
+	'Help',
+	'Kill',
+	'Combo',
 ] as const
 
 /** Animated command drawer — slides up from bottom */
@@ -27,13 +39,14 @@ export const WebmuxDrawer: React.FC<{
 	})
 
 	// Closing animation: 8 frames
-	const closeProgress = closeAt !== undefined
-		? interpolate(frame, [closeAt, closeAt + 8], [0, 1], {
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-				easing: Easing.in(Easing.ease),
-			})
-		: 0
+	const closeProgress =
+		closeAt !== undefined
+			? interpolate(frame, [closeAt, closeAt + 8], [0, 1], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+					easing: Easing.in(Easing.ease),
+				})
+			: 0
 
 	const progress = openProgress - closeProgress
 	if (progress <= 0) return null

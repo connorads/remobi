@@ -4,7 +4,18 @@ import { FONT_FAMILY } from '../fonts'
 import { colours } from '../theme'
 
 /** Button labels from src/config.ts defaultRow1/defaultRow2 */
-const ROW1 = ['Esc', 'Prefix', 'Tab', 'S-Tab', '\u2190', '\u2191', '\u2193', '\u2192', 'C-c', '\u23CE'] as const
+const ROW1 = [
+	'Esc',
+	'Prefix',
+	'Tab',
+	'S-Tab',
+	'\u2190',
+	'\u2191',
+	'\u2193',
+	'\u2192',
+	'C-c',
+	'\u23CE',
+] as const
 const ROW2 = ['q', 'M-\u21B5', 'C-d', '\u2630 More', 'Paste', '\u232b', 'Space'] as const
 
 /** Pixel-perfect webmux toolbar matching styles/base.css */

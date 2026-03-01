@@ -1,14 +1,14 @@
-import type React from 'react'
 import { TransitionSeries, linearTiming } from '@remotion/transitions'
 import { fade } from '@remotion/transitions/fade'
 import { flip } from '@remotion/transitions/flip'
 import { slide } from '@remotion/transitions/slide'
 import { wipe } from '@remotion/transitions/wipe'
-import { PhoneIntro } from './scenes/PhoneIntro'
-import { SwipeDemo } from './scenes/SwipeDemo'
-import { DrawerDemo } from './scenes/DrawerDemo'
+import type React from 'react'
 import { AITools } from './scenes/AITools'
 import { CrossPlatform } from './scenes/CrossPlatform'
+import { DrawerDemo } from './scenes/DrawerDemo'
+import { PhoneIntro } from './scenes/PhoneIntro'
+import { SwipeDemo } from './scenes/SwipeDemo'
 import { Tagline } from './scenes/Tagline'
 
 /** Frame counts at 30fps */

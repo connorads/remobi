@@ -14,10 +14,7 @@ export type TmuxStatusBarProps = {
 }
 
 /** Catppuccin-green tmux status bar at the bottom of the terminal */
-export const TmuxStatusBar: React.FC<TmuxStatusBarProps> = ({
-	session,
-	windows,
-}) => {
+export const TmuxStatusBar: React.FC<TmuxStatusBarProps> = ({ session, windows }) => {
 	return (
 		<div
 			style={{

@@ -3,14 +3,17 @@ import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from 'remotion'
 import { Caption } from '../components/Caption'
 import { PhoneMockup } from '../components/PhoneMockup'
 import { SwipeIndicator } from '../components/SwipeIndicator'
-import { Terminal, SlidingTerminal } from '../components/Terminal'
+import { SlidingTerminal, Terminal } from '../components/Terminal'
 import { TmuxStatusBar } from '../components/TmuxStatusBar'
 import { TouchFinger } from '../components/TouchFinger'
 import { WebmuxToolbar } from '../components/WebmuxToolbar'
 import {
-	shellScreen, shellStatus,
-	claudeCodeScreen, claudeCodeStatus,
-	openCodeScreen, openCodeStatus,
+	claudeCodeScreen,
+	claudeCodeStatus,
+	openCodeScreen,
+	openCodeStatus,
+	shellScreen,
+	shellStatus,
 } from '../screens'
 import { colours } from '../theme'
 
@@ -76,18 +79,8 @@ export const SwipeDemo: React.FC = () => {
 							<SwipeIndicator direction="right" showAt={72} />
 
 							{/* Touch fingers */}
-							<TouchFinger
-								startFrame={15}
-								endFrame={28}
-								from={[300, 350]}
-								to={[80, 350]}
-							/>
-							<TouchFinger
-								startFrame={65}
-								endFrame={78}
-								from={[300, 350]}
-								to={[80, 350]}
-							/>
+							<TouchFinger startFrame={15} endFrame={28} from={[300, 350]} to={[80, 350]} />
+							<TouchFinger startFrame={65} endFrame={78} from={[300, 350]} to={[80, 350]} />
 						</div>
 						<TmuxStatusBar {...status} />
 						<WebmuxToolbar />

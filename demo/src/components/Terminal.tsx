@@ -59,6 +59,7 @@ export const Terminal: React.FC<{
 
 				return (
 					<TerminalLineRow
+						// biome-ignore lint/suspicious/noArrayIndexKey: static terminal lines
 						key={i}
 						line={line}
 						isLast={i === screen.lines.length - 1}
@@ -116,6 +117,7 @@ const TerminalLineRow: React.FC<{
 
 				return (
 					<span
+						// biome-ignore lint/suspicious/noArrayIndexKey: static terminal spans
 						key={j}
 						style={{
 							color: colour,
@@ -135,7 +137,12 @@ const TerminalLineRow: React.FC<{
 }
 
 /** Interpolate between two colours using a sine wave */
-function interpolateColour(frame: number, colourA: string, colourB: string, period: number): string {
+function interpolateColour(
+	frame: number,
+	colourA: string,
+	colourB: string,
+	period: number,
+): string {
 	const t = (Math.sin((frame / period) * Math.PI * 2) + 1) / 2
 	const [rA, gA, bA] = parseRgb(colourA)
 	const [rB, gB, bB] = parseRgb(colourB)

@@ -1,13 +1,13 @@
 import type React from 'react'
-import { AbsoluteFill, spring, interpolate, useCurrentFrame, useVideoConfig } from 'remotion'
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
 import { Caption } from '../components/Caption'
 import { LaptopMockup } from '../components/LaptopMockup'
 import { PhoneMockup } from '../components/PhoneMockup'
 import { Terminal } from '../components/Terminal'
 import { TmuxStatusBar } from '../components/TmuxStatusBar'
 import { WebmuxToolbar } from '../components/WebmuxToolbar'
-import { crossPlatformScreen, crossPlatformStatus } from '../screens'
 import { FONT_FAMILY } from '../fonts'
+import { crossPlatformScreen, crossPlatformStatus } from '../screens'
 import { colours } from '../theme'
 
 /**

@@ -1,5 +1,5 @@
 import type React from 'react'
-import { AbsoluteFill, spring, interpolate, useCurrentFrame, useVideoConfig } from 'remotion'
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
 import { FONT_FAMILY } from '../fonts'
 import { colours } from '../theme'
 
@@ -62,7 +62,7 @@ export const Tagline: React.FC = () => {
 						color: colours.blue,
 						fontFamily: `"${FONT_FAMILY}", monospace`,
 						letterSpacing: -1,
-						textShadow: `0 0 30px rgba(137,180,250,0.35), 0 0 60px rgba(137,180,250,0.15)`,
+						textShadow: '0 0 30px rgba(137,180,250,0.35), 0 0 60px rgba(137,180,250,0.15)',
 					}}
 				>
 					webmux

@@ -100,9 +100,7 @@ export const claudeCodeScreen: TerminalScreen = {
 			],
 		},
 		{
-			spans: [
-				{ text: '╰────────────────────────────╯', colour: claude.lavender },
-			],
+			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
 		},
 		{ spans: [] },
 		// ── Response text (plain white) ──
@@ -122,19 +120,25 @@ export const claudeCodeScreen: TerminalScreen = {
 		{
 			spans: [
 				{ text: '│ ', colour: claude.lavender },
-				{ text: '- if (token.expiresAt > ...)', colour: claude.diffRemWord, background: claude.diffRemBg },
+				{
+					text: '- if (token.expiresAt > ...)',
+					colour: claude.diffRemWord,
+					background: claude.diffRemBg,
+				},
 			],
 		},
 		{
 			spans: [
 				{ text: '│ ', colour: claude.lavender },
-				{ text: '+ if (token.expiresAt < ...)', colour: claude.diffAddWord, background: claude.diffAddBg },
+				{
+					text: '+ if (token.expiresAt < ...)',
+					colour: claude.diffAddWord,
+					background: claude.diffAddBg,
+				},
 			],
 		},
 		{
-			spans: [
-				{ text: '╰────────────────────────────╯', colour: claude.lavender },
-			],
+			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
 		},
 		{ spans: [] },
 		{
@@ -153,9 +157,7 @@ export const claudeCodeScreen: TerminalScreen = {
 			],
 		},
 		{
-			spans: [
-				{ text: '│ ', colour: claude.terracotta },
-			],
+			spans: [{ text: '│ ', colour: claude.terracotta }],
 		},
 	],
 	cursorAtEnd: true,
@@ -176,8 +178,16 @@ export const openCodeScreen: TerminalScreen = {
 	lines: [
 		{
 			spans: [
-				{ text: ' \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2584', colour: colours.orange, bold: true },
-				{ text: ' \u2588\u2580\u2580\u2580 \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2588', colour: colours.fg, bold: true },
+				{
+					text: ' \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2584',
+					colour: colours.orange,
+					bold: true,
+				},
+				{
+					text: ' \u2588\u2580\u2580\u2580 \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2588 \u2588\u2580\u2580\u2588',
+					colour: colours.fg,
+					bold: true,
+				},
 			],
 		},
 		{ spans: [] },
@@ -219,13 +229,14 @@ export const openCodeScreen: TerminalScreen = {
 		},
 		{ spans: [] },
 		{
-			spans: [
-				{ text: ' > ', colour: colours.orange, bold: true },
-			],
+			spans: [{ text: ' > ', colour: colours.orange, bold: true }],
 		},
 		{
 			spans: [
-				{ text: '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', colour: colours.overlay },
+				{
+					text: '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500',
+					colour: colours.overlay,
+				},
 			],
 		},
 		{
@@ -271,14 +282,22 @@ export const claudeCodeDetailScreen: TerminalScreen = {
 		{
 			spans: [
 				{ text: '│ ', colour: claude.lavender },
-				{ text: '+ import { rateLimit }', colour: claude.diffAddWord, background: claude.diffAddBg },
+				{
+					text: '+ import { rateLimit }',
+					colour: claude.diffAddWord,
+					background: claude.diffAddBg,
+				},
 			],
 			appearAt: 8,
 		},
 		{
 			spans: [
 				{ text: '│ ', colour: claude.lavender },
-				{ text: "+   from './rateLimit'", colour: claude.diffAddWord, background: claude.diffAddBg },
+				{
+					text: "+   from './rateLimit'",
+					colour: claude.diffAddWord,
+					background: claude.diffAddBg,
+				},
 			],
 			appearAt: 8,
 		},
@@ -315,9 +334,7 @@ export const claudeCodeDetailScreen: TerminalScreen = {
 			appearAt: 8,
 		},
 		{
-			spans: [
-				{ text: '╰────────────────────────────╯', colour: claude.lavender },
-			],
+			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
 			appearAt: 8,
 		},
 		{ spans: [], appearAt: 12 },
@@ -345,9 +362,7 @@ export const claudeCodeDetailScreen: TerminalScreen = {
 			appearAt: 24,
 		},
 		{
-			spans: [
-				{ text: '│ ', colour: claude.terracotta },
-			],
+			spans: [{ text: '│ ', colour: claude.terracotta }],
 			appearAt: 24,
 		},
 	],

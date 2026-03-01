@@ -59,10 +59,7 @@ function createOverlay(): HTMLDivElement {
  * navigator.onLine + visibilitychange if no WebSocket found.
  * Returns a dispose function that removes listeners and DOM.
  */
-export function setupReconnect(
-	_term: XTerminal,
-	config: ReconnectConfig,
-): () => void {
+export function setupReconnect(_term: XTerminal, config: ReconnectConfig): () => void {
 	if (!config.enabled) {
 		return () => {}
 	}

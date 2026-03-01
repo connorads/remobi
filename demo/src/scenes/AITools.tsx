@@ -22,7 +22,8 @@ export const AITools: React.FC = () => {
 	const frame = useCurrentFrame()
 
 	// Determine which button is highlighted based on frame
-	const highlightButton = frame >= 30 && frame < 34 ? '\u2193' : frame >= 55 && frame < 59 ? 'Esc' : undefined
+	const highlightButton =
+		frame >= 30 && frame < 34 ? '\u2193' : frame >= 55 && frame < 59 ? 'Esc' : undefined
 	const highlightAt = frame >= 30 && frame < 34 ? 30 : frame >= 55 && frame < 59 ? 55 : 0
 
 	return (
