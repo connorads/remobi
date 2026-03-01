@@ -27,6 +27,7 @@
 		"check:fix": "biome check --fix .",
 		"lint:ox": "oxlint",
 		"test": "bun test",
+		"test:coverage": "bun test --coverage",
 		"prepublishOnly": "bun test && bun run check && bun run lint:ox"
 	},
 	"devDependencies": {
