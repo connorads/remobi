@@ -1,81 +1,62 @@
-import { TransitionSeries, linearTiming } from '@remotion/transitions'
+import { TransitionSeries, springTiming } from '@remotion/transitions'
 import { fade } from '@remotion/transitions/fade'
-import { flip } from '@remotion/transitions/flip'
-import { slide } from '@remotion/transitions/slide'
 import { wipe } from '@remotion/transitions/wipe'
 import type React from 'react'
 import { AITools } from './scenes/AITools'
-import { CrossPlatform } from './scenes/CrossPlatform'
-import { DrawerDemo } from './scenes/DrawerDemo'
 import { PhoneIntro } from './scenes/PhoneIntro'
 import { SwipeDemo } from './scenes/SwipeDemo'
 import { Tagline } from './scenes/Tagline'
+import { SMOOTH } from './springs'
 
 /** Frame counts at 30fps */
 export const FPS = 30
 const TRANSITION_FRAMES = 15
 
 /**
- * Main composition (~20s): 6 scenes with varied transitions.
+ * Main composition (~20.5s): 4 scenes, organic spring transitions.
  *
- * | Scene           | Duration   | Transition out        |
- * |-----------------|------------|-----------------------|
- * | Phone Intro     | 3.5s (105f)| slide from-left       |
- * | Swipe Demo      | 4s (120f)  | wipe from-bottom      |
- * | Drawer Demo     | 4s (120f)  | fade                  |
- * | AI Tools        | 2.5s (75f) | slide from-right      |
- * | Cross-Platform  | 3s (90f)   | flip                  |
- * | Tagline         | 3.5s (105f)| —                     |
+ * | Scene       | Duration    | Transition out     |
+ * |-------------|-------------|--------------------|
+ * | Phone Intro | 5s (150f)   | fade               |
+ * | Swipe Demo  | 6s (180f)   | wipe from-bottom   |
+ * | AI Tools    | 5s (150f)   | fade               |
+ * | Tagline     | 6s (180f)   | —                  |
  */
 export const DemoVideo: React.FC = () => {
 	return (
 		<TransitionSeries>
-			<TransitionSeries.Sequence durationInFrames={3.5 * FPS}>
+			{/* Scene 1: The Hook — phone arrives, terminal comes alive */}
+			<TransitionSeries.Sequence durationInFrames={5 * FPS}>
 				<PhoneIntro />
 			</TransitionSeries.Sequence>
 
 			<TransitionSeries.Transition
-				presentation={slide({ direction: 'from-left' })}
-				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
+				presentation={fade()}
+				timing={springTiming({ config: SMOOTH, durationInFrames: TRANSITION_FRAMES })}
 			/>
 
-			<TransitionSeries.Sequence durationInFrames={4 * FPS}>
+			{/* Scene 2: The Magic — one deliberate swipe */}
+			<TransitionSeries.Sequence durationInFrames={6 * FPS}>
 				<SwipeDemo />
 			</TransitionSeries.Sequence>
 
 			<TransitionSeries.Transition
 				presentation={wipe({ direction: 'from-bottom' })}
-				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
+				timing={springTiming({ config: SMOOTH, durationInFrames: TRANSITION_FRAMES })}
 			/>
 
-			<TransitionSeries.Sequence durationInFrames={4 * FPS}>
-				<DrawerDemo />
-			</TransitionSeries.Sequence>
-
-			<TransitionSeries.Transition
-				presentation={fade()}
-				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
-			/>
-
-			<TransitionSeries.Sequence durationInFrames={2.5 * FPS}>
+			{/* Scene 3: The Power — Claude Code writing real code */}
+			<TransitionSeries.Sequence durationInFrames={5 * FPS}>
 				<AITools />
 			</TransitionSeries.Sequence>
 
 			<TransitionSeries.Transition
-				presentation={slide({ direction: 'from-right' })}
-				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
+				presentation={fade()}
+				timing={springTiming({ config: SMOOTH, durationInFrames: TRANSITION_FRAMES })}
 			/>
 
-			<TransitionSeries.Sequence durationInFrames={3 * FPS}>
-				<CrossPlatform />
-			</TransitionSeries.Sequence>
-
-			<TransitionSeries.Transition
-				presentation={flip()}
-				timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
-			/>
-
-			<TransitionSeries.Sequence durationInFrames={3.5 * FPS}>
+			{/* Scene 4: The Close — logo, tagline, hold */}
+			<TransitionSeries.Sequence durationInFrames={6 * FPS}>
 				<Tagline />
 			</TransitionSeries.Sequence>
 		</TransitionSeries>

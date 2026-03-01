@@ -3,57 +3,41 @@ import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from 'remotion'
 import { Caption } from '../components/Caption'
 import { PhoneMockup } from '../components/PhoneMockup'
 import { SwipeIndicator } from '../components/SwipeIndicator'
-import { SlidingTerminal, Terminal } from '../components/Terminal'
+import { SlidingTerminal } from '../components/Terminal'
 import { TmuxStatusBar } from '../components/TmuxStatusBar'
 import { TouchFinger } from '../components/TouchFinger'
 import { WebmuxToolbar } from '../components/WebmuxToolbar'
-import {
-	claudeCodeScreen,
-	claudeCodeStatus,
-	openCodeScreen,
-	openCodeStatus,
-	shellScreen,
-	shellStatus,
-} from '../screens'
+import { claudeCodeScreen, claudeCodeStatus, shellScreen, shellStatus } from '../screens'
 import { colours } from '../theme'
 
 /**
- * Scene 2: Swipe left → Claude Code, swipe right → OpenCode (4s / 120 frames)
+ * Scene 2: One deliberate swipe from shell → Claude Code (6s / 180 frames)
  *
  * Timeline:
- * 0-15:   Show shell (window 0)
- * 15-30:  Finger swipes left → slide to Claude Code (window 1)
- * 30-65:  Show Claude Code
- * 65-80:  Finger swipes left → slide to OpenCode (window 2)
- * 80-120: Show OpenCode
+ * 0-20:    Show shell terminal
+ * 20-24:   Finger appears, press-hold (4 frames)
+ * 24-42:   Finger swipes left over 18 frames (ease-out)
+ * 42-44:   Swipe indicator arrow flashes
+ * 44-140:  Claude Code visible, content staggers in
+ * 140-160: Hold — viewer processes the diff
+ * 160-180: Transition begins
  */
 export const SwipeDemo: React.FC = () => {
 	const frame = useCurrentFrame()
 	const PHONE_W = 390
 
-	// Swipe 1: frame 15→30, shell slides left, claude slides in from right
-	const swipe1 = interpolate(frame, [20, 30], [0, 1], {
+	// Swipe: frame 24→42, shell slides left, claude slides in from right
+	const swipe = interpolate(frame, [24, 42], [0, 1], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 		easing: Easing.out(Easing.ease),
 	})
 
-	// Swipe 2: frame 65→75, claude slides left, opencode slides in from right
-	const swipe2 = interpolate(frame, [70, 80], [0, 1], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-		easing: Easing.out(Easing.ease),
-	})
+	const shellOffset = -swipe * PHONE_W
+	const claudeOffset = (1 - swipe) * PHONE_W
 
-	// Shell offset: 0 → -PHONE_W
-	const shellOffset = -swipe1 * PHONE_W
-	// Claude offset: +PHONE_W → 0 → -PHONE_W
-	const claudeOffset = (1 - swipe1) * PHONE_W - swipe2 * PHONE_W
-	// OpenCode offset: +PHONE_W → 0
-	const openCodeOffset = (1 - swipe2) * PHONE_W
-
-	// Which status bar to show
-	const status = frame < 25 ? shellStatus : frame < 75 ? claudeCodeStatus : openCodeStatus
+	// Status bar switches at swipe midpoint
+	const status = frame < 33 ? shellStatus : claudeCodeStatus
 
 	return (
 		<AbsoluteFill
@@ -72,15 +56,12 @@ export const SwipeDemo: React.FC = () => {
 						<div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
 							<SlidingTerminal screen={shellScreen} offsetX={shellOffset} />
 							<SlidingTerminal screen={claudeCodeScreen} offsetX={claudeOffset} />
-							<SlidingTerminal screen={openCodeScreen} offsetX={openCodeOffset} />
 
-							{/* Swipe indicators */}
-							<SwipeIndicator direction="right" showAt={22} />
-							<SwipeIndicator direction="right" showAt={72} />
+							{/* Swipe indicator */}
+							<SwipeIndicator direction="right" showAt={34} />
 
-							{/* Touch fingers */}
-							<TouchFinger startFrame={15} endFrame={28} from={[300, 350]} to={[80, 350]} />
-							<TouchFinger startFrame={65} endFrame={78} from={[300, 350]} to={[80, 350]} />
+							{/* Touch finger: 4-frame press-hold (20-24), then swipe (24-42) */}
+							<TouchFinger startFrame={20} endFrame={42} from={[300, 350]} to={[80, 350]} />
 						</div>
 						<TmuxStatusBar {...status} />
 						<WebmuxToolbar />

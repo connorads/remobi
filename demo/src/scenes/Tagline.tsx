@@ -1,16 +1,17 @@
 import type React from 'react'
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
 import { FONT_FAMILY } from '../fonts'
+import { CONFIDENT, SMOOTH } from '../springs'
 import { colours } from '../theme'
 
 /**
- * Scene 6: "webmux" logo + subtitle + GitHub URL, hold, fade (3.5s / 105 frames)
+ * Scene 4: "webmux" logo + tagline + GitHub URL, confident hold (6s / 180 frames)
  *
  * Timeline:
- * 0-20:  Title springs in (JetBrains Mono, glow)
- * 10-30: Subtitle fades in
- * 25-40: GitHub URL fades in
- * 40-105: Hold
+ * 0-20:   Title springs in (confident, no wobble)
+ * 15-35:  Tagline fades up
+ * 30-45:  GitHub URL fades in last
+ * 45-180: Hold — the video ends cleanly
  */
 export const Tagline: React.FC = () => {
 	const frame = useCurrentFrame()
@@ -19,17 +20,17 @@ export const Tagline: React.FC = () => {
 	const titleEntrance = spring({
 		frame,
 		fps,
-		config: { damping: 12, stiffness: 100 },
+		config: CONFIDENT,
 	})
 	const subtitleEntrance = spring({
-		frame: frame - 10,
+		frame: frame - 15,
 		fps,
-		config: { damping: 200 },
+		config: SMOOTH,
 	})
 	const urlEntrance = spring({
-		frame: frame - 25,
+		frame: frame - 30,
 		fps,
-		config: { damping: 200 },
+		config: SMOOTH,
 	})
 
 	const titleScale = interpolate(titleEntrance, [0, 1], [0.8, 1])
@@ -41,7 +42,7 @@ export const Tagline: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{
-				background: `radial-gradient(ellipse at center, #242438 0%, ${colours.bg} 70%)`,
+				background: `radial-gradient(ellipse at center, #282840 0%, ${colours.bg} 70%)`,
 				display: 'flex',
 				flexDirection: 'column',
 				alignItems: 'center',
@@ -85,9 +86,7 @@ export const Tagline: React.FC = () => {
 						lineHeight: 1.5,
 					}}
 				>
-					Mobile-friendly terminal overlay
-					<br />
-					for ttyd + tmux
+					Your terminal. Everywhere.
 				</div>
 			</div>
 			<div
