@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 import { catppuccinMocha } from '../src/theme/catppuccin-mocha'
+import { applyTheme } from '../src/theme/apply'
 import type { TermTheme } from '../src/types'
+import { mockTerminal } from './fixtures'
 
 describe('catppuccinMocha', () => {
 	test('has all required colour fields', () => {
@@ -44,5 +46,21 @@ describe('catppuccinMocha', () => {
 
 	test('blue is mocha blue', () => {
 		expect(catppuccinMocha.blue).toBe('#89b4fa')
+	})
+})
+
+describe('applyTheme', () => {
+	test('sets terminal theme options', () => {
+		const term = mockTerminal()
+		applyTheme(term, catppuccinMocha)
+		expect(term.options.theme?.background).toBe('#1e1e2e')
+		expect(term.options.theme?.foreground).toBe('#cdd6f4')
+	})
+
+	test('creates a spread copy, not a reference to the original', () => {
+		const term = mockTerminal()
+		applyTheme(term, catppuccinMocha)
+		expect(term.options.theme).not.toBe(catppuccinMocha)
+		expect(term.options.theme).toEqual({ ...catppuccinMocha })
 	})
 })

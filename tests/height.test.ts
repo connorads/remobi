@@ -12,8 +12,92 @@ afterEach(() => {
 })
 
 describe('checkLandscapeKeyboard', () => {
-	test('is a function', () => {
-		expect(typeof checkLandscapeKeyboard).toBe('function')
+	function makeToolbar(): HTMLDivElement {
+		const toolbar = document.createElement('div')
+		document.body.appendChild(toolbar)
+		return toolbar
+	}
+
+	test('adds wt-kb-open class when keyboard open in landscape', () => {
+		Object.defineProperty(window, 'innerHeight', {
+			value: 400,
+			writable: true,
+			configurable: true,
+		})
+		Object.defineProperty(window, 'innerWidth', {
+			value: 800,
+			writable: true,
+			configurable: true,
+		})
+		Object.defineProperty(window, 'visualViewport', {
+			value: { height: 200 },
+			writable: true,
+			configurable: true,
+		})
+
+		const toolbar = makeToolbar()
+		checkLandscapeKeyboard(toolbar)
+		expect(toolbar.classList.contains('wt-kb-open')).toBe(true)
+	})
+
+	test('removes class when keyboard closed', () => {
+		Object.defineProperty(window, 'innerHeight', {
+			value: 400,
+			writable: true,
+			configurable: true,
+		})
+		Object.defineProperty(window, 'innerWidth', {
+			value: 800,
+			writable: true,
+			configurable: true,
+		})
+		Object.defineProperty(window, 'visualViewport', {
+			value: { height: 390 },
+			writable: true,
+			configurable: true,
+		})
+
+		const toolbar = makeToolbar()
+		toolbar.classList.add('wt-kb-open')
+		checkLandscapeKeyboard(toolbar)
+		expect(toolbar.classList.contains('wt-kb-open')).toBe(false)
+	})
+
+	test('removes class in portrait even if keyboard open', () => {
+		Object.defineProperty(window, 'innerHeight', {
+			value: 800,
+			writable: true,
+			configurable: true,
+		})
+		Object.defineProperty(window, 'innerWidth', {
+			value: 400,
+			writable: true,
+			configurable: true,
+		})
+		Object.defineProperty(window, 'visualViewport', {
+			value: { height: 400 },
+			writable: true,
+			configurable: true,
+		})
+
+		const toolbar = makeToolbar()
+		toolbar.classList.add('wt-kb-open')
+		checkLandscapeKeyboard(toolbar)
+		expect(toolbar.classList.contains('wt-kb-open')).toBe(false)
+	})
+
+	test('no-op when visualViewport is null', () => {
+		Object.defineProperty(window, 'visualViewport', {
+			value: null,
+			writable: true,
+			configurable: true,
+		})
+
+		const toolbar = makeToolbar()
+		toolbar.classList.add('wt-kb-open')
+		checkLandscapeKeyboard(toolbar)
+		// Class untouched — function returned early
+		expect(toolbar.classList.contains('wt-kb-open')).toBe(true)
 	})
 })
 
