@@ -82,7 +82,11 @@ async function fetchTtydHtml(): Promise<string> {
 	await proc.exited
 
 	if (!html) {
-		throw new Error('Failed to fetch ttyd index.html — is ttyd installed?')
+		throw new Error(
+			'Failed to fetch ttyd index.html — is ttyd installed and on PATH?\n' +
+				'Install: https://github.com/tsl0922/ttyd#installation (or `mise use ttyd`)\n' +
+				'Alternatively, pipe existing ttyd HTML via `webmux inject` (no ttyd required).',
+		)
 	}
 
 	return html

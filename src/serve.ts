@@ -25,7 +25,9 @@ async function waitForTtyd(port: number, retries = 40, intervalMs = 200): Promis
 		}
 		await Bun.sleep(intervalMs)
 	}
-	throw new Error(`ttyd did not start on port ${port}`)
+	throw new Error(
+		`ttyd did not start on port ${port} — is ttyd installed and on PATH?\nInstall: https://github.com/tsl0922/ttyd#installation (or \`mise use ttyd\`)`,
+	)
 }
 
 /** Pick a random internal port */
