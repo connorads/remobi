@@ -17,4 +17,7 @@ jobs:
       - run: bun run build
       - run: bun run check
       - run: bun run lint:ox
+      - run: bun run lint:typos
+      - run: bun run lint:knip
+      - run: bun run lint:publint
       - run: bunx tsc --noEmit
