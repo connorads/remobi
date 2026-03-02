@@ -84,7 +84,7 @@ async function fetchTtydHtml(): Promise<string> {
 	if (!html) {
 		throw new Error(
 			'Failed to fetch ttyd index.html — is ttyd installed and on PATH?\n' +
-				'Install: https://github.com/tsl0922/ttyd#installation (or `mise use ttyd`)\n' +
+				'Install ttyd: macOS `brew install ttyd`; Linux use your distro package manager or build from source: https://github.com/tsl0922/ttyd#installation\n' +
 				'Alternatively, pipe existing ttyd HTML via `webmux inject` (no ttyd required).',
 		)
 	}

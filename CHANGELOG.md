@@ -11,6 +11,7 @@ This project has not been published yet. On first release, rename this section t
 - Internal: added typos spell checker via mise.
 - Internal: added hk pre-commit hooks (biome, oxlint, typos).
 - Internal: added knip, publint, typos to CI pipeline and prepublishOnly gate.
+- Changed: removed `ttyd` from `mise.toml` (unsupported on macOS arm64 via current aqua metadata) and updated ttyd install guidance to be macOS/Linux friendly (`brew` on macOS, distro/source options on Linux).
 
 - Removed: plugin system (`WebmuxPlugin`, `UISlot`, `UIContributionCollector`, plugin manager, UI contributions, build-time resolution, `config.plugins`). Hooks and actions remain as core infrastructure. The plugin API can be reintroduced when there's a concrete second use case.
 
