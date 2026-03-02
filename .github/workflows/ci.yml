@@ -14,7 +14,8 @@ jobs:
       - uses: jdx/mise-action@v3
       - run: bun install
       - run: bun test
-      - run: bun run build
+      - name: Validate build pipeline (inject mode, no ttyd needed)
+        run: echo '<html><head></head><body></body></html>' | bun run cli.ts inject > /dev/null
       - run: bun run check
       - run: bun run lint:ox
       - run: bun run lint:typos
