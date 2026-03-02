@@ -11,25 +11,25 @@ import { claudeCodeDetailScreen, claudeCodeDetailStatus } from '../screens'
 import { colours } from '../theme'
 
 /**
- * Scene 3: Claude Code active session — AI writing real code (6s / 180 frames)
+ * Scene 3: Claude Code active session — AI writing real code (5s / 150 frames)
  *
  * Timeline:
- * 0-30:    "Thinking…" shimmer, edit block appears line by line
- * 50-60:   "✓ Applied edit" appears
- * 60-80:   Response text typewriter
- * 82-84:   Finger taps ☰ More
- * 84-115:  Drawer slides up, holds open
- * 115:     Drawer closes
- * 120-132: Finger taps Esc
- * 132-180: Hold + transition
+ * 0-33:    "Thinking…" shimmer, edit block appears line by line
+ * 43:      "✓ Applied edit" appears
+ * 49-54:   Response text typewriter, input prompt
+ * 59-61:   Finger taps ☰ More
+ * 61-81:   Drawer slides up, holds open
+ * 81:      Drawer closes
+ * 85-87:   Finger taps Esc
+ * 87-150:  Hold + transition
  */
 export const AITools: React.FC = () => {
 	const frame = useCurrentFrame()
 
-	// Toolbar button highlight: ☰ More tap at 82, Esc tap at 120
+	// Toolbar button highlight: ☰ More tap at 59, Esc tap at 85
 	const highlightButton =
-		frame >= 82 && frame < 86 ? '\u2630 More' : frame >= 120 && frame < 124 ? 'Esc' : undefined
-	const highlightAt = frame >= 82 && frame < 86 ? 82 : frame >= 120 && frame < 124 ? 120 : 0
+		frame >= 59 && frame < 63 ? '\u2630 More' : frame >= 85 && frame < 89 ? 'Esc' : undefined
+	const highlightAt = frame >= 59 && frame < 63 ? 59 : frame >= 85 && frame < 89 ? 85 : 0
 
 	return (
 		<AbsoluteFill
@@ -49,15 +49,15 @@ export const AITools: React.FC = () => {
 						<WebmuxToolbar highlightButton={highlightButton} highlightAt={highlightAt} />
 
 						{/* Finger taps ☰ More to open drawer */}
-						<TapFinger tapFrame={82} position={[175, 775]} />
+						<TapFinger tapFrame={59} position={[175, 775]} />
 						{/* Finger taps Esc */}
-						<TapFinger tapFrame={120} position={[25, 735]} />
+						<TapFinger tapFrame={85} position={[25, 735]} />
 
 						{/* Command drawer overlay */}
-						<DrawerOverlay showFrame={84} hideFrame={115} />
+						<DrawerOverlay showFrame={61} hideFrame={81} />
 					</div>
 				</PhoneMockup>
-				<Caption text="Code with AI agents" />
+				<Caption text="Claude Code. One tap away." />
 			</div>
 		</AbsoluteFill>
 	)

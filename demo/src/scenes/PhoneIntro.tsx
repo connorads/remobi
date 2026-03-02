@@ -1,6 +1,5 @@
 import type React from 'react'
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
-import { Caption } from '../components/Caption'
 import { PhoneMockup } from '../components/PhoneMockup'
 import { Terminal } from '../components/Terminal'
 import { TmuxStatusBar } from '../components/TmuxStatusBar'
@@ -9,7 +8,7 @@ import { shellScreen, shellStatus } from '../screens'
 import { CONFIDENT } from '../springs'
 import { colours } from '../theme'
 
-/** Scene 1: Phone springs in, terminal typing, toolbar visible (5s / 150 frames) */
+/** Scene 1: Phone springs in, terminal typing, toolbar visible (3s / 90 frames) */
 export const PhoneIntro: React.FC = () => {
 	const frame = useCurrentFrame()
 	const { fps } = useVideoConfig()
@@ -40,7 +39,6 @@ export const PhoneIntro: React.FC = () => {
 						<WebmuxToolbar />
 					</div>
 				</PhoneMockup>
-				<Caption text="Your server in your pocket" />
 			</div>
 		</AbsoluteFill>
 	)

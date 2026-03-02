@@ -19,7 +19,7 @@ export const shellStatus: TmuxStatusBarProps = {
 
 export const shellScreen: TerminalScreen = {
 	lines: [
-		// Prompt + command visible as phone settles (~frame 15)
+		// Prompt + command visible as phone settles (~frame 10)
 		{
 			spans: [
 				{ text: 'connor@rpi5', colour: colours.green, bold: true },
@@ -28,36 +28,36 @@ export const shellScreen: TerminalScreen = {
 				{ text: '$ ', colour: colours.fg },
 				{ text: 'ls -la', colour: colours.fg },
 			],
-			appearAt: 15,
+			appearAt: 10,
 		},
 		{
 			spans: [{ text: 'total 42', colour: colours.fg, dim: true }],
-			appearAt: 19,
+			appearAt: 13,
 		},
 		{
 			spans: [{ text: 'drwxr-xr-x  5 connor  4096 Feb 28 .', colour: colours.fg }],
-			appearAt: 22,
+			appearAt: 15,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor   847 Feb 28 ', colour: colours.fg },
 				{ text: 'index.ts', colour: colours.blue },
 			],
-			appearAt: 25,
+			appearAt: 17,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor  1203 Feb 28 ', colour: colours.fg },
 				{ text: 'config.ts', colour: colours.blue },
 			],
-			appearAt: 28,
+			appearAt: 19,
 		},
 		{
 			spans: [
 				{ text: '-rw-r--r--  1 connor   394 Feb 28 ', colour: colours.fg },
 				{ text: 'README.md', colour: colours.blue },
 			],
-			appearAt: 31,
+			appearAt: 21,
 		},
 		// Second prompt with typewriter — types `claude`
 		{
@@ -68,7 +68,7 @@ export const shellScreen: TerminalScreen = {
 				{ text: '$ ', colour: colours.fg },
 				{ text: 'claude', colour: colours.yellow, typewriter: true },
 			],
-			appearAt: 38,
+			appearAt: 25,
 		},
 	],
 	cursorAtEnd: true,
@@ -265,36 +265,36 @@ export const claudeCodeDetailScreen: TerminalScreen = {
 			spans: [{ text: '╰────────────────────────────╯', colour: claude.lavender }],
 			appearAt: 33,
 		},
-		{ spans: [], appearAt: 50 },
-		// ── "✓ Applied edit" (frame 50) ──
+		{ spans: [], appearAt: 43 },
+		// ── "✓ Applied edit" (frame 43) ──
 		{
 			spans: [
 				{ text: ' ✓', colour: claude.successGreen, bold: true },
 				{ text: ' Applied edit', colour: colours.fg },
 			],
-			appearAt: 50,
+			appearAt: 43,
 		},
-		{ spans: [], appearAt: 60 },
-		// ── Response with typewriter (frame 60) ──
+		{ spans: [], appearAt: 49 },
+		// ── Response with typewriter (frame 49) ──
 		{
 			spans: [
 				{ text: ' Rate limiting is now active.', colour: claude.responseText, typewriter: true },
 			],
-			appearAt: 60,
+			appearAt: 49,
 		},
-		{ spans: [], appearAt: 75 },
-		// ── Input prompt (frame 75) ──
+		{ spans: [], appearAt: 54 },
+		// ── Input prompt (frame 54) ──
 		{
 			spans: [
 				{ text: '╭─ ', colour: claude.terracotta },
 				{ text: 'claude-opus-4-6', colour: claude.terracotta, bold: true },
 				{ text: ' ─────╮', colour: claude.terracotta },
 			],
-			appearAt: 75,
+			appearAt: 54,
 		},
 		{
 			spans: [{ text: '│ ', colour: claude.terracotta }],
-			appearAt: 75,
+			appearAt: 54,
 		},
 	],
 	cursorAtEnd: true,

@@ -5,13 +5,13 @@ import { CONFIDENT, SMOOTH } from '../springs'
 import { colours } from '../theme'
 
 /**
- * Scene 4: "webmux" logo + tagline + GitHub URL, confident hold (4s / 120 frames)
+ * Scene 4: "webmux" logo + tagline + GitHub URL, confident hold (2s / 60 frames)
  *
  * Timeline:
- * 0-20:   Title springs in (confident, no wobble)
- * 15-35:  Tagline fades up
- * 30-45:  GitHub URL fades in last
- * 45-120: Hold — the video ends cleanly
+ * 0-20:  Title springs in (confident, no wobble)
+ * 10-25: Tagline fades up
+ * 18-30: GitHub URL fades in last
+ * 30-60: Hold — the video ends cleanly
  */
 export const Tagline: React.FC = () => {
 	const frame = useCurrentFrame()
@@ -23,12 +23,12 @@ export const Tagline: React.FC = () => {
 		config: CONFIDENT,
 	})
 	const subtitleEntrance = spring({
-		frame: frame - 15,
+		frame: frame - 10,
 		fps,
 		config: SMOOTH,
 	})
 	const urlEntrance = spring({
-		frame: frame - 30,
+		frame: frame - 18,
 		fps,
 		config: SMOOTH,
 	})

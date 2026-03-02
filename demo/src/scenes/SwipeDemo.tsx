@@ -11,16 +11,16 @@ import { claudeCodeScreen, claudeCodeStatus, shellScreen, shellStatus } from '..
 import { colours } from '../theme'
 
 /**
- * Scene 2: One deliberate swipe from shell → Claude Code (6s / 180 frames)
+ * Scene 2: One deliberate swipe from shell → Claude Code (5s / 150 frames)
  *
  * Timeline:
  * 0-20:    Show shell terminal
  * 20-24:   Finger appears, press-hold (4 frames)
  * 24-42:   Finger swipes left over 18 frames (ease-out)
  * 42-44:   Swipe indicator arrow flashes
- * 44-140:  Claude Code visible, content staggers in
- * 140-160: Hold — viewer processes the diff
- * 160-180: Transition begins
+ * 44-120:  Claude Code visible, content staggers in
+ * 120-135: Hold — viewer processes the diff
+ * 135-150: Transition begins
  */
 export const SwipeDemo: React.FC = () => {
 	const frame = useCurrentFrame()
@@ -73,7 +73,7 @@ export const SwipeDemo: React.FC = () => {
 						<WebmuxToolbar />
 					</div>
 				</PhoneMockup>
-				<Caption text="Swipe between sessions" />
+				<Caption text="No prefix key. Just swipe." />
 			</div>
 		</AbsoluteFill>
 	)
