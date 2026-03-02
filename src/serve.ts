@@ -26,7 +26,7 @@ async function waitForTtyd(port: number, retries = 40, intervalMs = 200): Promis
 		await Bun.sleep(intervalMs)
 	}
 	throw new Error(
-		`ttyd did not start on port ${port} — is ttyd installed and on PATH?\nInstall: https://github.com/tsl0922/ttyd#installation (or \`mise use ttyd\`)`,
+		`ttyd did not start on port ${port} — is ttyd installed and on PATH?\nInstall ttyd: macOS \`brew install ttyd\`; Linux use your distro package manager or build from source: https://github.com/tsl0922/ttyd#installation`,
 	)
 }
 

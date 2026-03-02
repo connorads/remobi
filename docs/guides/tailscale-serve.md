@@ -4,7 +4,7 @@ Expose a tmux session as a mobile-friendly web terminal over your Tailscale netw
 
 ## Prerequisites
 
-- [ttyd](https://github.com/tsl0922/ttyd) installed
+- [ttyd](https://github.com/tsl0922/ttyd) installed (`brew install ttyd` on macOS; Linux via distro package manager or source build from the [installation guide](https://github.com/tsl0922/ttyd#installation))
 - [tmux](https://github.com/tmux/tmux) installed
 - [Tailscale](https://tailscale.com/) configured with HTTPS enabled (`tailscale cert`)
 - webmux installed (`bun add -g webmux`)

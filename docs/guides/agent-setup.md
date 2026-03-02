@@ -5,7 +5,7 @@ AI agents (Claude Code, Cursor, Copilot, etc.) can inspect your tmux config and 
 ## Prerequisites
 
 - [Bun](https://bun.sh/) ≥ 1.0
-- [ttyd](https://github.com/tsl0922/ttyd) installed and on PATH
+- [ttyd](https://github.com/tsl0922/ttyd) installed and on PATH (`brew install ttyd` on macOS; Linux via distro package manager or source build from the [installation guide](https://github.com/tsl0922/ttyd#installation))
 - [tmux](https://github.com/tmux/tmux) installed
 - webmux installed: `bun add -g webmux`
 

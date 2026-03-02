@@ -23,7 +23,7 @@
 ## Requirements
 
 - [Bun](https://bun.sh/) ≥ 1.0 (runtime — webmux ships TypeScript source, no transpilation)
-- [ttyd](https://github.com/tsl0922/ttyd) — must be on PATH for `webmux serve` and `webmux build` (they spawn a temporary ttyd to fetch base HTML). `webmux inject` pipes HTML from stdin and does **not** require ttyd — useful for CI or environments where ttyd isn't installed locally.
+- [ttyd](https://github.com/tsl0922/ttyd) — must be on PATH for `webmux serve` and `webmux build` (they spawn a temporary ttyd to fetch base HTML). Install on macOS with `brew install ttyd`; on Linux use your distro package manager or build from source via the [ttyd installation guide](https://github.com/tsl0922/ttyd#installation). `webmux inject` pipes HTML from stdin and does **not** require ttyd — useful for CI or environments where ttyd isn't installed locally.
 - [tmux](https://github.com/tmux/tmux) (the target multiplexer)
 
 webmux uses standard ttyd flags (`--writable`, `-t`, `-i`) and should work with any recent ttyd release.
