@@ -249,6 +249,15 @@ bun link          # webmux CLI available globally
 # Edit source → changes take effect on next build (no transpile step)
 ```
 
+`bun link` installs the binary to `~/.bun/bin`. If `webmux` is not found after linking, add that directory to your PATH:
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc
+export PATH="$HOME/.bun/bin:$PATH"
+```
+
+Then reload your shell (`source ~/.zshrc`) and `webmux --version` should work.
+
 ## Licence
 
 MIT
