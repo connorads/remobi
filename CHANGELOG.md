@@ -16,6 +16,7 @@ This project has not been published yet. On first release, rename this section t
 - Removed: plugin system (`WebmuxPlugin`, `UISlot`, `UIContributionCollector`, plugin manager, UI contributions, build-time resolution, `config.plugins`). Hooks and actions remain as core infrastructure. The plugin API can be reintroduced when there's a concrete second use case.
 
 - Fixed: visibilitychange listener leak in reconnect dispose path — the anonymous listener was never removed, causing a leak on each dispose/re-init cycle.
+- Fixed: reconnect overlay now retries on any overlay tap, keeps the button focused for keyboard `Enter`, and guards against duplicate reload attempts.
 - Fixed: unhandled promise rejection when `document.fonts.ready` fails — font loading failure is non-critical, terminal still works.
 - Internal: `bun test --coverage` reporting via `test:coverage` script.
 - Internal: shared `mockTerminal` test fixture extracted from 9 test files.

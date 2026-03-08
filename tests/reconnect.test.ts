@@ -20,6 +20,14 @@ function getOverlay(): HTMLElement | null {
 	return document.getElementById('webmux-reconnect-overlay')
 }
 
+function stubLocationReload(): { readonly calls: number[] } {
+	const calls: number[] = []
+	window.location.reload = () => {
+		calls.push(Date.now())
+	}
+	return { calls }
+}
+
 beforeEach(() => {
 	GlobalRegistrator.register()
 })
@@ -100,6 +108,79 @@ describe('setupReconnect', () => {
 		dispose()
 	})
 
+	test('focuses reconnect button when overlay is shown', () => {
+		const ws = mockWebSocket('ws://localhost:1234/ws')
+		window.__webmuxSockets = [ws]
+
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
+		ws.dispatchEvent(new Event('close'))
+
+		const button = getOverlay()?.querySelector('button')
+		expect(document.activeElement).toBe(button)
+		dispose()
+	})
+
+	test('clicking reconnect button reloads once', () => {
+		const reload = stubLocationReload()
+		const ws = mockWebSocket('ws://localhost:1234/ws')
+		window.__webmuxSockets = [ws]
+
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
+		ws.dispatchEvent(new Event('close'))
+
+		const button = getOverlay()?.querySelector('button')
+		button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+		expect(reload.calls).toHaveLength(1)
+		dispose()
+	})
+
+	test('clicking overlay backdrop reloads once', () => {
+		const reload = stubLocationReload()
+		const ws = mockWebSocket('ws://localhost:1234/ws')
+		window.__webmuxSockets = [ws]
+
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
+		ws.dispatchEvent(new Event('close'))
+
+		getOverlay()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+		expect(reload.calls).toHaveLength(1)
+		dispose()
+	})
+
+	test('clicking overlay message reloads once', () => {
+		const reload = stubLocationReload()
+		const ws = mockWebSocket('ws://localhost:1234/ws')
+		window.__webmuxSockets = [ws]
+
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
+		ws.dispatchEvent(new Event('close'))
+
+		const message = getOverlay()?.querySelector('div')
+		message?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+		expect(reload.calls).toHaveLength(1)
+		dispose()
+	})
+
+	test('multiple reconnect triggers reload only once', () => {
+		const reload = stubLocationReload()
+		const ws = mockWebSocket('ws://localhost:1234/ws')
+		window.__webmuxSockets = [ws]
+
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
+		ws.dispatchEvent(new Event('close'))
+
+		const overlay = getOverlay()
+		overlay?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+		overlay?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+		window.dispatchEvent(new Event('online'))
+
+		expect(reload.calls).toHaveLength(1)
+		dispose()
+	})
+
 	test('dispose removes visibilitychange listener in fallback path', () => {
 		window.__webmuxSockets = []
 
@@ -137,6 +218,19 @@ describe('setupReconnect', () => {
 
 		const overlay = getOverlay()
 		expect(overlay?.style.display).toBe('flex')
+		dispose()
+	})
+
+	test('fallback overlay supports tap to reconnect', () => {
+		const reload = stubLocationReload()
+		window.__webmuxSockets = []
+
+		const dispose = setupReconnect(mockTerminal(), { enabled: true })
+		window.dispatchEvent(new Event('offline'))
+
+		getOverlay()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+		expect(reload.calls).toHaveLength(1)
 		dispose()
 	})
 })

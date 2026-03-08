@@ -8,8 +8,13 @@ function findTtydSocket(): WebSocket | undefined {
 	return sockets.find((ws) => ws.url.endsWith('/ws'))
 }
 
+interface ReconnectOverlay {
+	readonly element: HTMLDivElement
+	readonly button: HTMLButtonElement
+}
+
 /** Create the reconnect overlay DOM (hidden by default) */
-function createOverlay(): HTMLDivElement {
+function createOverlay(onReconnect: () => void): ReconnectOverlay {
 	const overlay = el('div', {
 		id: 'webmux-reconnect-overlay',
 		style: [
@@ -44,12 +49,20 @@ function createOverlay(): HTMLDivElement {
 			'font-weight:600',
 		].join(';'),
 	})
+	button.type = 'button'
 	button.textContent = 'Reconnect'
-	button.addEventListener('click', () => location.reload())
+	button.addEventListener('click', (event: Event) => {
+		event.stopPropagation()
+		onReconnect()
+	})
+
+	overlay.addEventListener('click', () => {
+		onReconnect()
+	})
 
 	overlay.appendChild(message)
 	overlay.appendChild(button)
-	return overlay
+	return { element: overlay, button }
 }
 
 /**
@@ -64,25 +77,34 @@ export function setupReconnect(_term: XTerminal, config: ReconnectConfig): () =>
 		return () => {}
 	}
 
-	const overlay = createOverlay()
+	let disconnected = false
+	let reconnectTriggered = false
+
+	function triggerReconnect(): void {
+		if (!disconnected || reconnectTriggered) return
+		reconnectTriggered = true
+		location.reload()
+	}
+
+	const { element: overlay, button } = createOverlay(triggerReconnect)
 	document.body.appendChild(overlay)
 
-	let disconnected = false
-
 	function onDisconnect(): void {
+		if (disconnected) return
 		disconnected = true
 		overlay.style.display = 'flex'
+		button.focus()
 	}
 
 	function onOnline(): void {
 		if (disconnected) {
-			location.reload()
+			triggerReconnect()
 		}
 	}
 
 	function onVisibilityChange(): void {
 		if (document.visibilityState === 'visible' && disconnected) {
-			location.reload()
+			triggerReconnect()
 		}
 	}
 
