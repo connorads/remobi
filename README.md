@@ -104,7 +104,7 @@ export default defineConfig({
   drawer: {
     buttons: [
       { id: 'tmux-new-window', label: '+ Win', description: 'Create tmux window', action: { type: 'send', data: '\x02c' } },
-      { id: 'tmux-split-vertical', label: 'Split |', description: 'Split pane vertically', action: { type: 'send', data: '\x02|' } },
+      { id: 'tmux-split-vertical', label: 'Split |', description: 'Split pane vertically', action: { type: 'send', data: '\x02%' } },
       { id: 'combo-picker', label: 'Combo', description: 'Open combo sender (Ctrl/Alt + key)', action: { type: 'combo-picker' } },
       // ...
     ],
@@ -160,6 +160,23 @@ See the full [agent setup guide](docs/guides/agent-setup.md) for examples and es
 </details>
 
 All fields are optional — defaults are filled in via `defineConfig()`.
+
+Shipped tmux drawer defaults stick to stock tmux bindings (`c`, `%`, `"`, `s`, `w`, `[`, `?`, `x`, `z`) rather than personal popup workflows.
+
+Replace the drawer entirely with a plain array when you want a fully custom setup:
+
+```typescript
+import { defineConfig } from 'webmux/config'
+
+export default defineConfig({
+  drawer: {
+    buttons: [
+      { id: 'sessions', label: 'Sessions', description: 'Choose tmux session', action: { type: 'send', data: '\x02s' } },
+      { id: 'git', label: 'Git', description: 'Open my tmux git popup', action: { type: 'send', data: '\x02g' } },
+    ],
+  },
+})
+```
 
 At runtime, webmux validates the config object shape and rejects unknown keys with clear path-based errors.
 

@@ -76,6 +76,12 @@ Two forms are accepted — pick the least invasive:
 // 1. Replace entirely (plain array)
 toolbar: { row1: [{ id, label, description, action }, ...] }
 
+drawer: {
+  buttons: [
+    { id: 'sessions', label: 'Sessions', description: 'Choose tmux session', action: { type: 'send', data: '\x02s' } },
+  ],
+}
+
 // 2. Transform (function receives defaults, returns new array)
 toolbar: { row2: (defaults) => defaults.filter(b => b.id !== 'q') }
 
@@ -136,8 +142,8 @@ Ctrl-B + c  →  '\x02c'   (new window)
 Ctrl-B + n  →  '\x02n'   (next window)
 Ctrl-B + p  →  '\x02p'   (previous window)
 Ctrl-B + z  →  '\x02z'   (zoom pane)
-Ctrl-B + |  →  '\x02|'   (split vertical — if bound)
-Ctrl-B + -  →  '\x02-'   (split horizontal — if bound)
+Ctrl-B + %  →  '\x02%'   (split vertical — stock tmux)
+Ctrl-B + "  →  '\x02"'   (split horizontal — stock tmux)
 Ctrl-B + [  →  '\x02['   (copy mode)
 Ctrl-B + d  →  '\x02d'   (detach)
 ```

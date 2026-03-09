@@ -71,8 +71,8 @@ Ctrl-B + p   →  '\x02p'     previous window
 Ctrl-B + z   →  '\x02z'     toggle pane zoom
 Ctrl-B + [   →  '\x02['     enter copy mode
 Ctrl-B + d   →  '\x02d'     detach
-Ctrl-B + |   →  '\x02|'     split vertical (if bound)
-Ctrl-B + -   →  '\x02-'     split horizontal (if bound)
+Ctrl-B + %   →  '\x02%'     split vertical (stock tmux)
+Ctrl-B + "   →  '\x02"'     split horizontal (stock tmux)
 ```
 
 For Ctrl-A prefix: replace `\x02` with `\x01` throughout.
@@ -109,6 +109,21 @@ export default defineConfig({
 ```
 
 Everything else uses defaults (Ctrl-B prefix, catppuccin-mocha theme, swipe = next/prev window).
+
+### Replace the default drawer entirely
+
+```typescript
+import { defineConfig } from 'webmux'
+
+export default defineConfig({
+  drawer: {
+    buttons: [
+      { id: 'sessions', label: 'Sessions', description: 'Choose tmux session', action: { type: 'send', data: '\x02s' } },
+      { id: 'git', label: 'Git', description: 'Open my tmux git popup', action: { type: 'send', data: '\x02g' } },
+    ],
+  },
+})
+```
 
 ### Custom prefix — Ctrl-A
 

@@ -144,13 +144,13 @@ export const defaultDrawerButtons: readonly ControlButton[] = [
 		id: 'tmux-split-vertical',
 		label: 'Split |',
 		description: 'Split pane vertically',
-		action: { type: 'send', data: '\x02|' },
+		action: { type: 'send', data: '\x02%' },
 	},
 	{
 		id: 'tmux-split-horizontal',
 		label: 'Split \u2014',
 		description: 'Split pane horizontally',
-		action: { type: 'send', data: '\x02-' },
+		action: { type: 'send', data: '\x02"' },
 	},
 	{
 		id: 'tmux-zoom',
@@ -161,32 +161,14 @@ export const defaultDrawerButtons: readonly ControlButton[] = [
 	{
 		id: 'tmux-sessions',
 		label: 'Sessions',
-		description: 'Open tmux sessions picker',
-		action: { type: 'send', data: '\x02S' },
+		description: 'Choose tmux session',
+		action: { type: 'send', data: '\x02s' },
 	},
 	{
 		id: 'tmux-windows',
 		label: 'Windows',
-		description: 'Open tmux windows picker',
-		action: { type: 'send', data: '\x02W' },
-	},
-	{
-		id: 'tmux-git',
-		label: 'Git',
-		description: 'Open Lazygit popup',
-		action: { type: 'send', data: '\x02g' },
-	},
-	{
-		id: 'tmux-files',
-		label: 'Files',
-		description: 'Open file browser popup',
-		action: { type: 'send', data: '\x02y' },
-	},
-	{
-		id: 'tmux-links',
-		label: 'Links',
-		description: 'Open links picker',
-		action: { type: 'send', data: '\x02u' },
+		description: 'Choose tmux window',
+		action: { type: 'send', data: '\x02w' },
 	},
 	{
 		id: 'page-up',
@@ -203,13 +185,13 @@ export const defaultDrawerButtons: readonly ControlButton[] = [
 	{
 		id: 'tmux-copy',
 		label: 'Copy',
-		description: 'Start tmux copy mode helper',
-		action: { type: 'send', data: '\x02 ' },
+		description: 'Enter tmux copy mode',
+		action: { type: 'send', data: '\x02[' },
 	},
 	{
 		id: 'tmux-help',
 		label: 'Help',
-		description: 'Open tmux help',
+		description: 'List tmux key bindings',
 		action: { type: 'send', data: '\x02?' },
 	},
 	{

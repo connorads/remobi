@@ -12,6 +12,7 @@ This project has not been published yet. On first release, rename this section t
 - Internal: added hk pre-commit hooks (biome, oxlint, typos).
 - Internal: added knip, publint, typos to CI pipeline and prepublishOnly gate.
 - Changed: removed `ttyd` from `mise.toml` (unsupported on macOS arm64 via current aqua metadata) and updated ttyd install guidance to be macOS/Linux friendly (`brew` on macOS, distro/source options on Linux).
+- Changed: shipped drawer defaults now stick to stock tmux bindings for split/session/window/copy actions and no longer include opinionated `Git`, `Files`, or `Links` buttons.
 
 - Removed: plugin system (`WebmuxPlugin`, `UISlot`, `UIContributionCollector`, plugin manager, UI contributions, build-time resolution, `config.plugins`). Hooks and actions remain as core infrastructure. The plugin API can be reintroduced when there's a concrete second use case.
 

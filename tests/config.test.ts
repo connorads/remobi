@@ -122,8 +122,22 @@ describe('defaultConfig', () => {
 		expect(defaultConfig.toolbar.row2).toHaveLength(7)
 	})
 
-	test('has 15 drawer buttons', () => {
-		expect(defaultConfig.drawer.buttons).toHaveLength(15)
+	test('has 12 drawer buttons', () => {
+		expect(defaultConfig.drawer.buttons).toHaveLength(12)
+	})
+
+	test('default drawer uses stock tmux bindings only', () => {
+		const byId = new Map(defaultConfig.drawer.buttons.map((button) => [button.id, button]))
+
+		expect(byId.get('tmux-split-vertical')?.action).toEqual({ type: 'send', data: '\x02%' })
+		expect(byId.get('tmux-split-horizontal')?.action).toEqual({ type: 'send', data: '\x02"' })
+		expect(byId.get('tmux-sessions')?.action).toEqual({ type: 'send', data: '\x02s' })
+		expect(byId.get('tmux-windows')?.action).toEqual({ type: 'send', data: '\x02w' })
+		expect(byId.get('tmux-copy')?.action).toEqual({ type: 'send', data: '\x02[' })
+		expect(byId.get('tmux-help')?.action).toEqual({ type: 'send', data: '\x02?' })
+		expect(byId.has('tmux-git')).toBeFalse()
+		expect(byId.has('tmux-files')).toBeFalse()
+		expect(byId.has('tmux-links')).toBeFalse()
 	})
 
 	test('row1 includes S-Tab after Tab', () => {

@@ -265,6 +265,12 @@ export default defineConfig({
   //
   // toolbar: { row1: [{ id, label, description, action }], row2: [...] },
   //
+  // drawer: {
+  //   buttons: [
+  //     { id: 'sessions', label: 'Sessions', description: 'Choose tmux session', action: { type: 'send', data: '\\x02s' } },
+  //   ],
+  // },
+  //
   // toolbar: {
   //   row2: (defaults) => defaults.filter((b) => b.id !== 'q'),
   // },
