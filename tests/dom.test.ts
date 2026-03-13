@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { btn, el, injectStyles } from '../src/util/dom'
 
 beforeEach(() => {

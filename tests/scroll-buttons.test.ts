@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { defaultConfig } from '../src/config'
 import { createScrollButtons } from '../src/controls/scroll-buttons'
 import { mockTerminalWithSent } from './fixtures'

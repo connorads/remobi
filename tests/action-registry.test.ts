@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { createActionRegistry, createDefaultActionRegistry } from '../src/actions/registry'
 import type { ButtonAction } from '../src/types'
 import { mockTerminal } from './fixtures'

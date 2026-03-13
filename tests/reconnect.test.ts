@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { setupReconnect } from '../src/reconnect'
 import { mockTerminal } from './fixtures'
 

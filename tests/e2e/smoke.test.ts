@@ -1,3 +1,5 @@
+import { createServer } from 'node:net'
+import { join } from 'node:path'
 /**
  * e2e smoke tests against a real ttyd session.
  *
@@ -6,8 +8,6 @@
  * ttyd is not installed).
  */
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { createServer } from 'node:net'
-import { join } from 'node:path'
 import { collectStream, sleep, spawnProcess } from '../../src/util/node-compat'
 import type { SpawnedProcess } from '../../src/util/node-compat'
 

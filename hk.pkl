@@ -8,12 +8,12 @@ hooks {
 		steps {
 			["biome"] {
 				glob = List("*.ts", "*.tsx", "*.json", "*.css")
-				check = "bunx biome check {{files}}"
-				fix = "bunx biome check --fix {{files}}"
+				check = "pnpm exec biome check {{files}}"
+				fix = "pnpm exec biome check --fix {{files}}"
 			}
 			["oxlint"] {
 				glob = List("*.ts", "*.tsx")
-				check = "bunx oxlint --import-plugin --promise-plugin {{files}}"
+				check = "pnpm exec oxlint --import-plugin --promise-plugin {{files}}"
 			}
 			["typos"] = (Builtins.typos)
 		}

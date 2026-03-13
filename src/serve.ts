@@ -153,8 +153,8 @@ export async function serve(
 				})
 
 				backend.on('message', (message: WebSocket.RawData, isBinary: boolean) => {
-					if (isBinary) {
-						ws.send(new Uint8Array(message as ArrayBuffer))
+					if (isBinary && message instanceof ArrayBuffer) {
+						ws.send(new Uint8Array(message))
 					} else {
 						ws.send(message.toString())
 					}
@@ -176,9 +176,11 @@ export async function serve(
 
 				const { backend, buffer } = data
 				if (backend !== null && backend.readyState === WebSocket.OPEN) {
+					// oxlint-disable-next-line typescript/consistent-type-assertions -- WSMessageReceive union needs narrowing for ws.send()
 					backend.send(event.data as string | ArrayBuffer)
 				} else {
 					const msg = event.data
+					// oxlint-disable-next-line typescript/consistent-type-assertions -- WSMessageReceive union needs narrowing for Uint8Array ctor
 					buffer.push(typeof msg === 'string' ? msg : new Uint8Array(msg as ArrayBuffer))
 				}
 			},
@@ -194,27 +196,33 @@ export async function serve(
 	app.get('/', (c) => c.html(html))
 
 	if (manifestJson !== null) {
-		app.get('/manifest.json', (c) => c.json(JSON.parse(manifestJson) as Record<string, unknown>))
+		app.get('/manifest.json', (c) => {
+			// oxlint-disable-next-line typescript/consistent-type-assertions -- JSON.parse returns unknown, safe for manifest
+			return c.json(JSON.parse(manifestJson) as Record<string, unknown>)
+		})
 	}
 
 	if (icon180) {
-		app.get('/apple-touch-icon.png', (c) => {
-			c.header('content-type', 'image/png')
-			return c.body(icon180)
+		app.get('/apple-touch-icon.png', () => {
+			return new Response(Uint8Array.from(icon180), {
+				headers: { 'content-type': 'image/png' },
+			})
 		})
 	}
 
 	if (icon192) {
-		app.get('/icon-192.png', (c) => {
-			c.header('content-type', 'image/png')
-			return c.body(icon192)
+		app.get('/icon-192.png', () => {
+			return new Response(Uint8Array.from(icon192), {
+				headers: { 'content-type': 'image/png' },
+			})
 		})
 	}
 
 	if (icon512) {
-		app.get('/icon-512.png', (c) => {
-			c.header('content-type', 'image/png')
-			return c.body(icon512)
+		app.get('/icon-512.png', () => {
+			return new Response(Uint8Array.from(icon512), {
+				headers: { 'content-type': 'image/png' },
+			})
 		})
 	}
 

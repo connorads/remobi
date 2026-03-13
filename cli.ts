@@ -16,6 +16,7 @@ import type { WebmuxConfig, WebmuxConfigOverrides } from './src/types'
 import { readStdin } from './src/util/node-compat'
 
 const require = createRequire(import.meta.url)
+// oxlint-disable-next-line typescript/consistent-type-assertions -- createRequire returns unknown, safe narrowing
 const pkg = require('./package.json') as { version: string }
 
 const VERSION: string = pkg.version

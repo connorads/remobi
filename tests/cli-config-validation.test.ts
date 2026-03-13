@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, test } from 'vitest'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { afterEach, describe, expect, test } from 'vitest'
 import { collectStream, spawnProcess } from '../src/util/node-compat'
 
 interface CliResult {
@@ -90,10 +90,7 @@ describe('CLI config validation', () => {
 
 	test('build reports malformed button array shape', async () => {
 		const dir = createTempDir()
-		const configPath = writeConfig(
-			dir,
-			"export default { toolbar: { row1: [{ id: 'only-id' }] } }",
-		)
+		const configPath = writeConfig(dir, "export default { toolbar: { row1: [{ id: 'only-id' }] } }")
 
 		const result = await runCli(['build', '--config', configPath])
 

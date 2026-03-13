@@ -6,7 +6,7 @@ export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeou
 export async function readStdin(): Promise<string> {
 	const chunks: Buffer[] = []
 	for await (const chunk of process.stdin) {
-		chunks.push(Buffer.from(chunk as Buffer))
+		chunks.push(Buffer.from(chunk))
 	}
 	return Buffer.concat(chunks).toString('utf-8')
 }
@@ -66,7 +66,7 @@ export async function collectStream(stream: Readable | null): Promise<string> {
 	if (!stream) return ''
 	const chunks: Buffer[] = []
 	for await (const chunk of stream) {
-		chunks.push(Buffer.from(chunk as Buffer))
+		chunks.push(Buffer.from(chunk))
 	}
 	return Buffer.concat(chunks).toString('utf-8')
 }

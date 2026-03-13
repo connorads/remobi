@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { lockDocumentHeight, viewportHeight } from '../src/viewport/height'
 import { checkLandscapeKeyboard } from '../src/viewport/landscape'
 

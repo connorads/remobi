@@ -12,13 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v3
-      - run: bun install
-      - run: bun test
+      - run: pnpm install
+      - run: pnpm test
       - name: Validate build pipeline (inject mode, no ttyd needed)
-        run: echo '<html><head></head><body></body></html>' | bun run cli.ts inject > /dev/null
-      - run: bun run check
-      - run: bun run lint:ox
-      - run: bun run lint:typos
-      - run: bun run lint:knip
-      - run: bun run lint:publint
-      - run: bunx tsc --noEmit
+        run: echo '<html><head></head><body></body></html>' | npx tsx cli.ts inject > /dev/null
+      - run: pnpm run check
+      - run: pnpm run lint:ox
+      - run: pnpm run lint:typos
+      - run: pnpm run lint:knip
+      - run: pnpm run lint:publint
+      - run: pnpm exec tsc --noEmit

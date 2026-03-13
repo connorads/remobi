@@ -4,19 +4,19 @@
 	"description": "Monitor and control your coding agents from your phone. Touch controls for tmux over the web.",
 	"type": "module",
 	"bin": {
-		"webmux": "./dist/cli.js"
+		"webmux": "./dist/cli.mjs"
 	},
 	"exports": {
 		".": {
-			"types": "./dist/src/index.d.ts",
-			"default": "./dist/src/index.js"
+			"types": "./dist/src/index.d.mts",
+			"default": "./dist/src/index.mjs"
 		},
 		"./config": {
-			"types": "./dist/src/config.d.ts",
-			"default": "./dist/src/config.js"
+			"types": "./dist/src/config.d.mts",
+			"default": "./dist/src/config.mjs"
 		},
 		"./types": {
-			"types": "./dist/src/types.d.ts"
+			"types": "./dist/src/types.d.mts"
 		}
 	},
 	"files": ["dist/", "styles/", "src/pwa/icons/", "README.md", "CHANGELOG.md", "LICENSE"],

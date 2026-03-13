@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { createDefaultActionRegistry } from '../src/actions/registry'
 import { defaultConfig } from '../src/config'
 import { createFloatingButtons } from '../src/controls/floating-buttons'
