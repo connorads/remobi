@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { applyTheme } from '../src/theme/apply'
 import { catppuccinMocha } from '../src/theme/catppuccin-mocha'
 import type { TermTheme } from '../src/types'

@@ -1,4 +1,5 @@
 [tools]
-bun = "latest"
+node = "22"
+pnpm = "latest"
 typos = "latest"
 hk = "latest"

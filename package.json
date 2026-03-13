@@ -4,16 +4,24 @@
 	"description": "Monitor and control your coding agents from your phone. Touch controls for tmux over the web.",
 	"type": "module",
 	"bin": {
-		"webmux": "./cli.ts"
+		"webmux": "./dist/cli.js"
 	},
 	"exports": {
-		".": "./src/index.ts",
-		"./config": "./src/config.ts",
-		"./types": "./src/types.ts"
+		".": {
+			"types": "./dist/src/index.d.ts",
+			"default": "./dist/src/index.js"
+		},
+		"./config": {
+			"types": "./dist/src/config.d.ts",
+			"default": "./dist/src/config.js"
+		},
+		"./types": {
+			"types": "./dist/src/types.d.ts"
+		}
 	},
-	"files": ["src/", "styles/", "cli.ts", "build.ts", "README.md", "CHANGELOG.md", "LICENSE"],
+	"files": ["dist/", "styles/", "src/pwa/icons/", "README.md", "CHANGELOG.md", "LICENSE"],
 	"engines": {
-		"bun": ">=1.0.0"
+		"node": ">=22.0.0"
 	},
 	"repository": {
 		"type": "git",
@@ -22,25 +30,30 @@
 	"homepage": "https://github.com/connorads/webmux",
 	"bugs": "https://github.com/connorads/webmux/issues",
 	"scripts": {
-		"build": "bun run cli.ts build",
+		"build:dist": "tsdown",
+		"build": "tsx cli.ts build",
 		"check": "biome check .",
 		"check:fix": "biome check --fix .",
 		"lint:knip": "knip",
 		"lint:ox": "oxlint --import-plugin --promise-plugin",
 		"lint:publint": "publint",
 		"lint:typos": "typos",
-		"test": "bun test",
-		"test:coverage": "bun test --coverage",
-		"prepublishOnly": "bun test && bun run check && bun run lint:ox && bun run lint:knip && bun run lint:publint"
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"prepublishOnly": "pnpm test && pnpm run check && pnpm run lint:ox && pnpm run lint:knip && pnpm run lint:publint && pnpm run build:dist"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.0",
 		"@happy-dom/global-registrator": "^20.6.1",
-		"bun-types": "^1.3.9",
+		"@types/node": "^22.0.0",
+		"@types/ws": "^8.18.0",
 		"knip": "^5.85.0",
 		"oxlint": "^1.50.0",
 		"publint": "^0.3.17",
-		"typescript": "^5.9.3"
+		"tsdown": "^0.20.0",
+		"tsx": "^4.19.0",
+		"typescript": "^5.9.3",
+		"vitest": "^3.0.0"
 	},
 	"license": "MIT",
 	"author": "Connor",
@@ -51,14 +64,21 @@
 		"mobile",
 		"overlay",
 		"touch",
-		"bun",
+		"node",
 		"agents",
 		"claude",
 		"remote",
 		"pwa"
 	],
-	"trustedDependencies": ["@biomejs/biome"],
 	"dependencies": {
-		"valibot": "^1.2.0"
+		"@hono/node-server": "^1.14.0",
+		"@hono/node-ws": "^1.1.0",
+		"esbuild": "^0.25.0",
+		"hono": "^4.7.0",
+		"valibot": "^1.2.0",
+		"ws": "^8.18.0"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
 	}
 }

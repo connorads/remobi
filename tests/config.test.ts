@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { defaultConfig, defineConfig, mergeConfig, serialiseThemeForTtyd } from '../src/config'
 
 describe('defineConfig', () => {

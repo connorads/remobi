@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { ICON_SVG, svgToDataUri } from '../src/pwa/icon'
 import { generateManifest, manifestToJson } from '../src/pwa/manifest'
 import { escapeAttr, generatePwaHtml } from '../src/pwa/meta-tags'

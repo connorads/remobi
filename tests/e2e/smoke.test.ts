@@ -5,7 +5,7 @@
  * automatically when it is not present (safe for CI environments where
  * ttyd is not installed).
  */
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 const repoRoot = new URL('../..', import.meta.url).pathname
 

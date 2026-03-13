@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { defineConfig } from '../src/config'
 import { createDrawer } from '../src/drawer/drawer'

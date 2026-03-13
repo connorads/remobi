@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { defaultRow1, defaultRow2 } from '../src/toolbar/buttons'
 
 describe('defaultRow1', () => {

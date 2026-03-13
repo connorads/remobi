@@ -1,5 +1,4 @@
 node_modules/
 dist/
 coverage/
-bun.lock
 .tmp-entry.ts
