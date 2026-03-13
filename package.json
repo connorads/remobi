@@ -1,7 +1,7 @@
 {
 	"name": "webmux",
 	"version": "0.1.0",
-	"description": "Mobile-friendly terminal overlay for ttyd + tmux",
+	"description": "Monitor and control your coding agents from your phone. Touch controls for tmux over the web.",
 	"type": "module",
 	"bin": {
 		"webmux": "./cli.ts"
@@ -44,7 +44,19 @@
 	},
 	"license": "MIT",
 	"author": "Connor",
-	"keywords": ["ttyd", "tmux", "terminal", "mobile", "overlay", "touch", "bun"],
+	"keywords": [
+		"ttyd",
+		"tmux",
+		"terminal",
+		"mobile",
+		"overlay",
+		"touch",
+		"bun",
+		"agents",
+		"claude",
+		"remote",
+		"pwa"
+	],
 	"trustedDependencies": ["@biomejs/biome"],
 	"dependencies": {
 		"valibot": "^1.2.0"

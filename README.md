@@ -6,12 +6,20 @@
 
 **Your terminal. Everywhere.**
 
-[ttyd](https://github.com/tsl0922/ttyd) gives you a terminal in a browser. On mobile, it's unusable — no toolbar, no gestures, tiny unresizable text. webmux fixes that. One command. Touch controls, swipe gestures, pinch-to-zoom. Install it like a native app.
+Running coding agents in tmux? webmux lets you monitor and control them from your phone. Swipe between windows, scroll through output, pinch to zoom, tap buttons for tmux commands. Same session, touch-native controls. No workflow changes.
+
+[ttyd](https://github.com/tsl0922/ttyd) gives you a terminal in a browser. On mobile, it's unusable — no toolbar, no gestures, tiny unresizable text. webmux adds a touch overlay on top. One command. Install it like a native app.
 
 <div align="center">
   <!-- Upload demo/out/demo.mp4 via GitHub issue/PR drag-and-drop, then replace the src below -->
   <video src="https://github.com/user-attachments/assets/PLACEHOLDER" width="300" autoplay loop muted playsinline></video>
 </div>
+
+## Who this is for
+
+- You run coding agents (Claude Code, OpenCode, Codex, pi, etc.) in tmux and want to monitor or interact from your phone
+- You're a terminal-first developer who wants your full tmux setup accessible anywhere
+- You want self-hosted mobile terminal access without changing your existing workflow
 
 ## Why webmux
 
@@ -19,6 +27,8 @@
 - **Swipe between panes** — gesture navigation, no prefix key fumbling on a phone screen
 - **Pinch to zoom** — resize text like every other app on your phone
 - **Install to your home screen** — standalone PWA, looks and feels native
+- **Config-driven** — your buttons, your gestures, your layout. Or let an AI agent configure it for you
+- **Self-hosted** — your data never leaves your network. Bring your own tunnel (Tailscale, Cloudflare, ngrok)
 
 ## Requirements
 
@@ -265,6 +275,27 @@ cd ~/git/webmux
 bun link          # webmux CLI available globally
 # Edit source → changes take effect on next build (no transpile step)
 ```
+
+## FAQ
+
+**Is this secure?**
+webmux doesn't handle auth — it's a UI overlay. Use a tunnel or VPN you trust. We recommend [Tailscale](docs/guides/tailscale-serve.md) (deployment guide included) — your session never leaves your tailnet. Cloudflare Tunnel and ngrok also work. Security is your responsibility.
+
+**Why not Termux / Termius / SSH apps?**
+They work. But you're managing SSH keys, losing your tmux setup, and fighting a UI that wasn't built for touch. webmux keeps your exact workflow — same panes, same windows, same bindings — and adds touch controls on top.
+
+**Why not [Happy](https://github.com/slopus/happy) / Claude resume / chat-based mobile apps?**
+Those tools change your workflow. Chat relays route through third-party servers. Claude's resume has limitations. webmux gives you the raw terminal — full power, self-hosted, works with every agent because it works with tmux.
+
+**Why Bun?**
+webmux ships TypeScript source with no transpilation step. Bun runs it directly. See [ADR 001](docs/decisions/001-bun-only.md) for the full rationale.
+
+**Is this production-ready?**
+It's v0.1. The author uses it daily. It works. It's also early — feedback welcome, forks encouraged.
+
+## Acknowledgements
+
+webmux is a thin overlay. The heavy lifting is done by [ttyd](https://github.com/tsl0922/ttyd) (terminal sharing over the web) and [xterm.js](https://xtermjs.org/) (terminal rendering in the browser). webmux just adds the mobile touch controls on top.
 
 ## Licence
 

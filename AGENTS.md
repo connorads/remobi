@@ -1,6 +1,6 @@
 # webmux
 
-Mobile-friendly terminal overlay for ttyd + tmux. Intended for npm as `webmux` (Bun-only).
+Monitor and control your coding agents from your phone. Touch controls for tmux over the web. Published on npm as `webmux` (Bun-only).
 
 ## Architecture
 
