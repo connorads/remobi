@@ -177,6 +177,12 @@ export type WebmuxConfigOverrides = Omit<
 export interface XTerminal {
 	cols?: number
 	rows?: number
+	buffer?: {
+		active: {
+			cursorX: number
+			cursorY: number
+		}
+	}
 	options: {
 		fontSize: number
 		theme?: Record<string, string>

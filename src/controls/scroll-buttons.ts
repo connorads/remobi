@@ -21,7 +21,17 @@ export function createScrollButtons(
 	container.appendChild(upBtn)
 	container.appendChild(downBtn)
 
-	function terminalCenterCell(): { x: number; y: number } {
+	function targetCell(): { x: number; y: number } {
+		// Prefer cursor position — always in the active tmux pane
+		const active = term.buffer?.active
+		if (active && typeof active.cursorX === 'number' && typeof active.cursorY === 'number') {
+			return {
+				x: Math.max(1, active.cursorX + 1),
+				y: Math.max(1, active.cursorY + 1),
+			}
+		}
+
+		// Fallback: centre of terminal grid
 		const cols = typeof term.cols === 'number' && term.cols > 0 ? Math.round(term.cols) : 80
 		const rows = typeof term.rows === 'number' && term.rows > 0 ? Math.round(term.rows) : 24
 		return {
@@ -35,7 +45,7 @@ export function createScrollButtons(
 			return pageSeq(direction)
 		}
 
-		const { x, y } = terminalCenterCell()
+		const { x, y } = targetCell()
 		return scrollSeq(direction, x, y)
 	}
 

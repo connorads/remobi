@@ -23,6 +23,7 @@ export function mockTerminalWithSent(): MockTermWithSent {
 		sent,
 		cols: 80,
 		rows: 24,
+		buffer: { active: { cursorX: 5, cursorY: 10 } },
 		options: { fontSize: 14 },
 		input(data: string, _wasUserInput: boolean) {
 			sent.push(data)
