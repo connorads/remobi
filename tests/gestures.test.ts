@@ -172,14 +172,14 @@ describe('pageSeq', () => {
 		// Fingers up → negative accDelta → 'down' (content scrolls up, showing history)
 		const { readFileSync } = await import('node:fs')
 		const { resolve } = await import('node:path')
-		const source = readFileSync(resolve(import.meta.dir, '../src/gestures/scroll.ts'), 'utf-8')
+		const source = readFileSync(resolve(import.meta.dirname, '../src/gestures/scroll.ts'), 'utf-8')
 		expect(source).toContain("accDelta < 0 ? 'down' : 'up'")
 	})
 
 	test('source uses \\x3c instead of literal < in SGR sequences', async () => {
 		const { readFileSync } = await import('node:fs')
 		const { resolve } = await import('node:path')
-		const source = readFileSync(resolve(import.meta.dir, '../src/gestures/scroll.ts'), 'utf-8')
+		const source = readFileSync(resolve(import.meta.dirname, '../src/gestures/scroll.ts'), 'utf-8')
 		// Source must use \x3c (hex escape) not literal < in SGR sequences
 		// to avoid breaking HTML parsing when bundled into inline <script>
 		expect(source).toContain('\\x3c${code};${x};${y}M')

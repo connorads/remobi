@@ -135,9 +135,9 @@ describe('defaultConfig', () => {
 		expect(byId.get('tmux-windows')?.action).toEqual({ type: 'send', data: '\x02w' })
 		expect(byId.get('tmux-copy')?.action).toEqual({ type: 'send', data: '\x02[' })
 		expect(byId.get('tmux-help')?.action).toEqual({ type: 'send', data: '\x02?' })
-		expect(byId.has('tmux-git')).toBeFalse()
-		expect(byId.has('tmux-files')).toBeFalse()
-		expect(byId.has('tmux-links')).toBeFalse()
+		expect(byId.has('tmux-git')).toBe(false)
+		expect(byId.has('tmux-files')).toBe(false)
+		expect(byId.has('tmux-links')).toBe(false)
 	})
 
 	test('row1 includes S-Tab after Tab', () => {

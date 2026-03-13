@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, test } from 'vitest'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { collectStream, spawnProcess } from '../src/util/node-compat'
 
 interface CliResult {
 	readonly exitCode: number
@@ -10,7 +11,7 @@ interface CliResult {
 }
 
 const tempDirs: string[] = []
-const repoRoot = join(import.meta.dir, '..')
+const repoRoot = join(import.meta.dirname, '..')
 
 afterEach(() => {
 	while (tempDirs.length > 0) {
@@ -29,7 +30,7 @@ function createTempDir(): string {
 }
 
 async function runCli(args: readonly string[]): Promise<CliResult> {
-	const process = Bun.spawn(['bun', 'run', 'cli.ts', ...args], {
+	const proc = spawnProcess(['npx', 'tsx', join(repoRoot, 'cli.ts'), ...args], {
 		cwd: repoRoot,
 		stdin: 'ignore',
 		stdout: 'pipe',
@@ -37,30 +38,30 @@ async function runCli(args: readonly string[]): Promise<CliResult> {
 	})
 
 	const [exitCode, stdout, stderr] = await Promise.all([
-		process.exited,
-		new Response(process.stdout).text(),
-		new Response(process.stderr).text(),
+		proc.exited,
+		collectStream(proc.stdout),
+		collectStream(proc.stderr),
 	])
 
 	return { exitCode, stdout, stderr }
 }
 
-async function writeConfig(dir: string, source: string): Promise<string> {
+function writeConfig(dir: string, source: string): string {
 	const path = join(dir, 'webmux.config.ts')
-	await Bun.write(path, source)
+	writeFileSync(path, source)
 	return path
 }
 
-async function writeLocalConfig(dir: string, source: string): Promise<string> {
+function writeLocalConfig(dir: string, source: string): string {
 	const path = join(dir, 'webmux.config.local.ts')
-	await Bun.write(path, source)
+	writeFileSync(path, source)
 	return path
 }
 
 describe('CLI config validation', () => {
 	test('build fails fast with nested validation errors', async () => {
 		const dir = createTempDir()
-		const configPath = await writeConfig(
+		const configPath = writeConfig(
 			dir,
 			"export default { gestures: { scroll: { strategy: 'mouse' } } }",
 		)
@@ -77,7 +78,7 @@ describe('CLI config validation', () => {
 
 	test('inject fails fast on unknown root keys', async () => {
 		const dir = createTempDir()
-		const configPath = await writeConfig(dir, 'export default { mystery: true }')
+		const configPath = writeConfig(dir, 'export default { mystery: true }')
 
 		const result = await runCli(['inject', '--config', configPath])
 
@@ -89,7 +90,7 @@ describe('CLI config validation', () => {
 
 	test('build reports malformed button array shape', async () => {
 		const dir = createTempDir()
-		const configPath = await writeConfig(
+		const configPath = writeConfig(
 			dir,
 			"export default { toolbar: { row1: [{ id: 'only-id' }] } }",
 		)
@@ -104,7 +105,7 @@ describe('CLI config validation', () => {
 
 	test('build --dry-run shows shared config path when no .local file', async () => {
 		const dir = createTempDir()
-		const configPath = await writeConfig(dir, "export default { name: 'myterm' }")
+		const configPath = writeConfig(dir, "export default { name: 'myterm' }")
 
 		const result = await runCli(['build', '--config', configPath, '--dry-run'])
 
@@ -116,8 +117,8 @@ describe('CLI config validation', () => {
 
 	test('local config merges with shared config', async () => {
 		const dir = createTempDir()
-		const configPath = await writeConfig(dir, "export default { name: 'shared' }")
-		await writeLocalConfig(dir, "export default { name: 'local-override' }")
+		const configPath = writeConfig(dir, "export default { name: 'shared' }")
+		writeLocalConfig(dir, "export default { name: 'local-override' }")
 
 		const result = await runCli(['build', '--config', configPath, '--dry-run'])
 
@@ -129,8 +130,8 @@ describe('CLI config validation', () => {
 
 	test('local config validation errors report local file path', async () => {
 		const dir = createTempDir()
-		const configPath = await writeConfig(dir, "export default { name: 'shared' }")
-		const localPath = await writeLocalConfig(dir, 'export default { unknownKey: true }')
+		const configPath = writeConfig(dir, "export default { name: 'shared' }")
+		const localPath = writeLocalConfig(dir, 'export default { unknownKey: true }')
 
 		const result = await runCli(['build', '--config', configPath])
 
