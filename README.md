@@ -32,7 +32,7 @@ Running coding agents in tmux? webmux lets you monitor and control them from you
 
 ## Requirements
 
-- [Bun](https://bun.sh/) ≥ 1.0 (runtime — webmux ships TypeScript source, no transpilation)
+- [Node.js](https://nodejs.org/) ≥ 22
 - [ttyd](https://github.com/tsl0922/ttyd) — must be on PATH for `webmux serve` and `webmux build` (they spawn a temporary ttyd to fetch base HTML). Install on macOS with `brew install ttyd`; on Linux use your distro package manager or build from source via the [ttyd installation guide](https://github.com/tsl0922/ttyd#installation). `webmux inject` pipes HTML from stdin and does **not** require ttyd — useful for CI or environments where ttyd isn't installed locally.
 - [tmux](https://github.com/tmux/tmux) (the target multiplexer)
 
@@ -42,13 +42,13 @@ webmux uses standard ttyd flags (`--writable`, `-t`, `-i`) and should work with 
 
 ```bash
 # 1. Install
-bun add -g webmux
+npm install -g webmux
 
 # 2. Start (builds overlay, manages ttyd, serves with PWA support)
 webmux serve
 ```
 
-For local development, use `bun link` from the repo root instead of `bun add -g webmux`.
+For local development, use `pnpm link --global` from the repo root instead of `npm install -g webmux`.
 
 Open `http://localhost:7681` on your phone. Add to Home Screen for an app-like experience.
 
@@ -227,7 +227,7 @@ init(undefined, hooks)
 
 ## Architecture
 
-Pure TypeScript + DOM API — no framework. The build bundles all JS/CSS into a single HTML file via `Bun.build()`. ttyd handles WebSocket/PTY bridging; webmux only adds the mobile UI overlay.
+Pure TypeScript + DOM API — no framework. The build bundles all JS/CSS into a single HTML file via esbuild. ttyd handles WebSocket/PTY bridging; webmux only adds the mobile UI overlay.
 
 Key modules:
 
@@ -262,18 +262,18 @@ webmux follows semantic versioning. The public API is defined by the following i
 ## Development
 
 ```bash
-bun install
-bun test
-bun run check     # biome lint + format
-bun run build     # build dist/index.html
+pnpm install
+pnpm test
+pnpm run check     # biome lint + format
+pnpm run build     # build dist/index.html (dev-time, uses tsx)
 ```
 
-For local development with `bun link`:
+For local development:
 
 ```bash
 cd ~/git/webmux
-bun link          # webmux CLI available globally
-# Edit source → changes take effect on next build (no transpile step)
+pnpm link --global   # webmux CLI available globally
+pnpm run build:dist  # transpile TS → JS (tsdown)
 ```
 
 ## FAQ
@@ -287,8 +287,8 @@ They work. But you're managing SSH keys, losing your tmux setup, and fighting a 
 **Why not [Happy](https://github.com/slopus/happy) / Claude resume / chat-based mobile apps?**
 Those tools change your workflow. Chat relays route through third-party servers. Claude's resume has limitations. webmux gives you the raw terminal — full power, self-hosted, works with every agent because it works with tmux.
 
-**Why Bun?**
-webmux ships TypeScript source with no transpilation step. Bun runs it directly. See [ADR 001](docs/decisions/001-bun-only.md) for the full rationale.
+**Why Node?**
+webmux migrated from Bun to Node.js + pnpm for broader compatibility. It transpiles to JS via tsdown for npm distribution and uses esbuild for the browser overlay bundle.
 
 **Is this production-ready?**
 It's v0.1. The author uses it daily. It works. It's also early — feedback welcome, forks encouraged.

@@ -4,6 +4,8 @@
 
 This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
 
+- Breaking: migrated from Bun to Node.js 22+ with pnpm. Runtime is now Node, bundler is esbuild, test runner is vitest, transpiler is tsdown. `webmux serve` uses Hono + @hono/node-ws for HTTP/WS. Package now ships transpiled JS (`dist/`) instead of TypeScript source.
+
 - Internal: expanded oxlint — `suspicious` + `perf` categories, `import/no-cycle`, `import/no-self-import`, `typescript/no-non-null-asserted-optional-chain`, `unicorn/throw-new-error` (141 rules total).
 - Internal: expanded Biome — `noExcessiveCognitiveComplexity` (warn, max 25), `useFilenamingConvention` (kebab-case).
 - Internal: added knip for unused export/dependency detection. Removed 11 unused exports, removed redundant `happy-dom` devDep.

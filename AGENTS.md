@@ -1,25 +1,31 @@
 # webmux
 
-Monitor and control your coding agents from your phone. Touch controls for tmux over the web. Published on npm as `webmux` (Bun-only).
+Monitor and control your coding agents from your phone. Touch controls for tmux over the web. Published on npm as `webmux`.
 
 ## Architecture
 
-Pure TypeScript + DOM API — no framework. Ships TypeScript source directly (no transpilation). Produces a single `index.html` for ttyd's `--index` flag via `Bun.build()`.
+Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm distribution. Produces a single `index.html` for ttyd's `--index` flag via esbuild.
 
 ## Stack
 
-- **Bun** — runtime, bundler, test runner, package manager
+- **Node 22+** — runtime
+- **pnpm** — package manager
+- **esbuild** — browser bundle (overlay JS)
+- **tsdown** — transpile TS → JS for npm publish
+- **vitest** — test runner
 - **TypeScript (strict)** — no `any`, discriminated unions for actions
 - **Biome** — lint + format
 - **happy-dom** — DOM testing
+- **Hono** — HTTP + WebSocket server (`webmux serve`)
 
 ## Key Commands
 
 ```bash
-bun test              # Run all tests
-bun run check         # Biome lint + format check
-bun run check:fix     # Auto-fix lint + format
-bun run build         # Build dist/index.html
+pnpm test              # Run all tests
+pnpm run check         # Biome lint + format check
+pnpm run check:fix     # Auto-fix lint + format
+pnpm run build         # Build dist/index.html (dev-time, uses tsx)
+pnpm run build:dist    # Transpile for publishing (tsdown)
 ```
 
 ## Module Layout
@@ -38,17 +44,18 @@ bun run build         # Build dist/index.html
 - `src/util/terminal.ts` — sendData, resizeTerm, waitForTerm
 - `src/util/haptic.ts` — vibration feedback
 - `src/util/keyboard.ts` — isKeyboardOpen, conditionalFocus
+- `src/util/node-compat.ts` — sleep, readStdin, spawnProcess, collectStream
 - `styles/base.css` — all CSS
-- `cli.ts` — CLI: build, inject, init, --version
+- `cli.ts` — CLI: build, inject, init, serve, --version
 - `build.ts` — build pipeline: bundle → inject → output
 
 ## Publishing
 
-- Ships TypeScript source: `bin` → `cli.ts`, `exports` → `.ts` files
-- `files` array controls what's published: `src/`, `styles/`, `cli.ts`, `build.ts`, `README.md`, `LICENSE`
-- CI: `.github/workflows/ci.yml` — bun test + biome check
+- Transpiles to JS via tsdown: `bin` → `dist/cli.mjs`, `exports` → `dist/*.mjs` + `dist/*.d.mts`
+- `files` array controls what's published: `dist/`, `styles/`, `src/pwa/icons/`, `README.md`, `LICENSE`
+- CI: `.github/workflows/ci.yml` — pnpm test + biome check
 - Publish: `.github/workflows/publish.yml` — triggered on `v*` tags → npm publish
-- `bun link` for local development (CLI available globally, changes immediate)
+- `pnpm link --global` for local development (CLI available globally)
 - First publish workflow:
   - Keep release notes under `CHANGELOG.md` → `Unreleased` until first publish
   - On release, set `package.json` version, rename `Unreleased` to that version + date
@@ -67,5 +74,5 @@ bun run build         # Build dist/index.html
 - When behaviour/config/API changes, update `CHANGELOG.md` under `Unreleased` in the same change set
 - All DOM creation in `util/dom.ts` helpers
 - Keyboard state preserved: capture `isKeyboardOpen()` before action, use `conditionalFocus()` after
-- Tests use happy-dom for DOM environment
+- Tests use happy-dom for DOM environment (e2e/CLI tests use node environment)
 - Agent skill: `skills/webmux-setup/SKILL.md` provides AI agents with config guidance. When config shape, CLI commands, action types, or validation rules change, update the skill and `docs/guides/agent-setup.md` to stay in sync.

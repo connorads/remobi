@@ -40,7 +40,7 @@ ttyd \
 Use webmux's `serialiseThemeForTtyd()` to generate the theme string from your config:
 
 ```bash
-bun -e "import { defineConfig, serialiseThemeForTtyd } from 'webmux/config'; console.log(serialiseThemeForTtyd(defineConfig()))"
+node -e "import { defineConfig, serialiseThemeForTtyd } from 'webmux/config'; console.log(serialiseThemeForTtyd(defineConfig()))"
 ```
 
 ## Full example

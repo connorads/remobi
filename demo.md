@@ -6,7 +6,7 @@
   - Window 1: Claude Code agent working on a task
   - Window 2: OpenCode agent on a different task
   - Window 3: shell (lazygit, htop, or similar)
-- webmux installed (`bun add -g webmux`)
+- webmux installed (`npm install -g webmux`)
 - Tailscale tunnel ready but NOT started yet
 
 ## Demo flow
@@ -39,4 +39,4 @@
 
 - "webmux. On npm. v0.1. Config-driven, self-hosted, works with any tmux workflow."
 - "I'd love to know how you'd use it. Come chat to me."
-- Show: `bun add -g webmux` and `github.com/connorads/webmux`
+- Show: `npm install -g webmux` and `github.com/connorads/webmux`

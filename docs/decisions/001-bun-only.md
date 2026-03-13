@@ -1,6 +1,6 @@
 # ADR 001: Bun-only runtime
 
-**Status:** Accepted
+**Status:** Superseded — migrated to Node.js 22+ with pnpm (March 2026)
 **Date:** 2026-02-24
 
 ## Context
