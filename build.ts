@@ -1,9 +1,11 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import * as esbuild from 'esbuild'
 import { generatePwaHtml } from './src/pwa/meta-tags'
 import type { WebmuxConfig } from './src/types'
+import { readStdin, sleep, spawnProcess } from './src/util/node-compat'
 
-const PROJECT_ROOT = import.meta.dir
+const PROJECT_ROOT = import.meta.dirname
 
 /** Bundle the overlay JS + CSS into strings */
 export async function bundleOverlay(config: WebmuxConfig): Promise<{ js: string; css: string }> {
@@ -22,31 +24,27 @@ const config = ${configJson}
 
 	// Write temp entry
 	const tmpEntry = resolve(PROJECT_ROOT, '.tmp-entry.ts')
-	await Bun.write(tmpEntry, entryCode)
+	writeFileSync(tmpEntry, entryCode)
 
 	try {
-		const result = await Bun.build({
-			entrypoints: [tmpEntry],
-			target: 'browser',
+		const result = await esbuild.build({
+			entryPoints: [tmpEntry],
+			bundle: true,
+			platform: 'browser',
 			minify: true,
 			format: 'esm',
+			write: false,
 		})
 
-		if (!result.success) {
-			const messages = result.logs.map((l) => l.message).join('\n')
-			throw new Error(`Build failed:\n${messages}`)
-		}
-
-		const output = result.outputs[0]
+		const output = result.outputFiles[0]
 		if (!output) {
 			throw new Error('Build produced no output')
 		}
-		const js = await output.text()
+		const js = output.text
 
 		return { js, css }
 	} finally {
 		// Clean up temp file
-		const { unlinkSync } = await import('node:fs')
 		try {
 			unlinkSync(tmpEntry)
 		} catch {
@@ -58,7 +56,7 @@ const config = ${configJson}
 /** Fetch ttyd's base index.html by starting a temporary instance */
 async function fetchTtydHtml(): Promise<string> {
 	const port = 19876 + Math.floor(Math.random() * 1000)
-	const proc = Bun.spawn(['ttyd', '--port', String(port), '-i', '127.0.0.1', 'echo', 'noop'], {
+	const proc = spawnProcess(['ttyd', '--port', String(port), '-i', '127.0.0.1', 'echo', 'noop'], {
 		stdout: 'ignore',
 		stderr: 'ignore',
 	})
@@ -66,7 +64,7 @@ async function fetchTtydHtml(): Promise<string> {
 	// Wait for ttyd to start
 	let html = ''
 	for (let i = 0; i < 30; i++) {
-		await Bun.sleep(200)
+		await sleep(200)
 		try {
 			const resp = await fetch(`http://127.0.0.1:${port}/`)
 			if (resp.ok) {
@@ -121,13 +119,13 @@ export async function build(config: WebmuxConfig, outputPath: string): Promise<v
 	const { js, css } = await bundleOverlay(config)
 	const baseHtml = await fetchTtydHtml()
 	const patched = injectOverlay(baseHtml, js, css, config)
-	await Bun.write(outputPath, patched)
+	writeFileSync(outputPath, patched)
 }
 
 /** Build from stdin HTML (pipe mode) */
 export async function injectFromStdin(config: WebmuxConfig): Promise<string> {
 	const { js, css } = await bundleOverlay(config)
-	const stdin = await Bun.stdin.text()
+	const stdin = await readStdin()
 	if (stdin.trim().length === 0) {
 		throw new Error('webmux inject expects piped ttyd HTML on stdin')
 	}

@@ -1,9 +1,9 @@
-#!/usr/bin/env bun
-import { existsSync } from 'node:fs'
+#!/usr/bin/env node
+import { existsSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
-import pkg from './package.json'
 import { parseCliArgs } from './src/cli/args'
 import { defaultConfig, defineConfig, mergeConfig } from './src/config'
 import {
@@ -13,6 +13,10 @@ import {
 } from './src/config-validate'
 import { serve } from './src/serve'
 import type { WebmuxConfig, WebmuxConfigOverrides } from './src/types'
+import { readStdin } from './src/util/node-compat'
+
+const require = createRequire(import.meta.url)
+const pkg = require('./package.json') as { version: string }
 
 const VERSION: string = pkg.version
 
@@ -227,7 +231,7 @@ async function main(): Promise<void> {
 			const loaded = await loadConfig(configPath)
 			if (dryRun) {
 				ensureInjectInputMode('webmux inject --dry-run')
-				const dryRunStdin = await Bun.stdin.text()
+				const dryRunStdin = await readStdin()
 				if (dryRunStdin.trim().length === 0) {
 					throw new Error('webmux inject --dry-run expects piped ttyd HTML on stdin')
 				}
@@ -311,7 +315,7 @@ export default defineConfig({
   // },
 })
 `
-			await Bun.write(targetPath, template)
+			writeFileSync(targetPath, template)
 			console.log(`Created: ${targetPath}`)
 			break
 		}
@@ -331,7 +335,7 @@ export default defineConfig({
 	}
 }
 
-if (import.meta.main) {
+if (import.meta.filename === process.argv[1]) {
 	main().catch((err: unknown) => {
 		console.error(err)
 		process.exit(1)

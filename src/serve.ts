@@ -1,13 +1,20 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { serve as honoServe } from '@hono/node-server'
+import { createNodeWebSocket } from '@hono/node-ws'
+import { Hono } from 'hono'
+import type { WSContext } from 'hono/ws'
+import WebSocket from 'ws'
 import { bundleOverlay, injectOverlay } from '../build'
 import { serialiseThemeForTtyd } from './config'
 import { manifestToJson } from './pwa/manifest'
 import type { WebmuxConfig } from './types'
+import { sleep, spawnProcess } from './util/node-compat'
+import type { SpawnedProcess } from './util/node-compat'
 
 const DEFAULT_PORT = 7681
 const DEFAULT_COMMAND = ['tmux', 'new-session', '-A', '-s', 'main']
-const ICONS_DIR = resolve(import.meta.dir, 'pwa/icons')
+const ICONS_DIR = resolve(import.meta.dirname, 'pwa/icons')
 
 interface WsData {
 	backend: WebSocket | null
@@ -23,7 +30,7 @@ async function waitForTtyd(port: number, retries = 40, intervalMs = 200): Promis
 		} catch {
 			// not ready yet
 		}
-		await Bun.sleep(intervalMs)
+		await sleep(intervalMs)
 	}
 	throw new Error(
 		`ttyd did not start on port ${port} — is ttyd installed and on PATH?\nInstall ttyd: macOS \`brew install ttyd\`; Linux use your distro package manager or build from source: https://github.com/tsl0922/ttyd#installation`,
@@ -70,9 +77,9 @@ function readIcon(filename: string): Uint8Array | undefined {
 
 /** Spawn caffeinate to prevent system sleep while ttyd is running (macOS only).
  * Uses -s (system sleep on AC) and -w <pid> so the assertion drops when ttyd exits. */
-function spawnCaffeinate(pid: number): ReturnType<typeof Bun.spawn> | null {
+function spawnCaffeinate(pid: number): SpawnedProcess | null {
 	try {
-		const proc = Bun.spawn(['caffeinate', '-s', '-w', String(pid)], {
+		const proc = spawnProcess(['caffeinate', '-s', '-w', String(pid)], {
 			stdout: 'ignore',
 			stderr: 'ignore',
 		})
@@ -98,12 +105,12 @@ export async function serve(
 	const ttydArgs = buildTtydArgs(config, internalPort, command)
 
 	console.log(`webmux: starting ttyd on internal port ${internalPort}...`)
-	const ttydProc = Bun.spawn(['ttyd', ...ttydArgs], {
+	const ttydProc = spawnProcess(['ttyd', ...ttydArgs], {
 		stdout: 'ignore',
 		stderr: 'ignore',
 	})
 
-	const caffeinateProc = noSleep ? spawnCaffeinate(ttydProc.pid) : null
+	const caffeinateProc = noSleep && ttydProc.pid ? spawnCaffeinate(ttydProc.pid) : null
 
 	await waitForTtyd(internalPort)
 
@@ -118,111 +125,123 @@ export async function serve(
 	const icon192 = readIcon('icon-192.png')
 	const icon512 = readIcon('icon-512.png')
 
-	const server = Bun.serve<WsData>({
-		port,
-		fetch(req, srv) {
-			const url = new URL(req.url)
+	// Per-connection data via WeakMap (replaces Bun's ws.data)
+	const connections = new WeakMap<WebSocket, WsData>()
 
-			if (url.pathname === '/ws') {
-				const upgraded = srv.upgrade(req, { data: { backend: null, buffer: [] } })
-				if (upgraded) return undefined
-				return new Response('WebSocket upgrade failed', { status: 426 })
-			}
+	const app = new Hono()
+	const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
 
-			if (url.pathname === '/') {
-				return new Response(html, {
-					headers: { 'content-type': 'text/html; charset=utf-8' },
-				})
-			}
+	app.get(
+		'/ws',
+		upgradeWebSocket(() => ({
+			onOpen(_event: Event, ws: WSContext<WebSocket>) {
+				const raw = ws.raw
+				if (!raw) return
 
-			if (url.pathname === '/manifest.json' && manifestJson !== null) {
-				return new Response(manifestJson, {
-					headers: { 'content-type': 'application/manifest+json' },
-				})
-			}
+				const data: WsData = { backend: null, buffer: [] }
+				connections.set(raw, data)
 
-			if (url.pathname === '/apple-touch-icon.png' && icon180) {
-				// oxlint-disable-next-line typescript/consistent-type-assertions -- Bun typing gap: Uint8Array not assignable to BodyInit
-				return new Response(icon180 as unknown as BodyInit, {
-					headers: { 'content-type': 'image/png' },
-				})
-			}
-
-			if (url.pathname === '/icon-192.png' && icon192) {
-				// oxlint-disable-next-line typescript/consistent-type-assertions -- Bun typing gap: Uint8Array not assignable to BodyInit
-				return new Response(icon192 as unknown as BodyInit, {
-					headers: { 'content-type': 'image/png' },
-				})
-			}
-
-			if (url.pathname === '/icon-512.png' && icon512) {
-				// oxlint-disable-next-line typescript/consistent-type-assertions -- Bun typing gap: Uint8Array not assignable to BodyInit
-				return new Response(icon512 as unknown as BodyInit, {
-					headers: { 'content-type': 'image/png' },
-				})
-			}
-
-			// Proxy remaining requests to ttyd (e.g. /token)
-			const backendUrl = `http://127.0.0.1:${internalPort}${url.pathname}${url.search}`
-			return fetch(backendUrl, {
-				method: req.method,
-				headers: req.headers,
-				body: req.body,
-			})
-		},
-		websocket: {
-			open(ws) {
 				const backend = new WebSocket(`ws://127.0.0.1:${internalPort}/ws`, ['tty'])
 				backend.binaryType = 'arraybuffer'
-				ws.data.backend = backend
+				data.backend = backend
 
-				backend.onopen = () => {
-					for (const msg of ws.data.buffer) {
+				backend.on('open', () => {
+					for (const msg of data.buffer) {
 						backend.send(msg)
 					}
-					ws.data.buffer = []
-				}
+					data.buffer = []
+				})
 
-				backend.onmessage = (event) => {
-					if (event.data instanceof ArrayBuffer) {
-						ws.sendBinary(new Uint8Array(event.data))
+				backend.on('message', (message: WebSocket.RawData, isBinary: boolean) => {
+					if (isBinary) {
+						ws.send(new Uint8Array(message as ArrayBuffer))
 					} else {
-						// oxlint-disable-next-line typescript/consistent-type-assertions -- WebSocket onmessage doesn't narrow else branch
-						ws.send(event.data as string)
+						ws.send(message.toString())
 					}
-				}
+				})
 
-				backend.onerror = () => {
+				backend.on('error', () => {
 					ws.close()
-				}
+				})
 
-				backend.onclose = () => {
+				backend.on('close', () => {
 					ws.close()
-				}
+				})
 			},
-			message(ws, data) {
-				const { backend, buffer } = ws.data
+			onMessage(event: MessageEvent, ws: WSContext<WebSocket>) {
+				const raw = ws.raw
+				if (!raw) return
+				const data = connections.get(raw)
+				if (!data) return
+
+				const { backend, buffer } = data
 				if (backend !== null && backend.readyState === WebSocket.OPEN) {
-					backend.send(data)
+					backend.send(event.data as string | ArrayBuffer)
 				} else {
-					buffer.push(
-						// oxlint-disable-next-line typescript/consistent-type-assertions -- Bun Buffer → ArrayBuffer for Uint8Array ctor
-						typeof data === 'string' ? data : new Uint8Array(data as unknown as ArrayBuffer),
-					)
+					const msg = event.data
+					buffer.push(typeof msg === 'string' ? msg : new Uint8Array(msg as ArrayBuffer))
 				}
 			},
-			close(ws) {
-				ws.data.backend?.close()
+			onClose(_event: CloseEvent, ws: WSContext<WebSocket>) {
+				const raw = ws.raw
+				if (!raw) return
+				connections.get(raw)?.backend?.close()
+				connections.delete(raw)
 			},
-		},
+		})),
+	)
+
+	app.get('/', (c) => c.html(html))
+
+	if (manifestJson !== null) {
+		app.get('/manifest.json', (c) => c.json(JSON.parse(manifestJson) as Record<string, unknown>))
+	}
+
+	if (icon180) {
+		app.get('/apple-touch-icon.png', (c) => {
+			c.header('content-type', 'image/png')
+			return c.body(icon180)
+		})
+	}
+
+	if (icon192) {
+		app.get('/icon-192.png', (c) => {
+			c.header('content-type', 'image/png')
+			return c.body(icon192)
+		})
+	}
+
+	if (icon512) {
+		app.get('/icon-512.png', (c) => {
+			c.header('content-type', 'image/png')
+			return c.body(icon512)
+		})
+	}
+
+	// Proxy remaining requests to ttyd (e.g. /token)
+	app.all('/*', async (c) => {
+		const url = new URL(c.req.url)
+		const backendUrl = `http://127.0.0.1:${internalPort}${url.pathname}${url.search}`
+		const resp = await fetch(backendUrl, {
+			method: c.req.method,
+			headers: c.req.raw.headers,
+			body: c.req.raw.body,
+		})
+		return new Response(resp.body, {
+			status: resp.status,
+			headers: resp.headers,
+		})
 	})
 
-	console.log(`webmux: serving on http://localhost:${server.port}`)
+	const server = honoServe({ fetch: app.fetch, port })
+	injectWebSocket(server)
+
+	console.log(`webmux: serving on http://localhost:${port}`)
 
 	// Clean shutdown on SIGINT / SIGTERM
 	const cleanup = () => {
 		console.log('\nwebmux: shutting down...')
-		server.stop()
+		server.close()
 		ttydProc.kill()
 		caffeinateProc?.kill()
 		process.exit(0)
@@ -233,5 +252,5 @@ export async function serve(
 
 	// Keep process alive until ttyd exits
 	await ttydProc.exited
-	server.stop()
+	server.close()
 }
