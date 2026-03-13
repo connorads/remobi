@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-import { existsSync, writeFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
 import { parseCliArgs } from './src/cli/args'
 import { defaultConfig, defineConfig, mergeConfig } from './src/config'
@@ -15,11 +14,22 @@ import { serve } from './src/serve'
 import type { WebmuxConfig, WebmuxConfigOverrides } from './src/types'
 import { readStdin } from './src/util/node-compat'
 
-const require = createRequire(import.meta.url)
-// oxlint-disable-next-line typescript/consistent-type-assertions -- createRequire returns unknown, safe narrowing
-const pkg = require('./package.json') as { version: string }
+// Walk up from module location to find package.json — works from both source and dist/
+function loadPackageVersion(): string {
+	let dir = import.meta.dirname
+	for (let i = 0; i < 5; i++) {
+		try {
+			const content = readFileSync(resolve(dir, 'package.json'), 'utf-8')
+			// oxlint-disable-next-line typescript/consistent-type-assertions -- JSON.parse returns unknown
+			return (JSON.parse(content) as { version: string }).version
+		} catch {
+			dir = dirname(dir)
+		}
+	}
+	return '0.0.0'
+}
 
-const VERSION: string = pkg.version
+const VERSION: string = loadPackageVersion()
 
 function usage(): void {
 	console.log(`webmux v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux

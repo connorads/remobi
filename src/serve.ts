@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { serve as honoServe } from '@hono/node-server'
 import { createNodeWebSocket } from '@hono/node-ws'
 import { Hono } from 'hono'
@@ -14,7 +14,19 @@ import type { SpawnedProcess } from './util/node-compat'
 
 const DEFAULT_PORT = 7681
 const DEFAULT_COMMAND = ['tmux', 'new-session', '-A', '-s', 'main']
-const ICONS_DIR = resolve(import.meta.dirname, 'pwa/icons')
+// Walk up from module location to find package root, then resolve icons
+function findIconsDir(): string {
+	let dir = import.meta.dirname
+	for (let i = 0; i < 5; i++) {
+		const candidate = resolve(dir, 'src/pwa/icons')
+		if (existsSync(candidate)) return candidate
+		dir = dirname(dir)
+	}
+	// Fallback for source layout (running from src/)
+	return resolve(import.meta.dirname, 'pwa/icons')
+}
+
+const ICONS_DIR = findIconsDir()
 
 interface WsData {
 	backend: WebSocket | null
@@ -82,6 +94,10 @@ function spawnCaffeinate(pid: number): SpawnedProcess | null {
 		const proc = spawnProcess(['caffeinate', '-s', '-w', String(pid)], {
 			stdout: 'ignore',
 			stderr: 'ignore',
+		})
+		// Catch async spawn errors (e.g. caffeinate not found on Linux)
+		proc.exited.catch(() => {
+			console.warn('webmux: --no-sleep requires caffeinate (macOS only), ignoring')
 		})
 		console.log(`webmux: sleep prevention active (caffeinate -s -w ${pid})`)
 		return proc

@@ -1,11 +1,21 @@
-import { readFileSync, unlinkSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import * as esbuild from 'esbuild'
 import { generatePwaHtml } from './src/pwa/meta-tags'
 import type { WebmuxConfig } from './src/types'
 import { readStdin, sleep, spawnProcess } from './src/util/node-compat'
 
-const PROJECT_ROOT = import.meta.dirname
+// Walk up from module location to find project root (where styles/ lives)
+function findProjectRoot(): string {
+	let dir = import.meta.dirname
+	for (let i = 0; i < 5; i++) {
+		if (existsSync(resolve(dir, 'styles/base.css'))) return dir
+		dir = dirname(dir)
+	}
+	return import.meta.dirname
+}
+
+const PROJECT_ROOT = findProjectRoot()
 
 /** Bundle the overlay JS + CSS into strings */
 export async function bundleOverlay(config: WebmuxConfig): Promise<{ js: string; css: string }> {
