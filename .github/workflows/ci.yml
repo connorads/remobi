@@ -20,5 +20,6 @@ jobs:
       - run: pnpm run lint:ox
       - run: pnpm run lint:typos
       - run: pnpm run lint:knip
+      - run: pnpm run build:dist
       - run: pnpm run lint:publint
       - run: pnpm exec tsc --noEmit
