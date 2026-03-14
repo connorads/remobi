@@ -76,3 +76,4 @@ pnpm run build:dist    # Transpile for publishing (tsdown)
 - Keyboard state preserved: capture `isKeyboardOpen()` before action, use `conditionalFocus()` after
 - Tests use happy-dom for DOM environment (e2e/CLI tests use node environment)
 - Agent skill: `skills/webmux-setup/SKILL.md` provides AI agents with config guidance. When config shape, CLI commands, action types, or validation rules change, update the skill and `docs/guides/agent-setup.md` to stay in sync.
+- When working on `demo/` code, load `/remotion-best-practices` skill for Remotion-specific patterns (Sequence frame resets, interpolation, transitions).
