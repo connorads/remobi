@@ -1,3 +1,10 @@
+## [0.2.2](https://github.com/connorads/remobi/compare/v0.2.1...v0.2.2) (2026-03-15)
+
+
+### Bug Fixes
+
+* **ci:** add npm to mise.toml for OIDC trusted publishing ([44bb745](https://github.com/connorads/remobi/commit/44bb7452d0d9e3496bacc4aaf5a63f2236a8f80f))
+
 ## [0.2.1](https://github.com/connorads/remobi/compare/v0.2.0...v0.2.1) (2026-03-15)
 
 
