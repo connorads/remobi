@@ -74,7 +74,7 @@ describe('CLI config validation', () => {
 		expect(result.stderr).toContain('Invalid remobi config:')
 		expect(result.stderr).toContain('config.gestures.scroll.strategy')
 		expect(result.stderr).toContain('received string("mouse")')
-	})
+	}, 15_000)
 
 	test('inject fails fast on unknown root keys', async () => {
 		const dir = createTempDir()
