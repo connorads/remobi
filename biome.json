@@ -39,6 +39,12 @@
 			"semicolons": "asNeeded"
 		}
 	},
+	"overrides": [
+		{
+			"include": ["package.json"],
+			"formatter": { "enabled": false }
+		}
+	],
 	"files": {
 		"ignore": ["dist/", "node_modules/", "demo/"]
 	}
