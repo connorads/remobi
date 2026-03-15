@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/connorads/remobi/compare/v0.2.0...v0.2.1) (2026-03-15)
+
+
+### Bug Fixes
+
+* resolve symlink in entry guard so npx execution works ([4eab06d](https://github.com/connorads/remobi/commit/4eab06dcb2144788a65d2cd5e503b5e3e27b350c))
+
 # [0.2.0](https://github.com/connorads/remobi/compare/v0.1.0...v0.2.0) (2026-03-15)
 
 
