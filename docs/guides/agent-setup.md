@@ -1,26 +1,26 @@
-# Configure webmux with AI agents
+# Configure muxi with AI agents
 
-AI agents (Claude Code, Cursor, Copilot, etc.) can inspect your tmux config and generate a valid `webmux.config.ts` for you. This guide explains how to set that up, with a reference prompt you can paste directly.
+AI agents (Claude Code, Cursor, Copilot, etc.) can inspect your tmux config and generate a valid `muxi.config.ts` for you. This guide explains how to set that up, with a reference prompt you can paste directly.
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) ≥ 22
 - [ttyd](https://github.com/tsl0922/ttyd) installed and on PATH (`brew install ttyd` on macOS; Linux via distro package manager or source build from the [installation guide](https://github.com/tsl0922/ttyd#installation))
 - [tmux](https://github.com/tmux/tmux) installed
-- webmux installed: `npm install -g webmux`
+- muxi installed: `npm install -g muxi`
 
-## Install the webmux skill (recommended)
+## Install the muxi skill (recommended)
 
 If your agent supports [skills.sh](https://skills.sh) (Claude Code, Cursor, Codex, Gemini, OpenCode):
 
 ```bash
-npx skills add connorads/webmux
+npx skills add connorads/muxi
 ```
 
 For a specific agent only (e.g. Claude Code, globally):
 
 ```bash
-npx skills add connorads/webmux -a claude-code -g
+npx skills add connorads/muxi -a claude-code -g
 ```
 
 Once installed the agent has access to the full config schema, escape-code reference, and examples without you needing to paste anything.
@@ -31,10 +31,10 @@ If you cannot install the skill, paste this self-contained prompt directly into 
 
 ---
 
-> Inspect my tmux config (`tmux show-options -g prefix` and `tmux list-keys`), then generate a `webmux.config.ts` in the current directory tailored to my setup.
+> Inspect my tmux config (`tmux show-options -g prefix` and `tmux list-keys`), then generate a `muxi.config.ts` in the current directory tailored to my setup.
 >
 > Rules:
-> - Use `import { defineConfig } from 'webmux'` and `export default defineConfig({...})`
+> - Use `import { defineConfig } from 'muxi'` and `export default defineConfig({...})`
 > - Only include keys that differ from defaults; omit everything else
 > - Allowed root keys: `name theme font toolbar drawer gestures mobile floatingButtons pwa reconnect`
 > - `action.type` must be one of: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`
@@ -44,13 +44,13 @@ If you cannot install the skill, paste this self-contained prompt directly into 
 > - `drawer.buttons` not `drawer.commands`
 > - Tmux sequences: prefix byte + key char (e.g. Ctrl-B prefix = `\x02`, so new window = `\x02c`)
 >
-> After writing the file, run `webmux build --dry-run` and fix any reported errors. Summarise what was configured and why.
+> After writing the file, run `muxi build --dry-run` and fix any reported errors. Summarise what was configured and why.
 
 ---
 
 The skill can also suggest tmux.conf mobile optimisations after config generation — see [Mobile-friendly tmux config](mobile-tmux.md) for what it checks.
 
-## Tmux-to-webmux mapping reference
+## Tmux-to-muxi mapping reference
 
 ### Prefix bytes
 
@@ -101,7 +101,7 @@ For Ctrl-A prefix: replace `\x02` with `\x01` throughout.
 ### Minimal — just set the app name
 
 ```typescript
-import { defineConfig } from 'webmux'
+import { defineConfig } from 'muxi'
 
 export default defineConfig({
   name: 'dev',
@@ -113,7 +113,7 @@ Everything else uses defaults (Ctrl-B prefix, catppuccin-mocha theme, swipe = ne
 ### Replace the default drawer entirely
 
 ```typescript
-import { defineConfig } from 'webmux'
+import { defineConfig } from 'muxi'
 
 export default defineConfig({
   drawer: {
@@ -130,7 +130,7 @@ export default defineConfig({
 Replace only the prefix button and update swipe gestures; keep everything else:
 
 ```typescript
-import { defineConfig } from 'webmux'
+import { defineConfig } from 'muxi'
 
 export default defineConfig({
   name: 'dev',
@@ -164,7 +164,7 @@ export default defineConfig({
 ### Floating buttons + mobile auto-zoom
 
 ```typescript
-import { defineConfig } from 'webmux'
+import { defineConfig } from 'muxi'
 
 export default defineConfig({
   mobile: {
@@ -192,14 +192,14 @@ export default defineConfig({
 Always validate before building:
 
 ```bash
-webmux build --dry-run
+muxi build --dry-run
 ```
 
 `--dry-run` loads and validates your config, prints what it would do, and exits without starting ttyd or writing files. A clean run looks like:
 
 ```
 Dry run: build
-- config: /path/to/webmux.config.ts
+- config: /path/to/muxi.config.ts
 - output: /path/to/dist/index.html
 - action: would bundle overlay, fetch ttyd base HTML, inject, and write file
 ```
@@ -207,7 +207,7 @@ Dry run: build
 Any validation error prints the failing path, what was expected, and what was received:
 
 ```
-Invalid webmux config:
+Invalid muxi config:
 - config.drawer.buttons[0].action.type: expected 'send' | 'ctrl-modifier' | ..., received string("key-send")
 ```
 

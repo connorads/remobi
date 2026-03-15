@@ -1,14 +1,14 @@
-# webmux
+# muxi
 
-[![CI](https://github.com/connorads/webmux/actions/workflows/ci.yml/badge.svg)](https://github.com/connorads/webmux/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/webmux)](https://www.npmjs.com/package/webmux)
-[![licence](https://img.shields.io/npm/l/webmux)](LICENSE)
+[![CI](https://github.com/connorads/muxi/actions/workflows/ci.yml/badge.svg)](https://github.com/connorads/muxi/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/muxi)](https://www.npmjs.com/package/muxi)
+[![licence](https://img.shields.io/npm/l/muxi)](LICENSE)
 
 **Your terminal. Everywhere.**
 
-Running coding agents in tmux? webmux lets you monitor and control them from your phone. Swipe between windows, scroll through output, pinch to zoom, tap buttons for tmux commands. Same session, touch-native controls. No workflow changes.
+Running coding agents in tmux? muxi lets you monitor and control them from your phone. Swipe between windows, scroll through output, pinch to zoom, tap buttons for tmux commands. Same session, touch-native controls. No workflow changes.
 
-[ttyd](https://github.com/tsl0922/ttyd) gives you a terminal in a browser. On mobile, it's unusable — no toolbar, no gestures, tiny unresizable text. webmux adds a touch overlay on top. One command. Install it like a native app.
+[ttyd](https://github.com/tsl0922/ttyd) gives you a terminal in a browser. On mobile, it's unusable — no toolbar, no gestures, tiny unresizable text. muxi adds a touch overlay on top. One command. Install it like a native app.
 
 <div align="center">
   <!-- Upload demo/out/demo.mp4 via GitHub issue/PR drag-and-drop, then replace the src below -->
@@ -21,9 +21,9 @@ Running coding agents in tmux? webmux lets you monitor and control them from you
 - You're a terminal-first developer who wants your full tmux setup accessible anywhere
 - You want self-hosted mobile terminal access without changing your existing workflow
 
-## Why webmux
+## Why muxi
 
-- **One command** — `webmux serve` builds the overlay, manages ttyd, serves with PWA support
+- **One command** — `muxi serve` builds the overlay, manages ttyd, serves with PWA support
 - **Swipe between panes** — gesture navigation, no prefix key fumbling on a phone screen
 - **Pinch to zoom** — resize text like every other app on your phone
 - **Install to your home screen** — standalone PWA, looks and feels native
@@ -33,63 +33,63 @@ Running coding agents in tmux? webmux lets you monitor and control them from you
 ## Requirements
 
 - [Node.js](https://nodejs.org/) ≥ 22
-- [ttyd](https://github.com/tsl0922/ttyd) — must be on PATH for `webmux serve` and `webmux build` (they spawn a temporary ttyd to fetch base HTML). Install on macOS with `brew install ttyd`; on Linux use your distro package manager or build from source via the [ttyd installation guide](https://github.com/tsl0922/ttyd#installation). `webmux inject` pipes HTML from stdin and does **not** require ttyd — useful for CI or environments where ttyd isn't installed locally.
+- [ttyd](https://github.com/tsl0922/ttyd) — must be on PATH for `muxi serve` and `muxi build` (they spawn a temporary ttyd to fetch base HTML). Install on macOS with `brew install ttyd`; on Linux use your distro package manager or build from source via the [ttyd installation guide](https://github.com/tsl0922/ttyd#installation). `muxi inject` pipes HTML from stdin and does **not** require ttyd — useful for CI or environments where ttyd isn't installed locally.
 - [tmux](https://github.com/tmux/tmux) (the target multiplexer)
 
-webmux uses standard ttyd flags (`--writable`, `-t`, `-i`) and should work with any recent ttyd release.
+muxi uses standard ttyd flags (`--writable`, `-t`, `-i`) and should work with any recent ttyd release.
 
 ## Quick start
 
 ```bash
 # 1. Install
-npm install -g webmux
+npm install -g muxi
 
 # 2. Start (builds overlay, manages ttyd, serves with PWA support)
-webmux serve
+muxi serve
 ```
 
-For local development, use `pnpm link --global` from the repo root instead of `npm install -g webmux`.
+For local development, use `pnpm link --global` from the repo root instead of `npm install -g muxi`.
 
 Open `http://localhost:7681` on your phone. Add to Home Screen for an app-like experience.
 
 ## CLI reference
 
 ```
-webmux serve [--config <path>] [--port <n>] [-- <command...>]
+muxi serve [--config <path>] [--port <n>] [-- <command...>]
   Build overlay in memory, manage ttyd, serve with PWA support.
   Default port: 7681. Default command: tmux new-session -A -s main
-  Example: webmux serve --port 8080 -- tmux new -As dev
+  Example: muxi serve --port 8080 -- tmux new -As dev
 
-webmux build [--config <path>] [--output <path>] [--dry-run]
+muxi build [--config <path>] [--output <path>] [--dry-run]
   Build patched index.html for ttyd --index flag (advanced).
   Default output: dist/index.html
 
-webmux inject [--config <path>] [--dry-run]
+muxi inject [--config <path>] [--dry-run]
   Pipe mode: reads ttyd HTML from stdin, outputs patched HTML to stdout.
-  Example: curl -s http://localhost:7681/ | webmux inject > patched.html
+  Example: curl -s http://localhost:7681/ | muxi inject > patched.html
 
-webmux init
-  Scaffold a webmux.config.ts with commented defaults.
+muxi init
+  Scaffold a muxi.config.ts with commented defaults.
 
-webmux --version
-webmux --help
+muxi --version
+muxi --help
 ```
 
 Short flags: `-c` (`--config`), `-o` (`--output`), `-p` (`--port`), `-n` (`--dry-run`).
 
 ### Config resolution
 
-When `--config` is not specified, webmux searches:
+When `--config` is not specified, muxi searches:
 
-1. `webmux.config.ts` / `.js` in the current directory
-2. `~/.config/webmux/webmux.config.ts` / `.js` (XDG fallback)
+1. `muxi.config.ts` / `.js` in the current directory
+2. `~/.config/muxi/muxi.config.ts` / `.js` (XDG fallback)
 
 ## Configuration
 
-Create `webmux.config.ts` (or run `webmux init`):
+Create `muxi.config.ts` (or run `muxi init`):
 
 ```typescript
-import { defineConfig } from 'webmux/config'
+import { defineConfig } from 'muxi/config'
 
 export default defineConfig({
   font: {
@@ -153,17 +153,17 @@ export default defineConfig({
 <details>
 <summary>Configure with an AI agent</summary>
 
-### Install the webmux skill
+### Install the muxi skill
 
 ```bash
-npx skills add connorads/webmux
+npx skills add connorads/muxi
 ```
 
-For a specific agent only (e.g. Claude Code, globally): `npx skills add connorads/webmux -a claude-code -g`
+For a specific agent only (e.g. Claude Code, globally): `npx skills add connorads/muxi -a claude-code -g`
 
 ### Or paste this prompt
 
-> Inspect my tmux config (`tmux show-options -g prefix` and `tmux list-keys`), then generate a `webmux.config.ts` tailored to my setup. Allowed root keys: `name theme font toolbar drawer gestures mobile floatingButtons pwa reconnect`. Action types: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`. Use `drawer.buttons` not `drawer.commands`. Validate with `webmux build --dry-run` and fix any errors. Summarise what was configured.
+> Inspect my tmux config (`tmux show-options -g prefix` and `tmux list-keys`), then generate a `muxi.config.ts` tailored to my setup. Allowed root keys: `name theme font toolbar drawer gestures mobile floatingButtons pwa reconnect`. Action types: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`. Use `drawer.buttons` not `drawer.commands`. Validate with `muxi build --dry-run` and fix any errors. Summarise what was configured.
 
 See the full [agent setup guide](docs/guides/agent-setup.md) for examples and escape-code reference.
 
@@ -176,7 +176,7 @@ Shipped tmux drawer defaults stick to stock tmux bindings (`c`, `%`, `"`, `s`, `
 Replace the drawer entirely with a plain array when you want a fully custom setup:
 
 ```typescript
-import { defineConfig } from 'webmux/config'
+import { defineConfig } from 'muxi/config'
 
 export default defineConfig({
   drawer: {
@@ -188,7 +188,7 @@ export default defineConfig({
 })
 ```
 
-At runtime, webmux validates the config object shape and rejects unknown keys with clear path-based errors.
+At runtime, muxi validates the config object shape and rejects unknown keys with clear path-based errors.
 
 `gestures.scroll.strategy` controls touch scroll behaviour:
 
@@ -198,15 +198,15 @@ At runtime, webmux validates the config object shape and rejects unknown keys wi
 ### Programmatic API
 
 ```typescript
-import { defineConfig, serialiseThemeForTtyd } from 'webmux/config'
-import type { WebmuxConfig, ControlButton } from 'webmux/types'
-import { init } from 'webmux'
+import { defineConfig, serialiseThemeForTtyd } from 'muxi/config'
+import type { MuxiConfig, ControlButton } from 'muxi/types'
+import { init } from 'muxi'
 ```
 
 Advanced consumers can use hook registry primitives to observe lifecycle and terminal-send events:
 
 ```typescript
-import { createHookRegistry, init } from 'webmux'
+import { createHookRegistry, init } from 'muxi'
 
 const hooks = createHookRegistry()
 hooks.on('beforeSendData', (ctx) => {
@@ -223,11 +223,11 @@ init(undefined, hooks)
 - [ttyd flags](docs/guides/ttyd-flags.md) — recommended ttyd options and theme flags
 - [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
 - [Mobile-friendly tmux config](docs/guides/mobile-tmux.md) — responsive status bar, popup sizing, binding ergonomics
-- [Agent setup](docs/guides/agent-setup.md) — configure webmux with AI agents
+- [Agent setup](docs/guides/agent-setup.md) — configure muxi with AI agents
 
 ## Architecture
 
-Pure TypeScript + DOM API — no framework. The build bundles all JS/CSS into a single HTML file via esbuild. ttyd handles WebSocket/PTY bridging; webmux only adds the mobile UI overlay.
+Pure TypeScript + DOM API — no framework. The build bundles all JS/CSS into a single HTML file via esbuild. ttyd handles WebSocket/PTY bridging; muxi only adds the mobile UI overlay.
 
 Key modules:
 
@@ -243,13 +243,13 @@ Key modules:
 
 ## Public API and semver
 
-webmux follows semantic versioning. The public API is defined by the following import paths:
+muxi follows semantic versioning. The public API is defined by the following import paths:
 
 | Import path | Contents | Stability |
 |---|---|---|
-| `webmux` | `init`, `defineConfig`, `createHookRegistry`, `WebmuxConfig`, `ControlButton`, `ButtonAction`, `ButtonArrayPatch`, `ButtonArrayInput`, `WebmuxConfigOverrides`, `HookRegistry` | Public — breaking changes are semver-major |
-| `webmux/config` | `defineConfig`, `mergeConfig`, `defaultConfig`, `serialiseThemeForTtyd` | Public |
-| `webmux/types` | All types in `src/types.ts` | Public |
+| `muxi` | `init`, `defineConfig`, `createHookRegistry`, `MuxiConfig`, `ControlButton`, `ButtonAction`, `ButtonArrayPatch`, `ButtonArrayInput`, `MuxiConfigOverrides`, `HookRegistry` | Public — breaking changes are semver-major |
+| `muxi/config` | `defineConfig`, `mergeConfig`, `defaultConfig`, `serialiseThemeForTtyd` | Public |
+| `muxi/types` | All types in `src/types.ts` | Public |
 
 **Internal modules** (not part of the public API — may change without a major version bump):
 `src/toolbar/`, `src/drawer/`, `src/gestures/`, `src/controls/`, `src/theme/`, `src/viewport/`, `src/util/`, `src/serve.ts`, `src/cli/`, `build.ts`
@@ -271,31 +271,31 @@ pnpm run build     # build dist/index.html (dev-time, uses tsx)
 For local development:
 
 ```bash
-cd ~/git/webmux
-pnpm link --global   # webmux CLI available globally
+cd ~/git/muxi
+pnpm link --global   # muxi CLI available globally
 pnpm run build:dist  # transpile TS → JS (tsdown)
 ```
 
 ## FAQ
 
 **Is this secure?**
-webmux doesn't handle auth — it's a UI overlay. Use a tunnel or VPN you trust. We recommend [Tailscale](docs/guides/tailscale-serve.md) (deployment guide included) — your session never leaves your tailnet. Cloudflare Tunnel and ngrok also work. Security is your responsibility.
+muxi doesn't handle auth — it's a UI overlay. Use a tunnel or VPN you trust. We recommend [Tailscale](docs/guides/tailscale-serve.md) (deployment guide included) — your session never leaves your tailnet. Cloudflare Tunnel and ngrok also work. Security is your responsibility.
 
 **Why not Termux / Termius / SSH apps?**
-They work. But you're managing SSH keys, losing your tmux setup, and fighting a UI that wasn't built for touch. webmux keeps your exact workflow — same panes, same windows, same bindings — and adds touch controls on top.
+They work. But you're managing SSH keys, losing your tmux setup, and fighting a UI that wasn't built for touch. muxi keeps your exact workflow — same panes, same windows, same bindings — and adds touch controls on top.
 
 **Why not [Happy](https://github.com/slopus/happy) / Claude resume / chat-based mobile apps?**
-Those tools change your workflow. Chat relays route through third-party servers. Claude's resume has limitations. webmux gives you the raw terminal — full power, self-hosted, works with every agent because it works with tmux.
+Those tools change your workflow. Chat relays route through third-party servers. Claude's resume has limitations. muxi gives you the raw terminal — full power, self-hosted, works with every agent because it works with tmux.
 
 **Why Node?**
-webmux migrated from Bun to Node.js + pnpm for broader compatibility. It transpiles to JS via tsdown for npm distribution and uses esbuild for the browser overlay bundle.
+muxi migrated from Bun to Node.js + pnpm for broader compatibility. It transpiles to JS via tsdown for npm distribution and uses esbuild for the browser overlay bundle.
 
 **Is this production-ready?**
 It's v0.1. The author uses it daily. It works. It's also early — feedback welcome, forks encouraged.
 
 ## Acknowledgements
 
-webmux is a thin overlay. The heavy lifting is done by [ttyd](https://github.com/tsl0922/ttyd) (terminal sharing over the web) and [xterm.js](https://xtermjs.org/) (terminal rendering in the browser). webmux just adds the mobile touch controls on top.
+muxi is a thin overlay. The heavy lifting is done by [ttyd](https://github.com/tsl0922/ttyd) (terminal sharing over the web) and [xterm.js](https://xtermjs.org/) (terminal rendering in the browser). muxi just adds the mobile touch controls on top.
 
 ## Licence
 

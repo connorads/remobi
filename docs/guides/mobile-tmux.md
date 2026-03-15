@@ -1,6 +1,6 @@
 # Mobile-friendly tmux config
 
-webmux makes your browser the mobile client, but tmux itself can also adapt to narrow viewports. This guide covers making your `tmux.conf` respond to terminal width — so the same session works on a phone, a tablet, and a desktop without manual adjustment.
+muxi makes your browser the mobile client, but tmux itself can also adapt to narrow viewports. This guide covers making your `tmux.conf` respond to terminal width — so the same session works on a phone, a tablet, and a desktop without manual adjustment.
 
 This is separate from pane navigation ergonomics, which are covered in [Mobile pane navigation](mobile-panes.md).
 
@@ -154,13 +154,13 @@ The zoom indicator should be visible at all width tiers — put it inside every 
 
 Mobile soft keyboards typically cannot produce `Alt+Shift+key` or other multi-modifier combos. Prefer:
 
-- **`prefix + single-key`** — works reliably from webmux via the Prefix button or a configured toolbar/drawer button.
+- **`prefix + single-key`** — works reliably from muxi via the Prefix button or a configured toolbar/drawer button.
 - **Single-key in copy mode** — no modifier needed.
-- **webmux toolbar/drawer buttons** — the right place for actions you want one-tap access to on mobile.
+- **muxi toolbar/drawer buttons** — the right place for actions you want one-tap access to on mobile.
 
-Move modifier-heavy bindings to webmux buttons rather than trying to send them from a soft keyboard. For example, if you have a binding like `bind -n M-S-f ...`, surface it as a webmux drawer button with `action: { type: 'send', data: '\x02f' }` (mapped to a simpler prefix binding instead).
+Move modifier-heavy bindings to muxi buttons rather than trying to send them from a soft keyboard. For example, if you have a binding like `bind -n M-S-f ...`, surface it as a muxi drawer button with `action: { type: 'send', data: '\x02f' }` (mapped to a simpler prefix binding instead).
 
-See the [agent setup guide](agent-setup.md) for how to map your tmux bindings to webmux toolbar/drawer buttons automatically.
+See the [agent setup guide](agent-setup.md) for how to map your tmux bindings to muxi toolbar/drawer buttons automatically.
 
 ## Mouse mode
 
@@ -170,7 +170,7 @@ set -g mouse on
 
 Mouse mode enables:
 - **Tap to focus** — tap a pane to make it active
-- **Touch scroll** — scroll terminal history with a swipe (works alongside webmux's own scroll handling)
+- **Touch scroll** — scroll terminal history with a swipe (works alongside muxi's own scroll handling)
 - **Drag to resize** — drag pane borders to resize
 
 This is the single highest-value setting for mobile use. Enable it unconditionally unless a specific workflow requires it off.
@@ -191,4 +191,4 @@ This is the single highest-value setting for mobile use. Enable it unconditional
 ## Further reading
 
 - [Mobile pane navigation](mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
-- [Agent setup](agent-setup.md) — configure webmux toolbar/drawer buttons with an AI agent
+- [Agent setup](agent-setup.md) — configure muxi toolbar/drawer buttons with an AI agent
