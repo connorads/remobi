@@ -1,3 +1,10 @@
+# [0.2.0](https://github.com/connorads/remobi/compare/v0.1.0...v0.2.0) (2026-03-15)
+
+
+### Features
+
+* add pixel R> logo and integrate across project ([44b238a](https://github.com/connorads/remobi/commit/44b238aa7909cec2c408acb5bde32f9f2c645e26))
+
 # Changelog
 
 ## 0.1.0 — 2026-03-15
