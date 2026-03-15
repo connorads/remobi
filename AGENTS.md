@@ -21,12 +21,21 @@ Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm 
 ## Key Commands
 
 ```bash
+git config core.hooksPath .hk-hooks  # Run once after clone
 pnpm test              # Run all tests
 pnpm run check         # Biome lint + format check
 pnpm run check:fix     # Auto-fix lint + format
 pnpm run build         # Build dist/index.html (dev-time, uses tsx)
 pnpm run build:dist    # Transpile for publishing (tsdown)
 ```
+
+## Conventional Commits
+
+Commits must follow [Conventional Commits](https://www.conventionalcommits.org/) format, enforced by hk commit-msg hook.
+
+- Format: `type(scope): description`
+- Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`, `style`, `build`, `revert`
+- Breaking changes: `!` after type/scope or `BREAKING CHANGE:` in footer
 
 ## Module Layout
 

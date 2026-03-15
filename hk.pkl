@@ -18,4 +18,9 @@ hooks {
 			["typos"] = (Builtins.typos)
 		}
 	}
+	["commit-msg"] {
+		steps {
+			["check-conventional-commit"] = (Builtins.check_conventional_commit)
+		}
+	}
 }
