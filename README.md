@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="logo/logo.svg" width="128" alt="remobi logo"/>
+</div>
+
 # remobi
 
 [![CI](https://github.com/connorads/remobi/actions/workflows/ci.yml/badge.svg)](https://github.com/connorads/remobi/actions/workflows/ci.yml)

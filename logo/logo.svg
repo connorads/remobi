@@ -1,11 +1,6 @@
-/**
- * SVG icon for remobi PWA.
- * Pixel-art R> on catppuccin mocha base (#1e1e2e).
- * Green R (#a6e3a1), blue chevron (#89b4fa).
- * Uses <rect> elements — renders identically on all platforms.
- */
-export const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <rect width="512" height="512" rx="80" fill="#1e1e2e"/>
+  <!-- Green R, blue > — no cursor -->
   <g fill="#a6e3a1">
     <rect x="76" y="130" width="28" height="28" rx="4"/>
     <rect x="112" y="130" width="28" height="28" rx="4"/>
@@ -33,9 +28,4 @@ export const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 51
     <rect x="364" y="274" width="28" height="28" rx="4"/>
     <rect x="328" y="310" width="28" height="28" rx="4"/>
   </g>
-</svg>`
-
-/** Convert SVG string to a data URI */
-export function svgToDataUri(svg: string): string {
-	return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`
-}
+</svg>
