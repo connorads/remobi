@@ -1,5 +1,6 @@
 [tools]
 node = "22"
+npm = "latest"
 pnpm = "latest"
 typos = "latest"
 hk = "latest"
