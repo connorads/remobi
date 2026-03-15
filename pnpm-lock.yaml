@@ -14,9 +14,6 @@ importers:
       '@hono/node-ws':
         specifier: ^1.1.0
         version: 1.3.0(@hono/node-server@1.19.11(hono@4.12.7))(hono@4.12.7)
-      esbuild:
-        specifier: ^0.25.0
-        version: 0.25.12
       hono:
         specifier: ^4.7.0
         version: 4.12.7
@@ -39,6 +36,9 @@ importers:
       '@types/ws':
         specifier: ^8.18.0
         version: 8.18.1
+      esbuild:
+        specifier: ^0.25.0
+        version: 0.25.12
       knip:
         specifier: ^5.85.0
         version: 5.86.0(@types/node@22.19.15)(typescript@5.9.3)
