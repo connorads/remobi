@@ -1,3 +1,11 @@
+## [0.2.1](https://github.com/connorads/remobi/compare/v0.2.0...v0.2.1) (2026-03-15)
+
+
+### Bug Fixes
+
+* exclude package.json from Biome formatter ([044183f](https://github.com/connorads/remobi/commit/044183fd636fe56eb17f1cd650338c85be46ce5e))
+* remove redundant checks from prepublishOnly ([efdb742](https://github.com/connorads/remobi/commit/efdb742087842ba131ed704e3e29676aa672ab87))
+
 # [0.2.0](https://github.com/connorads/remobi/compare/v0.1.0...v0.2.0) (2026-03-15)
 
 
