@@ -4,7 +4,7 @@
 	"description": "Monitor and control your coding agents from your phone. Touch controls for tmux over the web.",
 	"type": "module",
 	"bin": {
-		"remobi": "./dist/cli.mjs"
+		"remobi": "dist/cli.mjs"
 	},
 	"exports": {
 		".": {
