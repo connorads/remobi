@@ -1,6 +1,5 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import * as esbuild from 'esbuild'
 import { generatePwaHtml } from './src/pwa/meta-tags'
 import type { WebmuxConfig } from './src/types'
 import { readStdin, sleep, spawnProcess } from './src/util/node-compat'
@@ -23,7 +22,17 @@ export async function bundleOverlay(config: WebmuxConfig): Promise<{ js: string;
 	const cssPath = resolve(PROJECT_ROOT, 'styles/base.css')
 	const css = readFileSync(cssPath, 'utf-8')
 
-	// Create a temp entry that imports init and calls it with embedded config
+	// Pre-built overlay: read dist/overlay.iife.js and prepend config via globalThis
+	const prebuiltPath = resolve(PROJECT_ROOT, 'dist/overlay.iife.js')
+	if (existsSync(prebuiltPath)) {
+		const overlayJs = readFileSync(prebuiltPath, 'utf-8')
+		const js = `globalThis.__webmuxConfig=${JSON.stringify(config)};${overlayJs}`
+		return { js, css }
+	}
+
+	// Dev fallback: bundle from source via esbuild (requires src/ and esbuild)
+	const esbuild = await import('esbuild')
+
 	const configJson = JSON.stringify(config)
 	const entryCode = `
 import { init, createHookRegistry } from './src/index.ts'
@@ -32,7 +41,6 @@ const config = ${configJson}
 ;(function() { init(config, hooks) })()
 `
 
-	// Write temp entry
 	const tmpEntry = resolve(PROJECT_ROOT, '.tmp-entry.ts')
 	writeFileSync(tmpEntry, entryCode)
 
@@ -54,7 +62,6 @@ const config = ${configJson}
 
 		return { js, css }
 	} finally {
-		// Clean up temp file
 		try {
 			unlinkSync(tmpEntry)
 		} catch {

@@ -30,7 +30,8 @@
 	"homepage": "https://github.com/connorads/webmux",
 	"bugs": "https://github.com/connorads/webmux/issues",
 	"scripts": {
-		"build:dist": "tsdown",
+		"build:overlay": "tsx scripts/build-overlay.ts",
+		"build:dist": "tsdown && pnpm run build:overlay",
 		"build": "tsx cli.ts build",
 		"check": "biome check .",
 		"check:fix": "biome check --fix .",
@@ -44,6 +45,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.0",
+		"esbuild": "^0.25.0",
 		"@happy-dom/global-registrator": "^20.6.1",
 		"@types/node": "^22.0.0",
 		"@types/ws": "^8.18.0",
@@ -73,7 +75,6 @@
 	"dependencies": {
 		"@hono/node-server": "^1.14.0",
 		"@hono/node-ws": "^1.1.0",
-		"esbuild": "^0.25.0",
 		"hono": "^4.7.0",
 		"valibot": "^1.2.0",
 		"ws": "^8.18.0"
