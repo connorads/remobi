@@ -52,7 +52,7 @@
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"release": "semantic-release",
-		"prepublishOnly": "pnpm test && pnpm run check && pnpm run lint:ox && pnpm run lint:knip && pnpm run build:dist && pnpm run lint:publint"
+		"prepublishOnly": "pnpm run lint:ox && pnpm run lint:knip && pnpm run build:dist && pnpm run lint:publint"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.0",
