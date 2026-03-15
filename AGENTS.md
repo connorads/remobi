@@ -1,6 +1,6 @@
-# webmux
+# muxi
 
-Monitor and control your coding agents from your phone. Touch controls for tmux over the web. Published on npm as `webmux`.
+Monitor and control your coding agents from your phone. Touch controls for tmux over the web. Published on npm as `muxi`.
 
 ## Architecture
 
@@ -16,7 +16,7 @@ Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm 
 - **TypeScript (strict)** — no `any`, discriminated unions for actions
 - **Biome** — lint + format
 - **happy-dom** — DOM testing
-- **Hono** — HTTP + WebSocket server (`webmux serve`)
+- **Hono** — HTTP + WebSocket server (`muxi serve`)
 
 ## Key Commands
 
@@ -67,7 +67,7 @@ pnpm run build:dist    # Transpile for publishing (tsdown)
 - Unified control schema: use `ControlButton` for both toolbar and drawer items
 - Config shape: `drawer.buttons` (not `drawer.commands`)
 - Config via `defineConfig()` — typed, with sensible defaults
-- Config resolution: `--config` flag → cwd → `~/.config/webmux/` (XDG fallback)
+- Config resolution: `--config` flag → cwd → `~/.config/muxi/` (XDG fallback)
 - Drawer takes a flat `readonly ControlButton[]` — rendered as a single grid
 - Help overlay is config-driven and must be fail-safe (never break core controls if help fails)
 - Mobile viewport handling: lock document scroll and compute height from visual viewport (keyboard-aware)
@@ -75,5 +75,5 @@ pnpm run build:dist    # Transpile for publishing (tsdown)
 - All DOM creation in `util/dom.ts` helpers
 - Keyboard state preserved: capture `isKeyboardOpen()` before action, use `conditionalFocus()` after
 - Tests use happy-dom for DOM environment (e2e/CLI tests use node environment)
-- Agent skill: `skills/webmux-setup/SKILL.md` provides AI agents with config guidance. When config shape, CLI commands, action types, or validation rules change, update the skill and `docs/guides/agent-setup.md` to stay in sync.
+- Agent skill: `skills/muxi-setup/SKILL.md` provides AI agents with config guidance. When config shape, CLI commands, action types, or validation rules change, update the skill and `docs/guides/agent-setup.md` to stay in sync.
 - When working on `demo/` code, load `/remotion-best-practices` skill for Remotion-specific patterns (Sequence frame resets, interpolation, transitions).
