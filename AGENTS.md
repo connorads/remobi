@@ -63,12 +63,12 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - Transpiles to JS via tsdown: `bin` → `dist/cli.mjs`, `exports` → `dist/*.mjs` + `dist/*.d.mts`
 - `files` array controls what's published: `dist/`, `styles/`, `src/pwa/icons/`, `README.md`, `LICENSE`
 - CI: `.github/workflows/ci.yml` — pnpm test + biome check
-- Publish: `.github/workflows/publish.yml` — triggered on `v*` tags → npm publish
+- Release: `.github/workflows/release.yml` — semantic-release on push to main
+  - Versioning, changelog, npm publish, and GitHub Release are all automated
+  - `npx semantic-release --dry-run` for local verification
+  - Release triggers: `feat:` → minor, `fix:` → patch, `BREAKING CHANGE` → major
+  - No release: `chore:`, `docs:`, `refactor:`, `test:`, `ci:`
 - `pnpm link --global` for local development (CLI available globally)
-- First publish workflow:
-  - Keep release notes under `CHANGELOG.md` → `Unreleased` until first publish
-  - On release, set `package.json` version, rename `Unreleased` to that version + date
-  - Create and push matching tag (`v<version>`) to trigger publish workflow
 
 ## Conventions
 
