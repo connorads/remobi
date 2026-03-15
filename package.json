@@ -20,6 +20,9 @@
 		}
 	},
 	"files": ["dist/", "styles/", "src/pwa/icons/", "README.md", "CHANGELOG.md", "LICENSE"],
+	"publishConfig": {
+		"provenance": true
+	},
 	"engines": {
 		"node": ">=22.0.0"
 	},
