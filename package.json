@@ -1,10 +1,10 @@
 {
-	"name": "webmux",
+	"name": "muxi",
 	"version": "0.1.0",
 	"description": "Monitor and control your coding agents from your phone. Touch controls for tmux over the web.",
 	"type": "module",
 	"bin": {
-		"webmux": "./dist/cli.mjs"
+		"muxi": "./dist/cli.mjs"
 	},
 	"exports": {
 		".": {
@@ -25,10 +25,10 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/connorads/webmux.git"
+		"url": "git+https://github.com/connorads/muxi.git"
 	},
-	"homepage": "https://github.com/connorads/webmux",
-	"bugs": "https://github.com/connorads/webmux/issues",
+	"homepage": "https://github.com/connorads/muxi",
+	"bugs": "https://github.com/connorads/muxi/issues",
 	"scripts": {
 		"build:overlay": "tsx scripts/build-overlay.ts",
 		"build:dist": "tsdown && pnpm run build:overlay",

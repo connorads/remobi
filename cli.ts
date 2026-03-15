@@ -32,27 +32,27 @@ function loadPackageVersion(): string {
 const VERSION: string = loadPackageVersion()
 
 function usage(): void {
-	console.log(`webmux v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
+	console.log(`muxi v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
 
 Usage:
-  webmux serve [--config <path>] [--port <n>] [--no-sleep] [-- <command...>]
+  muxi serve [--config <path>] [--port <n>] [--no-sleep] [-- <command...>]
     Build overlay in memory, manage ttyd, serve with PWA support.
     Default port: 7681. Default command: tmux new-session -A -s main
 
-  webmux build [--config <path>] [--output <path>] [--dry-run]
+  muxi build [--config <path>] [--output <path>] [--dry-run]
     Build patched index.html for ttyd --index flag.
     Starts temp ttyd, fetches base HTML, injects overlay.
 
-  webmux inject [--config <path>] [--dry-run]
+  muxi inject [--config <path>] [--dry-run]
     Pipe mode: reads ttyd HTML from stdin, outputs patched HTML to stdout.
 
-  webmux init
-    Scaffold a webmux.config.ts with defaults.
+  muxi init
+    Scaffold a muxi.config.ts with defaults.
 
-  webmux --version
+  muxi --version
     Print version.
 
-  webmux --help
+  muxi --help
     Show this help.
 
 Flags:
@@ -63,12 +63,12 @@ Flags:
       --no-sleep       Prevent macOS sleep while serving (caffeinate -s, serve only)
 
 Examples:
-  webmux serve
-  webmux serve --no-sleep
-  webmux serve --port 8080 -- tmux new -As dev
-  webmux build -c ./webmux.config.ts -o ./dist/index.html
-  webmux build --dry-run
-  curl -s http://127.0.0.1:7681/ | webmux inject --dry-run`)
+  muxi serve
+  muxi serve --no-sleep
+  muxi serve --port 8080 -- tmux new -As dev
+  muxi build -c ./muxi.config.ts -o ./dist/index.html
+  muxi build --dry-run
+  curl -s http://127.0.0.1:7681/ | muxi inject --dry-run`)
 }
 
 interface LoadedConfig {
@@ -96,7 +96,7 @@ function throwConfigValidationError(source: string, error: ConfigValidationError
 	throw new Error(`Config validation failed for ${source}\n${error.message}`)
 }
 
-/** Convert a config path to its .local sibling, e.g. webmux.config.ts → webmux.config.local.ts */
+/** Convert a config path to its .local sibling, e.g. muxi.config.ts → muxi.config.local.ts */
 function toLocalPath(configPath: string): string {
 	const dotIdx = configPath.lastIndexOf('.')
 	if (dotIdx === -1) {
@@ -149,11 +149,11 @@ function assertValidResolvedOrThrow(value: unknown, source: string): asserts val
 async function loadConfig(configPath: string | undefined): Promise<LoadedConfig> {
 	let resolved = configPath
 	if (!resolved) {
-		// Search order: cwd → XDG config dir (~/.config/webmux/)
-		const names = ['webmux.config.ts', 'webmux.config.js']
+		// Search order: cwd → XDG config dir (~/.config/muxi/)
+		const names = ['muxi.config.ts', 'muxi.config.js']
 		const searchDirs = [
 			process.cwd(),
-			join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'webmux'),
+			join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'muxi'),
 		]
 		for (const dir of searchDirs) {
 			for (const name of names) {
@@ -241,10 +241,10 @@ async function main(): Promise<void> {
 		case 'inject': {
 			const loaded = await loadConfig(configPath)
 			if (dryRun) {
-				ensureInjectInputMode('webmux inject --dry-run')
+				ensureInjectInputMode('muxi inject --dry-run')
 				const dryRunStdin = await readStdin()
 				if (dryRunStdin.trim().length === 0) {
-					throw new Error('webmux inject --dry-run expects piped ttyd HTML on stdin')
+					throw new Error('muxi inject --dry-run expects piped ttyd HTML on stdin')
 				}
 				console.log('Dry run: inject')
 				console.log(`- config: ${loaded.source}`)
@@ -253,22 +253,22 @@ async function main(): Promise<void> {
 				break
 			}
 
-			ensureInjectInputMode('webmux inject')
+			ensureInjectInputMode('muxi inject')
 			const result = await injectFromStdin(loaded.config)
 			process.stdout.write(result)
 			break
 		}
 
 		case 'init': {
-			const targetPath = resolve(process.cwd(), 'webmux.config.ts')
+			const targetPath = resolve(process.cwd(), 'muxi.config.ts')
 			if (existsSync(targetPath)) {
-				console.error('webmux.config.ts already exists')
+				console.error('muxi.config.ts already exists')
 				process.exit(1)
 			}
-			const template = `import { defineConfig } from 'webmux'
+			const template = `import { defineConfig } from 'muxi'
 
 export default defineConfig({
-  // name: 'webmux',              // app name (tab title, PWA home screen label)
+  // name: 'muxi',              // app name (tab title, PWA home screen label)
   // theme: 'catppuccin-mocha',
   // font: {
   //   family: 'JetBrainsMono NFM, monospace',
@@ -317,8 +317,8 @@ export default defineConfig({
   //   { position: 'top-left', buttons: [{ id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\\x02z' } }] },
   // ],
   // pwa: {
-  //   enabled: true,              // enable PWA manifest + meta tags (used by webmux serve)
-  //   shortName: 'webmux',        // short name for home screen icon (defaults to name)
+  //   enabled: true,              // enable PWA manifest + meta tags (used by muxi serve)
+  //   shortName: 'muxi',        // short name for home screen icon (defaults to name)
   //   themeColor: '#1e1e2e',      // theme-color meta tag + manifest
   // },
   // reconnect: {

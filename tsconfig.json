@@ -19,6 +19,6 @@
 		"noUnusedParameters": true,
 		"exactOptionalPropertyTypes": false
 	},
-	"include": ["src/**/*.ts", "cli.ts", "build.ts", "tests/**/*.ts", "webmux.config.ts"],
+	"include": ["src/**/*.ts", "cli.ts", "build.ts", "tests/**/*.ts", "muxi.config.ts"],
 	"exclude": ["node_modules", "dist"]
 }
