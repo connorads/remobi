@@ -3,9 +3,9 @@ import { catppuccinMocha } from './theme/catppuccin-mocha'
 import type {
 	ControlButton,
 	DeepPartial,
-	PwaConfig,
 	MuxiConfig,
 	MuxiConfigOverrides,
+	PwaConfig,
 } from './types'
 
 /** Default font configuration */
