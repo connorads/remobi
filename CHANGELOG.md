@@ -1,3 +1,18 @@
+# [0.2.0](https://github.com/connorads/remobi/compare/v0.1.0...v0.2.0) (2026-03-15)
+
+
+### Bug Fixes
+
+* **ci:** add npm to mise.toml for OIDC trusted publishing ([44bb745](https://github.com/connorads/remobi/commit/44bb7452d0d9e3496bacc4aaf5a63f2236a8f80f))
+* exclude package.json from Biome formatter ([044183f](https://github.com/connorads/remobi/commit/044183fd636fe56eb17f1cd650338c85be46ce5e))
+* remove leading ./ from bin path for npm 11 compatibility ([33ba38d](https://github.com/connorads/remobi/commit/33ba38daab05224fc6eeb28402bb9860c36873d2))
+* remove redundant checks from prepublishOnly ([efdb742](https://github.com/connorads/remobi/commit/efdb742087842ba131ed704e3e29676aa672ab87))
+
+
+### Features
+
+* add pixel R> logo and integrate across project ([44b238a](https://github.com/connorads/remobi/commit/44b238aa7909cec2c408acb5bde32f9f2c645e26))
+
 ## [0.2.2](https://github.com/connorads/remobi/compare/v0.2.1...v0.2.2) (2026-03-15)
 
 
