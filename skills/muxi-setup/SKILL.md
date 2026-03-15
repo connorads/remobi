@@ -1,24 +1,24 @@
 ---
-name: webmux-setup
-description: Configure webmux mobile terminal overlay — inspect tmux bindings, generate a valid webmux.config.ts, validate with --dry-run, iterate.
+name: muxi-setup
+description: Configure muxi mobile terminal overlay — inspect tmux bindings, generate a valid muxi.config.ts, validate with --dry-run, iterate.
 ---
 
-# webmux-setup skill
+# muxi-setup skill
 
 ## When to use
 
 Use this skill whenever you need to:
 
-- Create or update a `webmux.config.ts`
-- Map tmux key bindings to webmux toolbar/drawer buttons
+- Create or update a `muxi.config.ts`
+- Map tmux key bindings to muxi toolbar/drawer buttons
 - Configure swipe gestures, floating buttons, or mobile init behaviour
 - Validate a config before building
 
 ## Workflow
 
 1. **Inspect tmux config** — run `tmux show-options -g prefix` and `tmux list-keys` to find the user's prefix and any custom bindings worth surfacing.
-2. **Generate `webmux.config.ts`** — write only the keys that differ from defaults; omit everything else (`defineConfig()` fills in the rest).
-3. **Validate** — run `webmux build --dry-run`. Fix any reported issues (unknown keys, wrong action payloads).
+2. **Generate `muxi.config.ts`** — write only the keys that differ from defaults; omit everything else (`defineConfig()` fills in the rest).
+3. **Validate** — run `muxi build --dry-run`. Fix any reported issues (unknown keys, wrong action payloads).
 4. **Iterate** — repeat until `--dry-run` exits 0 with no errors.
 5. **Summarise** — tell the user what was configured and why (prefix byte, custom bindings, gestures).
 6. **Offer tmux mobile optimisation (optional)** — ask: "Would you like suggestions for making your tmux.conf more mobile-friendly?" If yes, run the checks in the [tmux mobile optimisation](#tmux-mobile-optimisation) section below.
@@ -28,7 +28,7 @@ Use this skill whenever you need to:
 All config goes through `defineConfig(overrides)`. Only override what you need.
 
 ```typescript
-import { defineConfig } from 'webmux'
+import { defineConfig } from 'muxi'
 
 export default defineConfig({
   // All fields are optional — defaults filled in automatically
@@ -155,7 +155,7 @@ For a custom prefix (e.g. Ctrl-A): replace `\x02` with `\x01`.
 ### Minimal — default Ctrl-B prefix, custom name only
 
 ```typescript
-import { defineConfig } from 'webmux'
+import { defineConfig } from 'muxi'
 
 export default defineConfig({
   name: 'dev',
@@ -167,7 +167,7 @@ export default defineConfig({
 Replace the default `tmux-prefix` button and update swipe gestures:
 
 ```typescript
-import { defineConfig } from 'webmux'
+import { defineConfig } from 'muxi'
 
 export default defineConfig({
   name: 'dev',
@@ -201,7 +201,7 @@ export default defineConfig({
 ### Floating buttons + mobile auto-zoom
 
 ```typescript
-import { defineConfig } from 'webmux'
+import { defineConfig } from 'muxi'
 
 export default defineConfig({
   mobile: {
@@ -255,8 +255,8 @@ For each missing item, offer a concrete snippet the user can paste into `tmux.co
 ## Validation
 
 ```bash
-webmux build --dry-run          # validates config, prints plan, exits without building
-webmux build --dry-run -c ./webmux.config.ts   # explicit path
+muxi build --dry-run          # validates config, prints plan, exits without building
+muxi build --dry-run -c ./muxi.config.ts   # explicit path
 ```
 
 A zero exit with "Dry run: build" output means the config is valid. Any error output means fix the reported paths before proceeding.
