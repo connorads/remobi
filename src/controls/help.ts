@@ -1,4 +1,4 @@
-import type { ControlButton, FloatingButtonGroup, MuxiConfig, XTerminal } from '../types'
+import type { ControlButton, FloatingButtonGroup, RemobiConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
@@ -21,7 +21,7 @@ function renderButtonTable(title: string, buttons: readonly ControlButton[]): Do
 	return frag
 }
 
-function renderGestures(config: MuxiConfig): DocumentFragment {
+function renderGestures(config: RemobiConfig): DocumentFragment {
 	const frag = document.createDocumentFragment()
 	frag.appendChild(el('h2', {}, 'Gestures'))
 	const table = el('table')
@@ -54,7 +54,7 @@ function renderGestures(config: MuxiConfig): DocumentFragment {
 }
 
 /** Build the help overlay content as a DocumentFragment — no innerHTML */
-function buildHelpContent(config: MuxiConfig): DocumentFragment {
+function buildHelpContent(config: RemobiConfig): DocumentFragment {
 	const topRightButtons: readonly ControlButton[] = [
 		{
 			id: 'font-size',
@@ -105,7 +105,7 @@ interface HelpOverlayResult {
 export function createHelpOverlay(
 	term: XTerminal,
 	helpButton: HTMLButtonElement,
-	config: MuxiConfig,
+	config: RemobiConfig,
 ): HelpOverlayResult {
 	const overlay = el('div', { id: 'wt-help' })
 	overlay.appendChild(buildHelpContent(config))

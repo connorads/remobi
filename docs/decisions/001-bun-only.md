@@ -5,7 +5,7 @@
 
 ## Context
 
-muxi ships TypeScript source directly (no transpilation step). The CLI and build pipeline use several Bun-specific APIs that have no direct equivalents in Node.js without significant additional dependencies or polyfills.
+remobi ships TypeScript source directly (no transpilation step). The CLI and build pipeline use several Bun-specific APIs that have no direct equivalents in Node.js without significant additional dependencies or polyfills.
 
 Bun-specific APIs in active use:
 
@@ -22,7 +22,7 @@ Bun-specific APIs in active use:
 
 ## Decision
 
-**muxi remains Bun-only until further notice.**
+**remobi remains Bun-only until further notice.**
 
 Non-Bun runtime support is deferred. The reasons:
 
@@ -38,8 +38,8 @@ Non-Bun runtime support is deferred. The reasons:
 
 - The `package.json` `engines` field declares `bun >=1.0.0`.
 - `README.md` prominently lists Bun as a requirement.
-- Users on Node-only environments cannot run muxi without Bun installed.
-- If demand for Node support emerges post-1.0, the approach would be: extract Bun-specific code into a thin adapter layer (`src/runtime/`), ship a separate `muxi-node` package, and maintain both adapters. This ADR would be superseded.
+- Users on Node-only environments cannot run remobi without Bun installed.
+- If demand for Node support emerges post-1.0, the approach would be: extract Bun-specific code into a thin adapter layer (`src/runtime/`), ship a separate `remobi-node` package, and maintain both adapters. This ADR would be superseded.
 
 ## Alternatives considered
 

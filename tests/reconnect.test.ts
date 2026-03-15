@@ -17,7 +17,7 @@ function mockWebSocket(url: string): WebSocket {
 }
 
 function getOverlay(): HTMLElement | null {
-	return document.getElementById('muxi-reconnect-overlay')
+	return document.getElementById('remobi-reconnect-overlay')
 }
 
 function stubLocationReload(): { readonly calls: number[] } {
@@ -35,7 +35,7 @@ beforeEach(() => {
 afterEach(() => {
 	// Clean up any overlay left behind
 	getOverlay()?.remove()
-	window.__muxiSockets = undefined
+	window.__remobiSockets = undefined
 	GlobalRegistrator.unregister()
 })
 
@@ -50,7 +50,7 @@ describe('setupReconnect', () => {
 
 	test('overlay shown when WebSocket closes', () => {
 		const ws = mockWebSocket('ws://localhost:1234/ws')
-		window.__muxiSockets = [ws]
+		window.__remobiSockets = [ws]
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
@@ -63,7 +63,7 @@ describe('setupReconnect', () => {
 
 	test('overlay shown when WebSocket errors', () => {
 		const ws = mockWebSocket('ws://localhost:1234/ws')
-		window.__muxiSockets = [ws]
+		window.__remobiSockets = [ws]
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
@@ -88,7 +88,7 @@ describe('setupReconnect', () => {
 	})
 
 	test('falls back to offline events when no WebSocket found', () => {
-		window.__muxiSockets = []
+		window.__remobiSockets = []
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
@@ -110,7 +110,7 @@ describe('setupReconnect', () => {
 
 	test('focuses reconnect button when overlay is shown', () => {
 		const ws = mockWebSocket('ws://localhost:1234/ws')
-		window.__muxiSockets = [ws]
+		window.__remobiSockets = [ws]
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		ws.dispatchEvent(new Event('close'))
@@ -123,7 +123,7 @@ describe('setupReconnect', () => {
 	test('clicking reconnect button reloads once', () => {
 		const reload = stubLocationReload()
 		const ws = mockWebSocket('ws://localhost:1234/ws')
-		window.__muxiSockets = [ws]
+		window.__remobiSockets = [ws]
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		ws.dispatchEvent(new Event('close'))
@@ -138,7 +138,7 @@ describe('setupReconnect', () => {
 	test('clicking overlay backdrop reloads once', () => {
 		const reload = stubLocationReload()
 		const ws = mockWebSocket('ws://localhost:1234/ws')
-		window.__muxiSockets = [ws]
+		window.__remobiSockets = [ws]
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		ws.dispatchEvent(new Event('close'))
@@ -152,7 +152,7 @@ describe('setupReconnect', () => {
 	test('clicking overlay message reloads once', () => {
 		const reload = stubLocationReload()
 		const ws = mockWebSocket('ws://localhost:1234/ws')
-		window.__muxiSockets = [ws]
+		window.__remobiSockets = [ws]
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		ws.dispatchEvent(new Event('close'))
@@ -167,7 +167,7 @@ describe('setupReconnect', () => {
 	test('multiple reconnect triggers reload only once', () => {
 		const reload = stubLocationReload()
 		const ws = mockWebSocket('ws://localhost:1234/ws')
-		window.__muxiSockets = [ws]
+		window.__remobiSockets = [ws]
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		ws.dispatchEvent(new Event('close'))
@@ -182,7 +182,7 @@ describe('setupReconnect', () => {
 	})
 
 	test('dispose removes visibilitychange listener in fallback path', () => {
-		window.__muxiSockets = []
+		window.__remobiSockets = []
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
@@ -195,7 +195,7 @@ describe('setupReconnect', () => {
 
 		// Re-add overlay manually to check it stays hidden after dispose
 		const overlay = document.createElement('div')
-		overlay.id = 'muxi-reconnect-overlay'
+		overlay.id = 'remobi-reconnect-overlay'
 		overlay.style.display = 'none'
 		document.body.appendChild(overlay)
 
@@ -209,7 +209,7 @@ describe('setupReconnect', () => {
 
 	test('ignores non-ttyd WebSockets', () => {
 		const ws = mockWebSocket('ws://localhost:1234/other')
-		window.__muxiSockets = [ws]
+		window.__remobiSockets = [ws]
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 
@@ -223,7 +223,7 @@ describe('setupReconnect', () => {
 
 	test('fallback overlay supports tap to reconnect', () => {
 		const reload = stubLocationReload()
-		window.__muxiSockets = []
+		window.__remobiSockets = []
 
 		const dispose = setupReconnect(mockTerminal(), { enabled: true })
 		window.dispatchEvent(new Event('offline'))

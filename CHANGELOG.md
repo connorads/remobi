@@ -1,12 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 — 2026-03-15
 
-This project has not been published yet. On first release, rename this section to `0.1.0` and add the release date.
+- Changed: overlay is now pre-built as an IIFE during `build:dist` — faster `remobi serve` startup (no runtime esbuild), smaller install footprint (esbuild moved to devDependencies). Dev mode falls back to esbuild-from-source when `dist/overlay.iife.js` is absent.
 
-- Changed: overlay is now pre-built as an IIFE during `build:dist` — faster `muxi serve` startup (no runtime esbuild), smaller install footprint (esbuild moved to devDependencies). Dev mode falls back to esbuild-from-source when `dist/overlay.iife.js` is absent.
-
-- Breaking: migrated from Bun to Node.js 22+ with pnpm. Runtime is now Node, bundler is esbuild, test runner is vitest, transpiler is tsdown. `muxi serve` uses Hono + @hono/node-ws for HTTP/WS. Package now ships transpiled JS (`dist/`) instead of TypeScript source.
+- Breaking: migrated from Bun to Node.js 22+ with pnpm. Runtime is now Node, bundler is esbuild, test runner is vitest, transpiler is tsdown. `remobi serve` uses Hono + @hono/node-ws for HTTP/WS. Package now ships transpiled JS (`dist/`) instead of TypeScript source.
 
 - Internal: expanded oxlint — `suspicious` + `perf` categories, `import/no-cycle`, `import/no-self-import`, `typescript/no-non-null-asserted-optional-chain`, `unicorn/throw-new-error` (141 rules total).
 - Internal: expanded Biome — `noExcessiveCognitiveComplexity` (warn, max 25), `useFilenamingConvention` (kebab-case).
@@ -18,7 +16,7 @@ This project has not been published yet. On first release, rename this section t
 - Changed: removed `ttyd` from `mise.toml` (unsupported on macOS arm64 via current aqua metadata) and updated ttyd install guidance to be macOS/Linux friendly (`brew` on macOS, distro/source options on Linux).
 - Changed: shipped drawer defaults now stick to stock tmux bindings for split/session/window/copy actions and no longer include opinionated `Git`, `Files`, or `Links` buttons.
 
-- Removed: plugin system (`MuxiPlugin`, `UISlot`, `UIContributionCollector`, plugin manager, UI contributions, build-time resolution, `config.plugins`). Hooks and actions remain as core infrastructure. The plugin API can be reintroduced when there's a concrete second use case.
+- Removed: plugin system (`RemobiPlugin`, `UISlot`, `UIContributionCollector`, plugin manager, UI contributions, build-time resolution, `config.plugins`). Hooks and actions remain as core infrastructure. The plugin API can be reintroduced when there's a concrete second use case.
 
 - Fixed: visibilitychange listener leak in reconnect dispose path — the anonymous listener was never removed, causing a leak on each dispose/re-init cycle.
 - Fixed: reconnect overlay now retries on any overlay tap, keeps the button focused for keyboard `Enter`, and guards against duplicate reload attempts.
@@ -37,22 +35,22 @@ This project has not been published yet. On first release, rename this section t
 - Changed: PWA meta-tag values are now HTML-attribute-escaped.
 - Added: unit tests for `buildTtydArgs`, `randomInternalPort`, `waitForTerm`, and plugin validation.
 - Added: `bun run build` step in CI workflow.
-- Added: `muxi serve --no-sleep` flag — prevents macOS system sleep while serving by wrapping ttyd with `caffeinate -s -w <pid>`. The assertion is held for exactly the lifetime of the server and dropped automatically on shutdown. Gracefully ignored with a warning on non-macOS platforms.
+- Added: `remobi serve --no-sleep` flag — prevents macOS system sleep while serving by wrapping ttyd with `caffeinate -s -w <pid>`. The assertion is held for exactly the lifetime of the server and dropped automatically on shutdown. Gracefully ignored with a warning on non-macOS platforms.
 - Added: keep-awake guide (`docs/guides/keep-awake.md`) covering `--no-sleep`, persistent pmset settings, nix-darwin config, and lid-close behaviour.
 - Added: mobile-friendly tmux config guide (`docs/guides/mobile-tmux.md`) and optional tmux optimisation step in setup skill.
-- Added: agent setup skill (`skills/muxi-setup/SKILL.md`), guide (`docs/guides/agent-setup.md`), and README collapsible prompt for AI-assisted configuration.
-- Added: `muxi serve` — single command to run muxi with full PWA support. Builds overlay in memory, manages ttyd lifecycle, serves manifest + icons + WebSocket relay. Replaces the multi-step build + ttyd + proxy workflow.
+- Added: agent setup skill (`skills/remobi-setup/SKILL.md`), guide (`docs/guides/agent-setup.md`), and README collapsible prompt for AI-assisted configuration.
+- Added: `remobi serve` — single command to run remobi with full PWA support. Builds overlay in memory, manages ttyd lifecycle, serves manifest + icons + WebSocket relay. Replaces the multi-step build + ttyd + proxy workflow.
 - Added: PWA support — web app manifest, 192/512px icons, apple-touch-icon, theme-color meta tags for "Add to Home Screen" installability on iOS and Android.
 - Added: `pwa` config section (`enabled`, `shortName`, `themeColor`) — controls manifest generation and meta tag injection. `shortName` defaults to `name` when absent.
-- Added: top-level `name` config field (default `'muxi'`) — used as document title, PWA manifest name, and apple-mobile-web-app-title. Replaces `pwa.name` and `pwa.shortName` (the latter is now optional and falls back to `name`).
+- Added: top-level `name` config field (default `'remobi'`) — used as document title, PWA manifest name, and apple-mobile-web-app-title. Replaces `pwa.name` and `pwa.shortName` (the latter is now optional and falls back to `name`).
 - Added: default toolbar backspace button (`⌫`, sends `\x7f`) to provide reliable deletion on mobile keyboards when IME composition behaviour is inconsistent.
 - v0.2 extensibility and DX milestone complete: action registry, hook system, plugin manager, UI contributions, declarative button customisation, .local config overrides, plugin guide, Bun-only ADR, e2e scaffolding. Closes #1.
-- Added: e2e smoke test scaffold (`tests/e2e/smoke.test.ts`) — checks ttyd availability, skips gracefully when absent, tests HTML serving and `muxi inject` pipe path against a real ttyd process. Closes #9.
+- Added: e2e smoke test scaffold (`tests/e2e/smoke.test.ts`) — checks ttyd availability, skips gracefully when absent, tests HTML serving and `remobi inject` pipe path against a real ttyd process. Closes #9.
 - Added: ADR `docs/decisions/001-bun-only.md` — documents the decision to remain Bun-only, the Bun-specific APIs in use, and the conditions under which a Node runtime track would be considered. Closes #11.
 - Added: plugin author guide (`docs/guides/plugins.md`) covering hooks, UI contributions, custom actions, and cleanup patterns. Closes #10.
 - Added: stable public API surface defined in README — semver policy documents which import paths are public, what constitutes major/minor/patch. Closes #4.
 - Added: UI contribution API for plugins — `context.ui.add(slot, button, priority?)` lets plugins contribute buttons to `'toolbar.row1'`, `'toolbar.row2'`, or `'drawer'` slots. Contributions are merged (appended) after config buttons, sorted by priority. Closes #8.
-- Added: per-machine config overrides via `.local` config file — place `muxi.config.local.ts` next to your shared `muxi.config.ts` to apply machine-specific overrides (gitignore the `.local` file). Merged on top of the shared config using the same `MuxiConfigOverrides` schema. Closes #12.
+- Added: per-machine config overrides via `.local` config file — place `remobi.config.local.ts` next to your shared `remobi.config.ts` to apply machine-specific overrides (gitignore the `.local` file). Merged on top of the shared config using the same `RemobiConfigOverrides` schema. Closes #12.
 - Added: declarative button customisation — toolbar rows and drawer buttons now accept `ButtonArrayInput`: a plain array (replace) or a function `(defaults) => newArray`. Standard JS array methods cover all customisation needs (filter, map, spread, etc.). Closes #13.
 
 - Breaking: unified toolbar/drawer model to `ControlButton` (`id`, `label`, `description`, `action`) and renamed `drawer.commands` to `drawer.buttons`.
@@ -65,7 +63,7 @@ This project has not been published yet. On first release, rename this section t
 - Added: stricter CLI parsing (`-c`/`-o`/`-n`, unknown-flag errors) plus `--dry-run` for `build` and `inject`. Closes #3.
 - Changed: toolbar/drawer button handling now runs through a shared action registry abstraction. Closes #5.
 - Added: typed hook registry for overlay lifecycle and terminal send pipeline with ordered execution and error isolation. Closes #6.
-- Added: plugin manager primitives (`MuxiPlugin`, setup/dispose lifecycle, failure isolation) and plugin-aware `init(..., hooks, plugins)` entry. Closes #7.
+- Added: plugin manager primitives (`RemobiPlugin`, setup/dispose lifecycle, failure isolation) and plugin-aware `init(..., hooks, plugins)` entry. Closes #7.
 - Added: config `plugins` array support in CLI build/inject path with resolved local specifiers.
 - Changed: CLI config validation remains strict; legacy config shapes are not auto-normalised.
 - Tests: expanded integration/config/height coverage for the new config model and viewport logic.

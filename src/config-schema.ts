@@ -1,5 +1,5 @@
 /**
- * Valibot schemas for muxi config validation.
+ * Valibot schemas for remobi config validation.
  * Only used at CLI time (build/inject/serve) — never in the browser bundle.
  */
 import * as v from 'valibot'
@@ -262,7 +262,7 @@ const reconnectResolvedSchema = v.strictObject({
 // --- Top-level schemas ---
 
 /** Schema for config overrides (all fields optional, button arrays accept array | function) */
-export const muxiConfigOverridesSchema = v.strictObject({
+export const remobiConfigOverridesSchema = v.strictObject({
 	name: v.optional(v.string()),
 	theme: v.optional(termThemeOverridesSchema),
 	font: v.optional(fontOverridesSchema),
@@ -285,7 +285,7 @@ export const muxiConfigOverridesSchema = v.strictObject({
 })
 
 /** Schema for fully resolved config (all required fields, plain button arrays) */
-export const muxiConfigResolvedSchema = v.strictObject({
+export const remobiConfigResolvedSchema = v.strictObject({
 	name: v.string(),
 	theme: termThemeResolvedSchema,
 	font: fontResolvedSchema,

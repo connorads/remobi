@@ -1,5 +1,5 @@
 /**
- * SVG icon for muxi PWA.
+ * SVG icon for remobi PWA.
  * Dark rounded-rect background (#1e1e2e catppuccin mocha base),
  * green chevron (›) in #a6e3a1 (catppuccin green),
  * underscore cursor in #89b4fa (catppuccin blue).

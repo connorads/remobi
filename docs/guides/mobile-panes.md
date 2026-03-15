@@ -1,14 +1,14 @@
 # Mobile pane navigation
 
-Desktop tmux dashboards with 8–16 panes are effectively unusable on mobile — panes are squished to unreadable sizes. This guide shows how to combine muxi features with a smart tmux binding so you can navigate panes comfortably from your phone.
+Desktop tmux dashboards with 8–16 panes are effectively unusable on mobile — panes are squished to unreadable sizes. This guide shows how to combine remobi features with a smart tmux binding so you can navigate panes comfortably from your phone.
 
 ## The problem
 
-When you swipe left/right in muxi, it sends `\x02n` / `\x02p` by default — next/previous **window**. That's fine for window switching, but it doesn't help when you have many panes in one window. On mobile you want to zoom a pane to full screen and swipe to cycle through them.
+When you swipe left/right in remobi, it sends `\x02n` / `\x02p` by default — next/previous **window**. That's fine for window switching, but it doesn't help when you have many panes in one window. On mobile you want to zoom a pane to full screen and swipe to cycle through them.
 
 ## Zoom-aware tmux bindings (recommended)
 
-The cleanest solution requires no muxi config at all. Override `prefix n`/`prefix p` in tmux so they behave differently depending on whether a pane is zoomed:
+The cleanest solution requires no remobi config at all. Override `prefix n`/`prefix p` in tmux so they behave differently depending on whether a pane is zoomed:
 
 ```tmux
 # ~/.config/tmux/tmux.conf
@@ -31,17 +31,17 @@ With this binding:
 - **Not zoomed**: `prefix n`/`prefix p` switch windows (default behaviour)
 - **Zoomed**: `prefix n`/`prefix p` cycle to the next/previous pane and keep it zoomed
 
-Swipe gestures in muxi still send `\x02n`/`\x02p`, so no muxi config change is needed — the tmux binding does all the work.
+Swipe gestures in remobi still send `\x02n`/`\x02p`, so no remobi config change is needed — the tmux binding does all the work.
 
 ## Mobile init data
 
-Use `mobile.initData` to send an arbitrary string to the terminal when muxi loads on a narrow viewport (below `mobile.widthThreshold`, default 768px). This runs once on page load.
+Use `mobile.initData` to send an arbitrary string to the terminal when remobi loads on a narrow viewport (below `mobile.widthThreshold`, default 768px). This runs once on page load.
 
 **Auto-zoom on load:**
 
 ```typescript
-// muxi.config.ts
-import { defineConfig } from 'muxi'
+// remobi.config.ts
+import { defineConfig } from 'remobi'
 
 export default defineConfig({
   mobile: {
@@ -66,7 +66,7 @@ mobile: {
 Add `floatingButtons` to put always-visible quick-action buttons at a chosen position, visible on touch devices only. Each group specifies a `position` and a `buttons` array. Useful for a one-tap zoom button without opening the drawer:
 
 ```typescript
-import { defineConfig } from 'muxi'
+import { defineConfig } from 'remobi'
 
 export default defineConfig({
   floatingButtons: [
@@ -120,7 +120,7 @@ floatingButtons: [
 Override what data swipe gestures send — useful if you prefer pane cycling over window switching:
 
 ```typescript
-import { defineConfig } from 'muxi'
+import { defineConfig } from 'remobi'
 
 export default defineConfig({
   gestures: {
@@ -154,10 +154,10 @@ bind -N "Previous window (zoom-aware)" p \
   'previous-window'
 ```
 
-**2. muxi config** (`~/.config/muxi/muxi.config.ts`):
+**2. remobi config** (`~/.config/remobi/remobi.config.ts`):
 
 ```typescript
-import { defineConfig } from 'muxi'
+import { defineConfig } from 'remobi'
 
 export default defineConfig({
   mobile: {

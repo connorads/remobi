@@ -8,7 +8,7 @@ import WebSocket from 'ws'
 import { bundleOverlay, injectOverlay } from '../build'
 import { serialiseThemeForTtyd } from './config'
 import { manifestToJson } from './pwa/manifest'
-import type { MuxiConfig } from './types'
+import type { RemobiConfig } from './types'
 import { sleep, spawnProcess } from './util/node-compat'
 import type { SpawnedProcess } from './util/node-compat'
 
@@ -54,9 +54,9 @@ export function randomInternalPort(): number {
 	return 19000 + Math.floor(Math.random() * 1000)
 }
 
-/** Build ttyd args from muxi config */
+/** Build ttyd args from remobi config */
 export function buildTtydArgs(
-	config: MuxiConfig,
+	config: RemobiConfig,
 	internalPort: number,
 	command: readonly string[],
 ): string[] {
@@ -97,30 +97,30 @@ function spawnCaffeinate(pid: number): SpawnedProcess | null {
 		})
 		// Catch async spawn errors (e.g. caffeinate not found on Linux)
 		proc.exited.catch(() => {
-			console.warn('muxi: --no-sleep requires caffeinate (macOS only), ignoring')
+			console.warn('remobi: --no-sleep requires caffeinate (macOS only), ignoring')
 		})
-		console.log(`muxi: sleep prevention active (caffeinate -s -w ${pid})`)
+		console.log(`remobi: sleep prevention active (caffeinate -s -w ${pid})`)
 		return proc
 	} catch {
-		console.warn('muxi: --no-sleep requires caffeinate (macOS only), ignoring')
+		console.warn('remobi: --no-sleep requires caffeinate (macOS only), ignoring')
 		return null
 	}
 }
 
-/** Start muxi serve: builds overlay in memory, manages ttyd, serves HTTP + WS */
+/** Start remobi serve: builds overlay in memory, manages ttyd, serves HTTP + WS */
 export async function serve(
-	config: MuxiConfig,
+	config: RemobiConfig,
 	port: number = DEFAULT_PORT,
 	command: readonly string[] = DEFAULT_COMMAND,
 	noSleep = false,
 ): Promise<void> {
-	console.log('muxi: building overlay...')
+	console.log('remobi: building overlay...')
 	const { js, css } = await bundleOverlay(config)
 
 	const internalPort = randomInternalPort()
 	const ttydArgs = buildTtydArgs(config, internalPort, command)
 
-	console.log(`muxi: starting ttyd on internal port ${internalPort}...`)
+	console.log(`remobi: starting ttyd on internal port ${internalPort}...`)
 	const ttydProc = spawnProcess(['ttyd', ...ttydArgs], {
 		stdout: 'ignore',
 		stderr: 'ignore',
@@ -134,7 +134,7 @@ export async function serve(
 	const baseHtml = await baseResp.text()
 	const html = injectOverlay(baseHtml, js, css, config)
 
-	console.log('muxi: overlay ready')
+	console.log('remobi: overlay ready')
 
 	const manifestJson = config.pwa.enabled ? manifestToJson(config.name, config.pwa) : null
 	const icon180 = readIcon('icon-180.png')
@@ -260,11 +260,11 @@ export async function serve(
 	const server = honoServe({ fetch: app.fetch, port })
 	injectWebSocket(server)
 
-	console.log(`muxi: serving on http://localhost:${port}`)
+	console.log(`remobi: serving on http://localhost:${port}`)
 
 	// Clean shutdown on SIGINT / SIGTERM
 	const cleanup = () => {
-		console.log('\nmuxi: shutting down...')
+		console.log('\nremobi: shutting down...')
 		server.close()
 		ttydProc.kill()
 		caffeinateProc?.kill()

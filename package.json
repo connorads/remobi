@@ -1,10 +1,10 @@
 {
-	"name": "muxi",
+	"name": "remobi",
 	"version": "0.1.0",
 	"description": "Monitor and control your coding agents from your phone. Touch controls for tmux over the web.",
 	"type": "module",
 	"bin": {
-		"muxi": "./dist/cli.mjs"
+		"remobi": "./dist/cli.mjs"
 	},
 	"exports": {
 		".": {
@@ -25,10 +25,10 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/connorads/muxi.git"
+		"url": "git+https://github.com/connorads/remobi.git"
 	},
-	"homepage": "https://github.com/connorads/muxi",
-	"bugs": "https://github.com/connorads/muxi/issues",
+	"homepage": "https://github.com/connorads/remobi",
+	"bugs": "https://github.com/connorads/remobi/issues",
 	"scripts": {
 		"build:overlay": "tsx scripts/build-overlay.ts",
 		"build:dist": "tsdown && pnpm run build:overlay",
@@ -41,7 +41,7 @@
 		"lint:typos": "typos",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
-		"prepublishOnly": "pnpm test && pnpm run check && pnpm run lint:ox && pnpm run lint:knip && pnpm run lint:publint && pnpm run build:dist"
+		"prepublishOnly": "pnpm test && pnpm run check && pnpm run lint:ox && pnpm run lint:knip && pnpm run build:dist && pnpm run lint:publint"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.0",

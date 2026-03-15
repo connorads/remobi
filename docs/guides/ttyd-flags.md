@@ -1,15 +1,15 @@
 # Recommended ttyd flags
 
-Reference for ttyd flags that work well with muxi.
+Reference for ttyd flags that work well with remobi.
 
-> **Note:** `muxi serve` generates these flags automatically from your config. This guide is for manual `ttyd` usage with `muxi build`.
+> **Note:** `remobi serve` generates these flags automatically from your config. This guide is for manual `ttyd` usage with `remobi build`.
 
 ## Essential flags
 
 | Flag | Purpose |
 |------|---------|
 | `--writable` | Allow input (without this, the terminal is read-only) |
-| `--index <path>` | Use the muxi-patched HTML |
+| `--index <path>` | Use the remobi-patched HTML |
 | `-i 127.0.0.1` | Bind to localhost only (use a reverse proxy for external access) |
 | `--port <n>` | Port to listen on (default: 7681) |
 
@@ -31,16 +31,16 @@ ttyd \
 | Flag | Default | Notes |
 |------|---------|-------|
 | `theme={...}` | — | JSON object matching xterm.js theme properties |
-| `fontFamily="..."` | `"courier-new"` | Must match the font loaded by muxi config |
+| `fontFamily="..."` | `"courier-new"` | Must match the font loaded by remobi config |
 | `scrollSensitivity=N` | `1` | `3` works well for mobile touch scrolling |
 | `disableLeaveAlert=true` | `false` | Prevents "Leave site?" prompts when navigating away |
 
 ## Generating theme JSON
 
-Use muxi's `serialiseThemeForTtyd()` to generate the theme string from your config:
+Use remobi's `serialiseThemeForTtyd()` to generate the theme string from your config:
 
 ```bash
-node -e "import { defineConfig, serialiseThemeForTtyd } from 'muxi/config'; console.log(serialiseThemeForTtyd(defineConfig()))"
+node -e "import { defineConfig, serialiseThemeForTtyd } from 'remobi/config'; console.log(serialiseThemeForTtyd(defineConfig()))"
 ```
 
 ## Full example

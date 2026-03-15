@@ -1,6 +1,6 @@
 import * as v from 'valibot'
-import { muxiConfigOverridesSchema, muxiConfigResolvedSchema } from './config-schema'
-import type { MuxiConfig, MuxiConfigOverrides } from './types'
+import { remobiConfigOverridesSchema, remobiConfigResolvedSchema } from './config-schema'
+import type { RemobiConfig, RemobiConfigOverrides } from './types'
 
 interface ValidationIssue {
 	readonly path: string
@@ -19,7 +19,7 @@ export class ConfigValidationError extends Error {
 }
 
 function formatIssues(issues: readonly ValidationIssue[]): string {
-	const lines = ['Invalid muxi config:']
+	const lines = ['Invalid remobi config:']
 	for (const issue of issues) {
 		lines.push(`- ${issue.path}: expected ${issue.expected}, received ${issue.received}`)
 	}
@@ -95,15 +95,15 @@ function toValidationIssues(issues: readonly v.BaseIssue<unknown>[]): Validation
 	return result
 }
 
-export function assertValidConfigOverrides(value: unknown): asserts value is MuxiConfigOverrides {
-	const result = v.safeParse(muxiConfigOverridesSchema, value)
+export function assertValidConfigOverrides(value: unknown): asserts value is RemobiConfigOverrides {
+	const result = v.safeParse(remobiConfigOverridesSchema, value)
 	if (!result.success) {
 		throw new ConfigValidationError(toValidationIssues(result.issues))
 	}
 }
 
-export function assertValidResolvedConfig(value: unknown): asserts value is MuxiConfig {
-	const result = v.safeParse(muxiConfigResolvedSchema, value)
+export function assertValidResolvedConfig(value: unknown): asserts value is RemobiConfig {
+	const result = v.safeParse(remobiConfigResolvedSchema, value)
 	if (!result.success) {
 		throw new ConfigValidationError(toValidationIssues(result.issues))
 	}

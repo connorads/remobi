@@ -1,6 +1,7 @@
 import { createHookRegistry, init } from './index'
-import type { MuxiConfig } from './types'
+import type { RemobiConfig } from './types'
 
-const config = (globalThis as Record<string, unknown>).__muxiConfig as MuxiConfig
+declare const __remobiConfig: RemobiConfig
+const config = __remobiConfig
 const hooks = createHookRegistry()
 init(config, hooks)

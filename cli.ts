@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
@@ -11,7 +11,7 @@ import {
 	assertValidResolvedConfig,
 } from './src/config-validate'
 import { serve } from './src/serve'
-import type { MuxiConfig, MuxiConfigOverrides } from './src/types'
+import type { RemobiConfig, RemobiConfigOverrides } from './src/types'
 import { readStdin } from './src/util/node-compat'
 
 // Walk up from module location to find package.json — works from both source and dist/
@@ -32,27 +32,27 @@ function loadPackageVersion(): string {
 const VERSION: string = loadPackageVersion()
 
 function usage(): void {
-	console.log(`muxi v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
+	console.log(`remobi v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
 
 Usage:
-  muxi serve [--config <path>] [--port <n>] [--no-sleep] [-- <command...>]
+  remobi serve [--config <path>] [--port <n>] [--no-sleep] [-- <command...>]
     Build overlay in memory, manage ttyd, serve with PWA support.
     Default port: 7681. Default command: tmux new-session -A -s main
 
-  muxi build [--config <path>] [--output <path>] [--dry-run]
+  remobi build [--config <path>] [--output <path>] [--dry-run]
     Build patched index.html for ttyd --index flag.
     Starts temp ttyd, fetches base HTML, injects overlay.
 
-  muxi inject [--config <path>] [--dry-run]
+  remobi inject [--config <path>] [--dry-run]
     Pipe mode: reads ttyd HTML from stdin, outputs patched HTML to stdout.
 
-  muxi init
-    Scaffold a muxi.config.ts with defaults.
+  remobi init
+    Scaffold a remobi.config.ts with defaults.
 
-  muxi --version
+  remobi --version
     Print version.
 
-  muxi --help
+  remobi --help
     Show this help.
 
 Flags:
@@ -63,16 +63,16 @@ Flags:
       --no-sleep       Prevent macOS sleep while serving (caffeinate -s, serve only)
 
 Examples:
-  muxi serve
-  muxi serve --no-sleep
-  muxi serve --port 8080 -- tmux new -As dev
-  muxi build -c ./muxi.config.ts -o ./dist/index.html
-  muxi build --dry-run
-  curl -s http://127.0.0.1:7681/ | muxi inject --dry-run`)
+  remobi serve
+  remobi serve --no-sleep
+  remobi serve --port 8080 -- tmux new -As dev
+  remobi build -c ./remobi.config.ts -o ./dist/index.html
+  remobi build --dry-run
+  curl -s http://127.0.0.1:7681/ | remobi inject --dry-run`)
 }
 
 interface LoadedConfig {
-	readonly config: MuxiConfig
+	readonly config: RemobiConfig
 	readonly source: string
 }
 
@@ -96,7 +96,7 @@ function throwConfigValidationError(source: string, error: ConfigValidationError
 	throw new Error(`Config validation failed for ${source}\n${error.message}`)
 }
 
-/** Convert a config path to its .local sibling, e.g. muxi.config.ts → muxi.config.local.ts */
+/** Convert a config path to its .local sibling, e.g. remobi.config.ts → remobi.config.local.ts */
 function toLocalPath(configPath: string): string {
 	const dotIdx = configPath.lastIndexOf('.')
 	if (dotIdx === -1) {
@@ -106,7 +106,7 @@ function toLocalPath(configPath: string): string {
 }
 
 /** Try to load a .local config override file. Returns undefined if the file does not exist. */
-async function loadLocalOverrides(localPath: string): Promise<MuxiConfigOverrides | undefined> {
+async function loadLocalOverrides(localPath: string): Promise<RemobiConfigOverrides | undefined> {
 	if (!existsSync(localPath)) {
 		return undefined
 	}
@@ -124,7 +124,7 @@ async function loadLocalOverrides(localPath: string): Promise<MuxiConfigOverride
 function assertValidOverridesOrThrow(
 	value: unknown,
 	source: string,
-): asserts value is MuxiConfigOverrides {
+): asserts value is RemobiConfigOverrides {
 	try {
 		assertValidConfigOverrides(value)
 	} catch (error) {
@@ -135,7 +135,7 @@ function assertValidOverridesOrThrow(
 	}
 }
 
-function assertValidResolvedOrThrow(value: unknown, source: string): asserts value is MuxiConfig {
+function assertValidResolvedOrThrow(value: unknown, source: string): asserts value is RemobiConfig {
 	try {
 		assertValidResolvedConfig(value)
 	} catch (error) {
@@ -149,11 +149,11 @@ function assertValidResolvedOrThrow(value: unknown, source: string): asserts val
 async function loadConfig(configPath: string | undefined): Promise<LoadedConfig> {
 	let resolved = configPath
 	if (!resolved) {
-		// Search order: cwd → XDG config dir (~/.config/muxi/)
-		const names = ['muxi.config.ts', 'muxi.config.js']
+		// Search order: cwd → XDG config dir (~/.config/remobi/)
+		const names = ['remobi.config.ts', 'remobi.config.js']
 		const searchDirs = [
 			process.cwd(),
-			join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'muxi'),
+			join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'remobi'),
 		]
 		for (const dir of searchDirs) {
 			for (const name of names) {
@@ -229,8 +229,6 @@ async function main(): Promise<void> {
 			}
 
 			// Ensure output directory exists
-			const { mkdirSync } = await import('node:fs')
-			const { dirname } = await import('node:path')
 			mkdirSync(dirname(targetPath), { recursive: true })
 
 			await build(loaded.config, targetPath)
@@ -241,10 +239,10 @@ async function main(): Promise<void> {
 		case 'inject': {
 			const loaded = await loadConfig(configPath)
 			if (dryRun) {
-				ensureInjectInputMode('muxi inject --dry-run')
+				ensureInjectInputMode('remobi inject --dry-run')
 				const dryRunStdin = await readStdin()
 				if (dryRunStdin.trim().length === 0) {
-					throw new Error('muxi inject --dry-run expects piped ttyd HTML on stdin')
+					throw new Error('remobi inject --dry-run expects piped ttyd HTML on stdin')
 				}
 				console.log('Dry run: inject')
 				console.log(`- config: ${loaded.source}`)
@@ -253,22 +251,22 @@ async function main(): Promise<void> {
 				break
 			}
 
-			ensureInjectInputMode('muxi inject')
+			ensureInjectInputMode('remobi inject')
 			const result = await injectFromStdin(loaded.config)
 			process.stdout.write(result)
 			break
 		}
 
 		case 'init': {
-			const targetPath = resolve(process.cwd(), 'muxi.config.ts')
+			const targetPath = resolve(process.cwd(), 'remobi.config.ts')
 			if (existsSync(targetPath)) {
-				console.error('muxi.config.ts already exists')
+				console.error('remobi.config.ts already exists')
 				process.exit(1)
 			}
-			const template = `import { defineConfig } from 'muxi'
+			const template = `import { defineConfig } from 'remobi'
 
 export default defineConfig({
-  // name: 'muxi',              // app name (tab title, PWA home screen label)
+  // name: 'remobi',              // app name (tab title, PWA home screen label)
   // theme: 'catppuccin-mocha',
   // font: {
   //   family: 'JetBrainsMono NFM, monospace',
@@ -317,8 +315,8 @@ export default defineConfig({
   //   { position: 'top-left', buttons: [{ id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\\x02z' } }] },
   // ],
   // pwa: {
-  //   enabled: true,              // enable PWA manifest + meta tags (used by muxi serve)
-  //   shortName: 'muxi',        // short name for home screen icon (defaults to name)
+  //   enabled: true,              // enable PWA manifest + meta tags (used by remobi serve)
+  //   shortName: 'remobi',        // short name for home screen icon (defaults to name)
   //   themeColor: '#1e1e2e',      // theme-color meta tag + manifest
   // },
   // reconnect: {

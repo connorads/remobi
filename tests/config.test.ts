@@ -165,7 +165,7 @@ describe('defaultConfig', () => {
 	})
 
 	test('has default name', () => {
-		expect(defaultConfig.name).toBe('muxi')
+		expect(defaultConfig.name).toBe('remobi')
 	})
 
 	test('has default pwa config', () => {

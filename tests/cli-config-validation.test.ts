@@ -24,7 +24,7 @@ afterEach(() => {
 })
 
 function createTempDir(): string {
-	const dir = mkdtempSync(join(tmpdir(), 'muxi-cli-validation-'))
+	const dir = mkdtempSync(join(tmpdir(), 'remobi-cli-validation-'))
 	tempDirs.push(dir)
 	return dir
 }
@@ -47,13 +47,13 @@ async function runCli(args: readonly string[]): Promise<CliResult> {
 }
 
 function writeConfig(dir: string, source: string): string {
-	const path = join(dir, 'muxi.config.ts')
+	const path = join(dir, 'remobi.config.ts')
 	writeFileSync(path, source)
 	return path
 }
 
 function writeLocalConfig(dir: string, source: string): string {
-	const path = join(dir, 'muxi.config.local.ts')
+	const path = join(dir, 'remobi.config.local.ts')
 	writeFileSync(path, source)
 	return path
 }
@@ -71,7 +71,7 @@ describe('CLI config validation', () => {
 		expect(result.exitCode).toBe(1)
 		expect(result.stdout).toBe('')
 		expect(result.stderr).toContain(`Config validation failed for ${configPath}`)
-		expect(result.stderr).toContain('Invalid muxi config:')
+		expect(result.stderr).toContain('Invalid remobi config:')
 		expect(result.stderr).toContain('config.gestures.scroll.strategy')
 		expect(result.stderr).toContain('received string("mouse")')
 	})

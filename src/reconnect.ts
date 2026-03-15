@@ -3,7 +3,7 @@ import { el } from './util/dom'
 
 /** Find the ttyd WebSocket from the interceptor array */
 function findTtydSocket(): WebSocket | undefined {
-	const sockets = window.__muxiSockets
+	const sockets = window.__remobiSockets
 	if (!sockets) return undefined
 	return sockets.find((ws) => ws.url.endsWith('/ws'))
 }
@@ -16,7 +16,7 @@ interface ReconnectOverlay {
 /** Create the reconnect overlay DOM (hidden by default) */
 function createOverlay(onReconnect: () => void): ReconnectOverlay {
 	const overlay = el('div', {
-		id: 'muxi-reconnect-overlay',
+		id: 'remobi-reconnect-overlay',
 		style: [
 			'display:none',
 			'position:fixed',

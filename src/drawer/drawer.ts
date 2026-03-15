@@ -1,7 +1,7 @@
 import { createDefaultActionRegistry } from '../actions/registry'
 import type { ActionRegistry } from '../actions/registry'
 import type { HookRegistry } from '../hooks/registry'
-import type { ControlButton, MuxiConfig, XTerminal } from '../types'
+import type { ControlButton, RemobiConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
@@ -21,7 +21,7 @@ export function createDrawer(
 	buttons: readonly ControlButton[],
 	config: {
 		readonly hooks: HookRegistry
-		readonly appConfig: MuxiConfig
+		readonly appConfig: RemobiConfig
 		readonly actions?: ActionRegistry
 		readonly openComboPicker?: (options: {
 			readonly sendText: (data: string) => Promise<void>
@@ -83,7 +83,7 @@ export function createDrawer(
 					openComboPicker: config.openComboPicker,
 				})
 				.catch((error) => {
-					console.error('muxi: drawer action execution failed', error)
+					console.error('remobi: drawer action execution failed', error)
 					conditionalFocus(term, kbWasOpen)
 				})
 		})

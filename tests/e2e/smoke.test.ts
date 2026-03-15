@@ -63,7 +63,7 @@ describe.skipIf(!hasTtyd)('e2e: ttyd integration', () => {
 	beforeAll(async () => {
 		ttydPort = await findFreePort()
 		ttydProc = spawnProcess(
-			['ttyd', '--port', String(ttydPort), '--once', 'echo', 'muxi-e2e-smoke'],
+			['ttyd', '--port', String(ttydPort), '--once', 'echo', 'remobi-e2e-smoke'],
 			{ stdout: 'pipe', stderr: 'pipe' },
 		)
 		const ready = await waitForHttp(`http://127.0.0.1:${ttydPort}/`)
@@ -88,7 +88,7 @@ describe.skipIf(!hasTtyd)('e2e: ttyd integration', () => {
 		expect(html.toLowerCase()).toContain('main')
 	})
 
-	test('muxi inject pipes ttyd HTML and produces patched output', async () => {
+	test('remobi inject pipes ttyd HTML and produces patched output', async () => {
 		const ttydHtml = await fetch(`http://127.0.0.1:${ttydPort}/`).then((r) => r.text())
 
 		const proc = spawnProcess(['npx', 'tsx', join(repoRoot, 'cli.ts'), 'inject'], {
@@ -105,9 +105,9 @@ describe.skipIf(!hasTtyd)('e2e: ttyd integration', () => {
 		const [exitCode, stdout] = await Promise.all([proc.exited, collectStream(proc.stdout)])
 
 		expect(exitCode).toBe(0)
-		// The patched HTML should include the muxi overlay script
+		// The patched HTML should include the remobi overlay script
 		expect(stdout).toContain('<!DOCTYPE html>')
-		// muxi inject always appends before </head>
+		// remobi inject always appends before </head>
 		expect(stdout.indexOf('</head>')).toBeGreaterThan(-1)
 	})
 })

@@ -122,8 +122,8 @@ export interface PwaConfig {
 	readonly themeColor: string
 }
 
-/** Full muxi configuration */
-export interface MuxiConfig {
+/** Full remobi configuration */
+export interface RemobiConfig {
 	readonly name: string
 	readonly theme: TermTheme
 	readonly font: FontConfig
@@ -156,8 +156,8 @@ export type ButtonArrayInput<T extends { readonly id: string }> =
 	| ((defaults: readonly T[]) => readonly T[])
 
 /** Config overrides shape that supports ButtonArrayInput for button arrays */
-export type MuxiConfigOverrides = Omit<
-	DeepPartial<MuxiConfig>,
+export type RemobiConfigOverrides = Omit<
+	DeepPartial<RemobiConfig>,
 	'toolbar' | 'drawer' | 'floatingButtons'
 > & {
 	readonly toolbar?: {
@@ -171,7 +171,7 @@ export type MuxiConfigOverrides = Omit<
 }
 
 /**
- * Minimal xterm.js Terminal interface — only what muxi needs.
+ * Minimal xterm.js Terminal interface — only what remobi needs.
  * Avoids importing the full xterm package.
  */
 export interface XTerminal {
@@ -198,6 +198,6 @@ declare global {
 	interface Window {
 		term?: XTerminal
 		/** WebSocket instances captured by the reconnect interceptor script */
-		__muxiSockets?: WebSocket[]
+		__remobiSockets?: WebSocket[]
 	}
 }

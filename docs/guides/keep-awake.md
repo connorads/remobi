@@ -1,13 +1,13 @@
 # Keeping your Mac awake for remote access
 
-When running `muxi serve` on a Mac to expose a terminal over the network
+When running `remobi serve` on a Mac to expose a terminal over the network
 (e.g. via Tailscale), the host going to sleep makes the terminal unreachable.
 This guide covers your options from quick to permanent.
 
 ## Quick: `--no-sleep` flag (recommended)
 
 ```bash
-muxi serve --no-sleep
+remobi serve --no-sleep
 ```
 
 Under the hood this runs `caffeinate -s -w <pid>` alongside ttyd. The
@@ -17,7 +17,7 @@ automatically on shutdown — no stale state, no manual cleanup.
 Combine with other flags as usual:
 
 ```bash
-muxi serve --no-sleep --port 8080 -- tmux new -As dev
+remobi serve --no-sleep --port 8080 -- tmux new -As dev
 ```
 
 **Caveats:**

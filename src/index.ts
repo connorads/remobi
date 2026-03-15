@@ -15,7 +15,7 @@ import type { HookRegistry } from './hooks/registry'
 import { setupReconnect } from './reconnect'
 import { applyTheme } from './theme/apply'
 import { createToolbar } from './toolbar/toolbar'
-import type { MuxiConfig } from './types'
+import type { RemobiConfig } from './types'
 import { resizeTerm, sendData, waitForTerm } from './util/terminal'
 import { initHeightManager } from './viewport/height'
 
@@ -23,8 +23,8 @@ import { initHeightManager } from './viewport/height'
 export { defineConfig } from './config'
 export { createHookRegistry }
 export type {
-	MuxiConfig,
-	MuxiConfigOverrides,
+	RemobiConfig,
+	RemobiConfigOverrides,
 	ButtonAction,
 	ButtonArrayInput,
 	ControlButton,
@@ -42,12 +42,12 @@ function isMobile(): boolean {
 }
 
 /**
- * Initialise the muxi overlay.
+ * Initialise the remobi overlay.
  * Called automatically when loaded in a browser (via the IIFE in build output).
  * Config is embedded at build time.
  */
 export function init(
-	config: MuxiConfig = defaultConfig,
+	config: RemobiConfig = defaultConfig,
 	hooks: HookRegistry = createHookRegistry(),
 ): void {
 	void waitForTerm()
@@ -198,7 +198,7 @@ export function init(
 					const { element: helpOverlay } = createHelpOverlay(term, helpButton, config)
 					document.body.appendChild(helpOverlay)
 				} catch (error) {
-					console.error('muxi: failed to initialise help overlay', error)
+					console.error('remobi: failed to initialise help overlay', error)
 				}
 
 				await hooks.runOverlayReady({ term, config, mobile })
@@ -208,6 +208,6 @@ export function init(
 			}
 		})
 		.catch((error) => {
-			console.error('muxi: failed to initialise overlay', error)
+			console.error('remobi: failed to initialise overlay', error)
 		})
 }
