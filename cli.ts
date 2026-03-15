@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { build, injectFromStdin } from './build'
@@ -344,7 +344,7 @@ export default defineConfig({
 	}
 }
 
-if (import.meta.filename === process.argv[1]) {
+if (import.meta.filename === realpathSync(process.argv[1])) {
 	main().catch((err: unknown) => {
 		console.error(err)
 		process.exit(1)
