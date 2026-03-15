@@ -11,7 +11,7 @@ import {
 	assertValidResolvedConfig,
 } from './src/config-validate'
 import { serve } from './src/serve'
-import type { WebmuxConfig, WebmuxConfigOverrides } from './src/types'
+import type { MuxiConfig, MuxiConfigOverrides } from './src/types'
 import { readStdin } from './src/util/node-compat'
 
 // Walk up from module location to find package.json — works from both source and dist/
@@ -72,7 +72,7 @@ Examples:
 }
 
 interface LoadedConfig {
-	readonly config: WebmuxConfig
+	readonly config: MuxiConfig
 	readonly source: string
 }
 
@@ -106,7 +106,7 @@ function toLocalPath(configPath: string): string {
 }
 
 /** Try to load a .local config override file. Returns undefined if the file does not exist. */
-async function loadLocalOverrides(localPath: string): Promise<WebmuxConfigOverrides | undefined> {
+async function loadLocalOverrides(localPath: string): Promise<MuxiConfigOverrides | undefined> {
 	if (!existsSync(localPath)) {
 		return undefined
 	}
@@ -124,7 +124,7 @@ async function loadLocalOverrides(localPath: string): Promise<WebmuxConfigOverri
 function assertValidOverridesOrThrow(
 	value: unknown,
 	source: string,
-): asserts value is WebmuxConfigOverrides {
+): asserts value is MuxiConfigOverrides {
 	try {
 		assertValidConfigOverrides(value)
 	} catch (error) {
@@ -135,7 +135,7 @@ function assertValidOverridesOrThrow(
 	}
 }
 
-function assertValidResolvedOrThrow(value: unknown, source: string): asserts value is WebmuxConfig {
+function assertValidResolvedOrThrow(value: unknown, source: string): asserts value is MuxiConfig {
 	try {
 		assertValidResolvedConfig(value)
 	} catch (error) {

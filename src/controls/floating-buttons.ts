@@ -1,6 +1,6 @@
 import type { ActionRegistry } from '../actions/registry'
 import type { HookRegistry } from '../hooks/registry'
-import type { ControlButton, FloatingButtonGroup, WebmuxConfig, XTerminal } from '../types'
+import type { ControlButton, FloatingButtonGroup, MuxiConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
@@ -9,7 +9,7 @@ import { sendData } from '../util/terminal'
 function createGroupButton(
 	term: XTerminal,
 	def: ControlButton,
-	config: WebmuxConfig,
+	config: MuxiConfig,
 	hooks: HookRegistry,
 	actions: ActionRegistry,
 	openDrawer: (() => void) | undefined,
@@ -62,7 +62,7 @@ function createGroupButton(
 				openComboPicker,
 			})
 			.catch((error) => {
-				console.error('webmux: floating button action failed', error)
+				console.error('muxi: floating button action failed', error)
 				conditionalFocus(term, kbWasOpen)
 			})
 	})
@@ -78,7 +78,7 @@ function createGroupButton(
 export function createFloatingButtons(
 	term: XTerminal,
 	groups: readonly FloatingButtonGroup[],
-	config: WebmuxConfig,
+	config: MuxiConfig,
 	hooks: HookRegistry,
 	actions: ActionRegistry,
 	openDrawer?: () => void,

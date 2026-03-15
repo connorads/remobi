@@ -256,7 +256,7 @@ export function createComboPicker(): ComboPickerResult {
 		try {
 			await dispatch.sendText(parsed.data)
 		} catch (errorValue) {
-			console.error('webmux: combo send failed', errorValue)
+			console.error('muxi: combo send failed', errorValue)
 		} finally {
 			dispatch.focusIfNeeded()
 		}

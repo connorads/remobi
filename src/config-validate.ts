@@ -1,6 +1,6 @@
 import * as v from 'valibot'
-import { webmuxConfigOverridesSchema, webmuxConfigResolvedSchema } from './config-schema'
-import type { WebmuxConfig, WebmuxConfigOverrides } from './types'
+import { muxiConfigOverridesSchema, muxiConfigResolvedSchema } from './config-schema'
+import type { MuxiConfig, MuxiConfigOverrides } from './types'
 
 interface ValidationIssue {
 	readonly path: string
@@ -19,7 +19,7 @@ export class ConfigValidationError extends Error {
 }
 
 function formatIssues(issues: readonly ValidationIssue[]): string {
-	const lines = ['Invalid webmux config:']
+	const lines = ['Invalid muxi config:']
 	for (const issue of issues) {
 		lines.push(`- ${issue.path}: expected ${issue.expected}, received ${issue.received}`)
 	}
@@ -95,15 +95,15 @@ function toValidationIssues(issues: readonly v.BaseIssue<unknown>[]): Validation
 	return result
 }
 
-export function assertValidConfigOverrides(value: unknown): asserts value is WebmuxConfigOverrides {
-	const result = v.safeParse(webmuxConfigOverridesSchema, value)
+export function assertValidConfigOverrides(value: unknown): asserts value is MuxiConfigOverrides {
+	const result = v.safeParse(muxiConfigOverridesSchema, value)
 	if (!result.success) {
 		throw new ConfigValidationError(toValidationIssues(result.issues))
 	}
 }
 
-export function assertValidResolvedConfig(value: unknown): asserts value is WebmuxConfig {
-	const result = v.safeParse(webmuxConfigResolvedSchema, value)
+export function assertValidResolvedConfig(value: unknown): asserts value is MuxiConfig {
+	const result = v.safeParse(muxiConfigResolvedSchema, value)
 	if (!result.success) {
 		throw new ConfigValidationError(toValidationIssues(result.issues))
 	}

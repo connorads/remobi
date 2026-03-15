@@ -122,8 +122,8 @@ export interface PwaConfig {
 	readonly themeColor: string
 }
 
-/** Full webmux configuration */
-export interface WebmuxConfig {
+/** Full muxi configuration */
+export interface MuxiConfig {
 	readonly name: string
 	readonly theme: TermTheme
 	readonly font: FontConfig
@@ -156,8 +156,8 @@ export type ButtonArrayInput<T extends { readonly id: string }> =
 	| ((defaults: readonly T[]) => readonly T[])
 
 /** Config overrides shape that supports ButtonArrayInput for button arrays */
-export type WebmuxConfigOverrides = Omit<
-	DeepPartial<WebmuxConfig>,
+export type MuxiConfigOverrides = Omit<
+	DeepPartial<MuxiConfig>,
 	'toolbar' | 'drawer' | 'floatingButtons'
 > & {
 	readonly toolbar?: {
@@ -171,7 +171,7 @@ export type WebmuxConfigOverrides = Omit<
 }
 
 /**
- * Minimal xterm.js Terminal interface — only what webmux needs.
+ * Minimal xterm.js Terminal interface — only what muxi needs.
  * Avoids importing the full xterm package.
  */
 export interface XTerminal {
@@ -198,6 +198,6 @@ declare global {
 	interface Window {
 		term?: XTerminal
 		/** WebSocket instances captured by the reconnect interceptor script */
-		__webmuxSockets?: WebSocket[]
+		__muxiSockets?: WebSocket[]
 	}
 }

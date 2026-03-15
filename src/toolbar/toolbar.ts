@@ -1,7 +1,7 @@
 import { createDefaultActionRegistry } from '../actions/registry'
 import type { ActionRegistry } from '../actions/registry'
 import type { HookRegistry } from '../hooks/registry'
-import type { ControlButton, WebmuxConfig, XTerminal } from '../types'
+import type { ControlButton, MuxiConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
@@ -20,7 +20,7 @@ function createCtrlState(): CtrlState {
 }
 
 /** Activate ctrl sticky modifier */
-function activateCtrl(state: CtrlState, term: XTerminal, theme: WebmuxConfig['theme']): void {
+function activateCtrl(state: CtrlState, term: XTerminal, theme: MuxiConfig['theme']): void {
 	if (!state.buttonEl) return
 	state.active = true
 	state.buttonEl.style.background = theme.blue
@@ -40,7 +40,7 @@ function activateCtrl(state: CtrlState, term: XTerminal, theme: WebmuxConfig['th
 }
 
 /** Deactivate ctrl sticky modifier */
-function deactivateCtrl(state: CtrlState, theme: WebmuxConfig['theme']): void {
+function deactivateCtrl(state: CtrlState, theme: MuxiConfig['theme']): void {
 	if (!state.buttonEl) return
 	state.active = false
 	state.buttonEl.style.background = theme.black
@@ -58,7 +58,7 @@ function wireButton(
 	def: ControlButton,
 	term: XTerminal,
 	ctrlState: CtrlState,
-	config: WebmuxConfig,
+	config: MuxiConfig,
 	registry: ActionRegistry,
 	hooks: HookRegistry,
 	openDrawer: () => void,
@@ -146,7 +146,7 @@ function wireButton(
 				},
 			})
 			.catch((error) => {
-				console.error('webmux: toolbar action execution failed', error)
+				console.error('muxi: toolbar action execution failed', error)
 				conditionalFocus(term, kbWasOpen)
 			})
 	})
@@ -157,7 +157,7 @@ function buildRow(
 	buttons: readonly ControlButton[],
 	term: XTerminal,
 	ctrlState: CtrlState,
-	config: WebmuxConfig,
+	config: MuxiConfig,
 	registry: ActionRegistry,
 	hooks: HookRegistry,
 	openDrawer: () => void,
@@ -189,7 +189,7 @@ interface ToolbarResult {
 /** Create the two-row toolbar */
 export function createToolbar(
 	term: XTerminal,
-	config: WebmuxConfig,
+	config: MuxiConfig,
 	openDrawer: () => void,
 	hooks: HookRegistry,
 	actions: ActionRegistry = createDefaultActionRegistry(),

@@ -4,12 +4,12 @@ import type {
 	ControlButton,
 	DeepPartial,
 	PwaConfig,
-	WebmuxConfig,
-	WebmuxConfigOverrides,
+	MuxiConfig,
+	MuxiConfigOverrides,
 } from './types'
 
 /** Default font configuration */
-const defaultFont: WebmuxConfig['font'] = {
+const defaultFont: MuxiConfig['font'] = {
 	family: 'JetBrainsMono NFM, monospace',
 	cdnUrl:
 		'https://cdn.jsdelivr.net/gh/mshaugh/nerdfont-webfonts@latest/build/jetbrainsmono-nfm.css',
@@ -18,7 +18,7 @@ const defaultFont: WebmuxConfig['font'] = {
 }
 
 /** Default gesture configuration */
-const defaultGestures: WebmuxConfig['gestures'] = {
+const defaultGestures: MuxiConfig['gestures'] = {
 	swipe: {
 		enabled: true,
 		threshold: 80,
@@ -33,7 +33,7 @@ const defaultGestures: WebmuxConfig['gestures'] = {
 }
 
 /** Default row 1 buttons (prefix + nav) */
-const defaultRow1: WebmuxConfig['toolbar']['row1'] = [
+const defaultRow1: MuxiConfig['toolbar']['row1'] = [
 	{
 		id: 'esc',
 		label: 'Esc',
@@ -92,7 +92,7 @@ const defaultRow1: WebmuxConfig['toolbar']['row1'] = [
 ]
 
 /** Default row 2 buttons */
-const defaultRow2: WebmuxConfig['toolbar']['row2'] = [
+const defaultRow2: MuxiConfig['toolbar']['row2'] = [
 	{
 		id: 'q',
 		label: 'q',
@@ -209,7 +209,7 @@ export const defaultDrawerButtons: readonly ControlButton[] = [
 ]
 
 /** Default mobile configuration */
-const defaultMobile: WebmuxConfig['mobile'] = {
+const defaultMobile: MuxiConfig['mobile'] = {
 	initData: null,
 	widthThreshold: 768,
 }
@@ -221,8 +221,8 @@ const defaultPwa: PwaConfig = {
 }
 
 /** Complete default configuration */
-export const defaultConfig: WebmuxConfig = {
-	name: 'webmux',
+export const defaultConfig: MuxiConfig = {
+	name: 'muxi',
 	theme: catppuccinMocha,
 	font: defaultFont,
 	toolbar: { row1: defaultRow1, row2: defaultRow2 },
@@ -269,7 +269,7 @@ function deepMerge(
  * Merge a config overrides object against a base config.
  * Button arrays support array or function form via `ButtonArrayInput`.
  */
-export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides): WebmuxConfig {
+export function mergeConfig(base: MuxiConfig, overrides: MuxiConfigOverrides): MuxiConfig {
 	// Extract button array inputs before deep-merging (they are not plain arrays)
 	const row1Input = overrides.toolbar?.row1
 	const row2Input = overrides.toolbar?.row2
@@ -277,13 +277,13 @@ export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides
 
 	// Strip button array inputs from overrides before deep-merge so deepMerge
 	// doesn't try to replace them (they may be functions, not arrays)
-	const strippedOverrides: DeepPartial<WebmuxConfig> = {
+	const strippedOverrides: DeepPartial<MuxiConfig> = {
 		...overrides,
 		toolbar:
 			overrides.toolbar !== undefined
 				? {
 						// oxlint-disable-next-line typescript/consistent-type-assertions -- bridge typed overrides to untyped merge
-						...(overrides.toolbar as DeepPartial<WebmuxConfig['toolbar']>),
+						...(overrides.toolbar as DeepPartial<MuxiConfig['toolbar']>),
 						row1: undefined,
 						row2: undefined,
 					}
@@ -292,7 +292,7 @@ export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides
 			overrides.drawer !== undefined
 				? {
 						// oxlint-disable-next-line typescript/consistent-type-assertions -- bridge typed overrides to untyped merge
-						...(overrides.drawer as DeepPartial<WebmuxConfig['drawer']>),
+						...(overrides.drawer as DeepPartial<MuxiConfig['drawer']>),
 						buttons: undefined,
 					}
 				: undefined,
@@ -302,7 +302,7 @@ export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides
 	const merged = deepMerge(
 		base as unknown as Record<string, unknown>,
 		strippedOverrides as unknown as Record<string, unknown>,
-	) as unknown as WebmuxConfig
+	) as unknown as MuxiConfig
 	/* oxlint-enable typescript/consistent-type-assertions */
 
 	// Resolve button arrays
@@ -317,8 +317,8 @@ export function mergeConfig(base: WebmuxConfig, overrides: WebmuxConfigOverrides
 	}
 }
 
-/** Define a webmux configuration with defaults filled in */
-export function defineConfig(overrides: WebmuxConfigOverrides = {}): WebmuxConfig {
+/** Define a muxi configuration with defaults filled in */
+export function defineConfig(overrides: MuxiConfigOverrides = {}): MuxiConfig {
 	return mergeConfig(defaultConfig, overrides)
 }
 
@@ -326,6 +326,6 @@ export function defineConfig(overrides: WebmuxConfigOverrides = {}): WebmuxConfi
  * Serialise theme to ttyd `-t theme=...` JSON string.
  * Used by the shell wrapper to pass theme via CLI flags.
  */
-export function serialiseThemeForTtyd(config: WebmuxConfig): string {
+export function serialiseThemeForTtyd(config: MuxiConfig): string {
 	return JSON.stringify(config.theme)
 }

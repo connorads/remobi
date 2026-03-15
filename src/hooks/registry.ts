@@ -1,10 +1,10 @@
-import type { ButtonAction, WebmuxConfig, XTerminal } from '../types'
+import type { ButtonAction, MuxiConfig, XTerminal } from '../types'
 
 export type SendSource = 'toolbar' | 'drawer' | 'floating-buttons' | 'mobile-init'
 
 export interface BeforeSendDataContext {
 	readonly term: XTerminal
-	readonly config: WebmuxConfig
+	readonly config: MuxiConfig
 	readonly source: SendSource
 	readonly actionType: ButtonAction['type']
 	readonly kbWasOpen: boolean
@@ -18,7 +18,7 @@ interface BeforeSendDataResult {
 
 export interface AfterSendDataContext {
 	readonly term: XTerminal
-	readonly config: WebmuxConfig
+	readonly config: MuxiConfig
 	readonly source: SendSource
 	readonly actionType: ButtonAction['type']
 	readonly kbWasOpen: boolean
@@ -27,19 +27,19 @@ export interface AfterSendDataContext {
 
 export interface OverlayInitContext {
 	readonly term: XTerminal
-	readonly config: WebmuxConfig
+	readonly config: MuxiConfig
 	readonly mobile: boolean
 }
 
 export interface ToolbarCreatedContext {
 	readonly term: XTerminal
-	readonly config: WebmuxConfig
+	readonly config: MuxiConfig
 	readonly toolbar: HTMLDivElement
 }
 
 export interface DrawerCreatedContext {
 	readonly term: XTerminal
-	readonly config: WebmuxConfig
+	readonly config: MuxiConfig
 	readonly drawer: HTMLDivElement
 	readonly backdrop: HTMLDivElement
 }
@@ -70,7 +70,7 @@ export interface HookRegistry {
 }
 
 function logHookError(name: HookName, error: unknown): void {
-	console.error(`webmux: hook '${name}' failed`, error)
+	console.error(`muxi: hook '${name}' failed`, error)
 }
 
 export function createHookRegistry(): HookRegistry {

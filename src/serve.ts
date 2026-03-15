@@ -8,7 +8,7 @@ import WebSocket from 'ws'
 import { bundleOverlay, injectOverlay } from '../build'
 import { serialiseThemeForTtyd } from './config'
 import { manifestToJson } from './pwa/manifest'
-import type { WebmuxConfig } from './types'
+import type { MuxiConfig } from './types'
 import { sleep, spawnProcess } from './util/node-compat'
 import type { SpawnedProcess } from './util/node-compat'
 
@@ -54,9 +54,9 @@ export function randomInternalPort(): number {
 	return 19000 + Math.floor(Math.random() * 1000)
 }
 
-/** Build ttyd args from webmux config */
+/** Build ttyd args from muxi config */
 export function buildTtydArgs(
-	config: WebmuxConfig,
+	config: MuxiConfig,
 	internalPort: number,
 	command: readonly string[],
 ): string[] {
@@ -97,30 +97,30 @@ function spawnCaffeinate(pid: number): SpawnedProcess | null {
 		})
 		// Catch async spawn errors (e.g. caffeinate not found on Linux)
 		proc.exited.catch(() => {
-			console.warn('webmux: --no-sleep requires caffeinate (macOS only), ignoring')
+			console.warn('muxi: --no-sleep requires caffeinate (macOS only), ignoring')
 		})
-		console.log(`webmux: sleep prevention active (caffeinate -s -w ${pid})`)
+		console.log(`muxi: sleep prevention active (caffeinate -s -w ${pid})`)
 		return proc
 	} catch {
-		console.warn('webmux: --no-sleep requires caffeinate (macOS only), ignoring')
+		console.warn('muxi: --no-sleep requires caffeinate (macOS only), ignoring')
 		return null
 	}
 }
 
-/** Start webmux serve: builds overlay in memory, manages ttyd, serves HTTP + WS */
+/** Start muxi serve: builds overlay in memory, manages ttyd, serves HTTP + WS */
 export async function serve(
-	config: WebmuxConfig,
+	config: MuxiConfig,
 	port: number = DEFAULT_PORT,
 	command: readonly string[] = DEFAULT_COMMAND,
 	noSleep = false,
 ): Promise<void> {
-	console.log('webmux: building overlay...')
+	console.log('muxi: building overlay...')
 	const { js, css } = await bundleOverlay(config)
 
 	const internalPort = randomInternalPort()
 	const ttydArgs = buildTtydArgs(config, internalPort, command)
 
-	console.log(`webmux: starting ttyd on internal port ${internalPort}...`)
+	console.log(`muxi: starting ttyd on internal port ${internalPort}...`)
 	const ttydProc = spawnProcess(['ttyd', ...ttydArgs], {
 		stdout: 'ignore',
 		stderr: 'ignore',
@@ -134,7 +134,7 @@ export async function serve(
 	const baseHtml = await baseResp.text()
 	const html = injectOverlay(baseHtml, js, css, config)
 
-	console.log('webmux: overlay ready')
+	console.log('muxi: overlay ready')
 
 	const manifestJson = config.pwa.enabled ? manifestToJson(config.name, config.pwa) : null
 	const icon180 = readIcon('icon-180.png')
@@ -260,11 +260,11 @@ export async function serve(
 	const server = honoServe({ fetch: app.fetch, port })
 	injectWebSocket(server)
 
-	console.log(`webmux: serving on http://localhost:${port}`)
+	console.log(`muxi: serving on http://localhost:${port}`)
 
 	// Clean shutdown on SIGINT / SIGTERM
 	const cleanup = () => {
-		console.log('\nwebmux: shutting down...')
+		console.log('\nmuxi: shutting down...')
 		server.close()
 		ttydProc.kill()
 		caffeinateProc?.kill()
