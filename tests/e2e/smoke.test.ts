@@ -88,32 +88,28 @@ describe.skipIf(!hasTtyd)('e2e: ttyd integration', () => {
 		expect(html.toLowerCase()).toContain('main')
 	})
 
-	test(
-		'remobi inject pipes ttyd HTML and produces patched output',
-		{ timeout: 15_000 },
-		async () => {
-			const ttydHtml = await fetch(`http://127.0.0.1:${ttydPort}/`).then((r) => r.text())
+	test('remobi inject pipes ttyd HTML and produces patched output', async () => {
+		const ttydHtml = await fetch(`http://127.0.0.1:${ttydPort}/`).then((r) => r.text())
 
-			const proc = spawnProcess(['npx', 'tsx', join(repoRoot, 'cli.ts'), 'inject'], {
-				cwd: repoRoot,
-				stdin: 'pipe',
-				stdout: 'pipe',
-				stderr: 'pipe',
-			})
+		const proc = spawnProcess(['tsx', join(repoRoot, 'cli.ts'), 'inject'], {
+			cwd: repoRoot,
+			stdin: 'pipe',
+			stdout: 'pipe',
+			stderr: 'pipe',
+		})
 
-			// Write HTML to stdin then close
-			proc.stdin?.write(ttydHtml)
-			proc.stdin?.end()
+		// Write HTML to stdin then close
+		proc.stdin?.write(ttydHtml)
+		proc.stdin?.end()
 
-			const [exitCode, stdout] = await Promise.all([proc.exited, collectStream(proc.stdout)])
+		const [exitCode, stdout] = await Promise.all([proc.exited, collectStream(proc.stdout)])
 
-			expect(exitCode).toBe(0)
-			// The patched HTML should include the remobi overlay script
-			expect(stdout).toContain('<!DOCTYPE html>')
-			// remobi inject always appends before </head>
-			expect(stdout.indexOf('</head>')).toBeGreaterThan(-1)
-		},
-	)
+		expect(exitCode).toBe(0)
+		// The patched HTML should include the remobi overlay script
+		expect(stdout).toContain('<!DOCTYPE html>')
+		// remobi inject always appends before </head>
+		expect(stdout.indexOf('</head>')).toBeGreaterThan(-1)
+	})
 })
 
 describe.skipIf(hasTtyd)('e2e: ttyd not available', () => {

@@ -30,7 +30,7 @@ function createTempDir(): string {
 }
 
 async function runCli(args: readonly string[]): Promise<CliResult> {
-	const proc = spawnProcess(['npx', 'tsx', join(repoRoot, 'cli.ts'), ...args], {
+	const proc = spawnProcess(['tsx', join(repoRoot, 'cli.ts'), ...args], {
 		cwd: repoRoot,
 		stdin: 'ignore',
 		stdout: 'pipe',
@@ -74,7 +74,7 @@ describe('CLI config validation', () => {
 		expect(result.stderr).toContain('Invalid remobi config:')
 		expect(result.stderr).toContain('config.gestures.scroll.strategy')
 		expect(result.stderr).toContain('received string("mouse")')
-	}, 15_000)
+	})
 
 	test('inject fails fast on unknown root keys', async () => {
 		const dir = createTempDir()
