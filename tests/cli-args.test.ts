@@ -14,7 +14,7 @@ describe('parseCliArgs', () => {
 		const result = parseCliArgs([
 			'build',
 			'--config',
-			'./webmux.config.ts',
+			'./muxi.config.ts',
 			'--output',
 			'dist/x.html',
 			'--dry-run',
@@ -22,7 +22,7 @@ describe('parseCliArgs', () => {
 		expect(result.ok).toBe(true)
 		if (result.ok) {
 			expect(result.value.command).toBe('build')
-			expect(result.value.configPath).toBe('./webmux.config.ts')
+			expect(result.value.configPath).toBe('./muxi.config.ts')
 			expect(result.value.outputPath).toBe('dist/x.html')
 			expect(result.value.dryRun).toBe(true)
 		}

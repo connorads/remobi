@@ -165,7 +165,7 @@ describe('defaultConfig', () => {
 	})
 
 	test('has default name', () => {
-		expect(defaultConfig.name).toBe('webmux')
+		expect(defaultConfig.name).toBe('muxi')
 	})
 
 	test('has default pwa config', () => {
