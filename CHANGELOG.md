@@ -1,3 +1,10 @@
+## [0.2.3](https://github.com/connorads/remobi/compare/v0.2.2...v0.2.3) (2026-03-16)
+
+
+### Bug Fixes
+
+* **serve:** default remobi serve to localhost ([36eb0ff](https://github.com/connorads/remobi/commit/36eb0ff54b780b1a4bf336051af6d80f00f9f1cf))
+
 ## [0.2.2](https://github.com/connorads/remobi/compare/v0.2.1...v0.2.2) (2026-03-16)
 
 ### Bug Fixes

@@ -1,6 +1,6 @@
 {
 	"name": "remobi",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"description": "Monitor and control your coding agents from your phone. Touch controls for tmux over the web.",
 	"type": "module",
 	"bin": {
