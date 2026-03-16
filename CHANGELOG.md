@@ -1,3 +1,10 @@
+## [0.2.4](https://github.com/connorads/remobi/compare/v0.2.3...v0.2.4) (2026-03-16)
+
+
+### Bug Fixes
+
+* **security:** escape font CDN URL and tighten WS origin check ([5093181](https://github.com/connorads/remobi/commit/5093181ec1f8cece06e4b0e7b0482604493b691d))
+
 ## [0.2.3](https://github.com/connorads/remobi/compare/v0.2.2...v0.2.3) (2026-03-16)
 
 
