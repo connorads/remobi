@@ -80,7 +80,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - Drawer takes a flat `readonly ControlButton[]` — rendered as a single grid
 - Help overlay is config-driven and must be fail-safe (never break core controls if help fails)
 - Mobile viewport handling: lock document scroll and compute height from visual viewport (keyboard-aware)
-- When behaviour/config/API changes, update `CHANGELOG.md` under `Unreleased` in the same change set
+- Changelog and versioning are fully automated by semantic-release — do not manually edit `CHANGELOG.md`. Use conventional commit types to control releases: `feat:` → minor, `fix:` → patch, `BREAKING CHANGE` → major. Non-release types: `chore:`, `docs:`, `refactor:`, `test:`, `ci:`
 - All DOM creation in `util/dom.ts` helpers
 - Keyboard state preserved: capture `isKeyboardOpen()` before action, use `conditionalFocus()` after
 - Tests use happy-dom for DOM environment (e2e/CLI tests use node environment)
