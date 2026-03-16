@@ -40,13 +40,13 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 ## Module Layout
 
 - `src/index.ts` — entry: waitForTerm then init overlay
-- `src/config.ts` — config schema, defaults, defineConfig
+- `src/config.ts` — defaults, defineConfig, deepMerge
 - `src/types.ts` — all shared types
 - `src/toolbar/` — toolbar DOM + button definitions
 - `src/drawer/drawer.ts` — command drawer with flat grid
 - `src/drawer/commands.ts` — re-exports defaultDrawerButtons from config
-- `src/gestures/` — swipe + pinch detection
-- `src/controls/` — font size, help overlay
+- `src/gestures/` — swipe, pinch, scroll detection + gesture lock
+- `src/controls/` — font size, help overlay, combo picker, floating buttons, scroll buttons
 - `src/theme/` — catppuccin-mocha + apply
 - `src/viewport/` — height management, landscape detection
 - `src/util/dom.ts` — element creation helpers
@@ -54,6 +54,15 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - `src/util/haptic.ts` — vibration feedback
 - `src/util/keyboard.ts` — isKeyboardOpen, conditionalFocus
 - `src/util/node-compat.ts` — sleep, readStdin, spawnProcess, collectStream
+- `src/actions/registry.ts` — action dispatch + clipboard
+- `src/hooks/registry.ts` — lifecycle hook system
+- `src/config-schema.ts` — Valibot validation schemas
+- `src/config-resolve.ts` — button array resolution
+- `src/config-validate.ts` — config assertions
+- `src/cli/args.ts` — CLI argument parsing
+- `src/pwa/` — PWA manifest, meta-tags, icons
+- `src/reconnect.ts` — connection loss overlay
+- `src/overlay-entry.ts` — IIFE entry point for browser bundle
 - `styles/base.css` — all CSS
 - `cli.ts` — CLI: build, inject, init, serve, --version
 - `build.ts` — build pipeline: bundle → inject → output
@@ -61,7 +70,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 ## Publishing
 
 - Transpiles to JS via tsdown: `bin` → `dist/cli.mjs`, `exports` → `dist/*.mjs` + `dist/*.d.mts`
-- `files` array controls what's published: `dist/`, `styles/`, `src/pwa/icons/`, `README.md`, `LICENSE`
+- `files` array controls what's published: `dist/`, `styles/`, `src/pwa/icons/`, `README.md`, `CHANGELOG.md`, `LICENSE`
 - CI: `.github/workflows/ci.yml` — pnpm test + biome check
 - Release: `.github/workflows/release.yml` — semantic-release on push to main
   - Versioning, changelog, npm publish, and GitHub Release are all automated
@@ -72,7 +81,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 
 ## Conventions
 
-- Button actions use discriminated unions (`type: 'send' | 'ctrl-modifier' | 'paste' | 'drawer-toggle'`)
+- Button actions use discriminated unions (`type: 'send' | 'ctrl-modifier' | 'paste' | 'combo-picker' | 'drawer-toggle'`)
 - Unified control schema: use `ControlButton` for both toolbar and drawer items
 - Config shape: `drawer.buttons` (not `drawer.commands`)
 - Config via `defineConfig()` — typed, with sensible defaults
