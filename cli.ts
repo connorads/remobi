@@ -344,7 +344,8 @@ export default defineConfig({
 	}
 }
 
-if (import.meta.filename === realpathSync(process.argv[1])) {
+const entryScript = process.argv[1]
+if (entryScript && import.meta.filename === realpathSync(entryScript)) {
 	main().catch((err: unknown) => {
 		console.error(err)
 		process.exit(1)

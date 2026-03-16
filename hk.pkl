@@ -16,6 +16,9 @@ hooks {
 				check = "pnpm exec oxlint --import-plugin --promise-plugin {{files}}"
 			}
 			["typos"] = (Builtins.typos)
+			["tsc"] {
+				check = "pnpm exec tsc --noEmit"
+			}
 		}
 	}
 	["commit-msg"] {
