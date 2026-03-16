@@ -93,8 +93,15 @@ describe('isAllowedWebSocketOrigin', () => {
 		expect(isAllowedWebSocketOrigin('https://term.example.ts.net', undefined)).toBe(false)
 	})
 
-	test('allows requests without an origin header', () => {
+	test('allows requests without an origin header on loopback', () => {
 		expect(isAllowedWebSocketOrigin(undefined, 'localhost:7681')).toBe(true)
+		expect(isAllowedWebSocketOrigin(undefined, '127.0.0.1:7681')).toBe(true)
+	})
+
+	test('rejects requests without an origin header on non-loopback', () => {
+		expect(isAllowedWebSocketOrigin(undefined, 'term.example.ts.net')).toBe(false)
+		expect(isAllowedWebSocketOrigin(undefined, '0.0.0.0:7681')).toBe(false)
+		expect(isAllowedWebSocketOrigin(undefined, undefined)).toBe(false)
 	})
 })
 

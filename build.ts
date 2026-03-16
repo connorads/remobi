@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { generatePwaHtml } from './src/pwa/meta-tags'
+import { escapeAttr, generatePwaHtml } from './src/pwa/meta-tags'
 import type { RemobiConfig } from './src/types'
 import { readStdin, sleep, spawnProcess } from './src/util/node-compat'
 
@@ -113,7 +113,7 @@ const WS_INTERCEPTOR =
 
 /** Inject remobi overlay into ttyd's HTML */
 export function injectOverlay(html: string, js: string, css: string, config: RemobiConfig): string {
-	const fontLink = `<link rel="preload" href="${config.font.cdnUrl}" as="style" onload="this.rel='stylesheet'">`
+	const fontLink = `<link rel="preload" href="${escapeAttr(config.font.cdnUrl)}" as="style" onload="this.rel='stylesheet'">`
 	const viewport =
 		'<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">'
 	const styleTag = `<style>${css}</style>`

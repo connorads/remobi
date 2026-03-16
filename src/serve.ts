@@ -67,7 +67,8 @@ export function isAllowedWebSocketOrigin(
 	hostHeader: string | undefined,
 ): boolean {
 	if (originHeader === undefined) {
-		return true
+		const hostname = (hostHeader ?? '').replace(/:\d+$/, '')
+		return isLoopbackHost(hostname)
 	}
 	if (hostHeader === undefined) {
 		return false
