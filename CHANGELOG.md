@@ -1,3 +1,10 @@
+## [0.2.2](https://github.com/connorads/remobi/compare/v0.2.1...v0.2.2) (2026-03-16)
+
+
+### Bug Fixes
+
+* guard process.argv[1] for strict index access ([32eabce](https://github.com/connorads/remobi/commit/32eabce2a86651aa101c4756f5b59935c49e8154))
+
 ## [0.2.1](https://github.com/connorads/remobi/compare/v0.2.0...v0.2.1) (2026-03-15)
 
 
