@@ -32,7 +32,7 @@ Running coding agents in tmux? remobi lets you monitor and control them from you
 - **Pinch to zoom** — resize text like every other app on your phone
 - **Install to your home screen** — standalone PWA, looks and feels native
 - **Config-driven** — your buttons, your gestures, your layout. Or let an AI agent configure it for you
-- **Self-hosted** — your data never leaves your network. Bring your own tunnel (Tailscale, Cloudflare, ngrok)
+- **Self-hosted** — local-first by default. Bring your own access layer (Tailscale, Cloudflare, ngrok)
 
 ## Requirements
 
@@ -48,20 +48,31 @@ remobi uses standard ttyd flags (`--writable`, `-t`, `-i`) and should work with 
 # 1. Install
 npm install -g remobi
 
-# 2. Start (builds overlay, manages ttyd, serves with PWA support)
+# 2. Start (builds overlay, manages ttyd, serves with PWA support on 127.0.0.1:7681)
 remobi serve
 ```
 
 For local development, use `pnpm link --global` from the repo root instead of `npm install -g remobi`.
 
-Open `http://localhost:7681` on your phone. Add to Home Screen for an app-like experience.
+Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](docs/guides/tailscale-serve.md).
+
+## Security model
+
+`remobi` is a remote-control surface for your terminal. Anyone who can reach it can drive the tmux session with your user privileges.
+
+- `remobi serve` binds to `127.0.0.1` by default.
+- The inner `ttyd` process also binds to `127.0.0.1`.
+- There is no built-in login, password, or ACL in remobi itself.
+- Safe default: keep it on localhost and publish it through a trusted layer like Tailscale Serve.
+- If you use `remobi serve --host 0.0.0.0`, you are exposing terminal control to your LAN/whatever can route to that port. Do that only if you intentionally want direct network exposure and have separate network controls in place.
 
 ## CLI reference
 
-```
-remobi serve [--config <path>] [--port <n>] [-- <command...>]
+```text
+remobi serve [--config <path>] [--port <n>] [--host <addr>] [-- <command...>]
   Build overlay in memory, manage ttyd, serve with PWA support.
-  Default port: 7681. Default command: tmux new-session -A -s main
+  Default host: 127.0.0.1. Default port: 7681. Default command: tmux new-session -A -s main
+  Example: remobi serve --host 0.0.0.0 --port 8080
   Example: remobi serve --port 8080 -- tmux new -As dev
 
 remobi build [--config <path>] [--output <path>] [--dry-run]

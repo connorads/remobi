@@ -19,6 +19,8 @@ remobi serve
 
 This builds the overlay in memory, starts ttyd on an internal port, and serves on `:7681` with full PWA support (manifest, icons, meta tags).
 
+By default `remobi serve` binds to `127.0.0.1`, so it is not exposed on your LAN. Tailscale Serve is the thing that publishes it.
+
 ### 2. Expose via Tailscale Serve
 
 ```bash
@@ -74,6 +76,8 @@ function webtermdown() {
 ```
 
 ## Advanced: manual build + ttyd
+
+If you are tempted to run `remobi serve --host 0.0.0.0`, be explicit about the trade-off: that bypasses the localhost-only default and exposes terminal control directly on the bound network interface. Prefer keeping remobi on loopback and letting Tailscale handle reachability.
 
 For cases where you need direct control over ttyd (e.g. custom flags, separate processes):
 

@@ -6,6 +6,7 @@ interface ParsedCliArgs {
 	readonly outputPath?: string
 	readonly dryRun: boolean
 	readonly port?: number
+	readonly host?: string
 	readonly noSleep: boolean
 	readonly command_: readonly string[]
 }
@@ -57,6 +58,7 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 	let outputPath: string | undefined
 	let dryRun = false
 	let port: number | undefined
+	let host: string | undefined
 	let noSleep = false
 	let trailingCommand: readonly string[] = []
 
@@ -129,6 +131,18 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 			continue
 		}
 
+		if (arg === '--host') {
+			if (commandToken !== 'serve') {
+				return { ok: false, error: `${arg} is only valid for 'serve'` }
+			}
+			if (isMissingOptionValue(nextArg)) {
+				return { ok: false, error: 'Missing value for --host' }
+			}
+			host = nextArg
+			index++
+			continue
+		}
+
 		if (arg === '--no-sleep') {
 			if (commandToken !== 'serve') {
 				return { ok: false, error: `${arg} is only valid for 'serve'` }
@@ -152,6 +166,7 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 			outputPath,
 			dryRun,
 			port,
+			host,
 			noSleep,
 			command_: trailingCommand,
 		},

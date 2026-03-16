@@ -35,9 +35,9 @@ function usage(): void {
 	console.log(`remobi v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
 
 Usage:
-  remobi serve [--config <path>] [--port <n>] [--no-sleep] [-- <command...>]
+  remobi serve [--config <path>] [--port <n>] [--host <addr>] [--no-sleep] [-- <command...>]
     Build overlay in memory, manage ttyd, serve with PWA support.
-    Default port: 7681. Default command: tmux new-session -A -s main
+    Default host: 127.0.0.1. Default port: 7681. Default command: tmux new-session -A -s main
 
   remobi build [--config <path>] [--output <path>] [--dry-run]
     Build patched index.html for ttyd --index flag.
@@ -59,12 +59,14 @@ Flags:
   -c, --config <path>  Use a specific config file (build/inject/serve)
   -o, --output <path>  Build output path (build only)
   -p, --port <n>       Port to serve on (serve only, default 7681)
+      --host <addr>    Host/interface to bind (serve only, default 127.0.0.1)
   -n, --dry-run        Validate + print plan only (build/inject)
       --no-sleep       Prevent macOS sleep while serving (caffeinate -s, serve only)
 
 Examples:
   remobi serve
   remobi serve --no-sleep
+  remobi serve --host 0.0.0.0 --port 8080
   remobi serve --port 8080 -- tmux new -As dev
   remobi build -c ./remobi.config.ts -o ./dist/index.html
   remobi build --dry-run
@@ -205,12 +207,12 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
-	const { command, configPath, outputPath, dryRun, port, noSleep, command_ } = parsed.value
+	const { command, configPath, outputPath, dryRun, port, host, noSleep, command_ } = parsed.value
 
 	switch (command) {
 		case 'serve': {
 			const loaded = await loadConfig(configPath)
-			await serve(loaded.config, port, command_.length > 0 ? command_ : undefined, noSleep)
+			await serve(loaded.config, port, command_.length > 0 ? command_ : undefined, noSleep, host)
 			break
 		}
 

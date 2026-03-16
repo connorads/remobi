@@ -1,6 +1,13 @@
 import { describe, expect, test } from 'vitest'
 import { defaultConfig } from '../src/config'
-import { buildTtydArgs, randomInternalPort } from '../src/serve'
+import {
+	buildProxyRequestHeaders,
+	buildTtydArgs,
+	isAllowedWebSocketOrigin,
+	isLoopbackHost,
+	randomInternalPort,
+	withSecurityHeaders,
+} from '../src/serve'
 
 describe('randomInternalPort', () => {
 	test('returns a number in the 19000–19999 range', () => {
@@ -56,5 +63,79 @@ describe('buildTtydArgs', () => {
 	test('includes disableLeaveAlert', () => {
 		const args = buildTtydArgs(defaultConfig, 19500, ['tmux'])
 		expect(args).toContain('disableLeaveAlert=true')
+	})
+})
+
+describe('isLoopbackHost', () => {
+	test('accepts loopback hosts', () => {
+		expect(isLoopbackHost('127.0.0.1')).toBe(true)
+		expect(isLoopbackHost('::1')).toBe(true)
+		expect(isLoopbackHost('localhost')).toBe(true)
+	})
+
+	test('rejects non-loopback hosts', () => {
+		expect(isLoopbackHost('0.0.0.0')).toBe(false)
+		expect(isLoopbackHost('192.168.1.10')).toBe(false)
+	})
+})
+
+describe('isAllowedWebSocketOrigin', () => {
+	test('allows matching origin and host', () => {
+		expect(isAllowedWebSocketOrigin('https://term.example.ts.net', 'term.example.ts.net')).toBe(
+			true,
+		)
+		expect(isAllowedWebSocketOrigin('http://localhost:7681', 'localhost:7681')).toBe(true)
+	})
+
+	test('rejects mismatched or invalid origins', () => {
+		expect(isAllowedWebSocketOrigin('https://evil.example', 'localhost:7681')).toBe(false)
+		expect(isAllowedWebSocketOrigin('not a url', 'localhost:7681')).toBe(false)
+		expect(isAllowedWebSocketOrigin('https://term.example.ts.net', undefined)).toBe(false)
+	})
+
+	test('allows requests without an origin header', () => {
+		expect(isAllowedWebSocketOrigin(undefined, 'localhost:7681')).toBe(true)
+	})
+})
+
+describe('buildProxyRequestHeaders', () => {
+	test('strips hop-by-hop and origin headers before proxying to ttyd', () => {
+		const source = new Headers({
+			host: 'public.example',
+			origin: 'https://public.example',
+			connection: 'keep-alive',
+			'content-length': '42',
+			authorization: 'Bearer test',
+			'content-type': 'application/json',
+		})
+
+		const headers = buildProxyRequestHeaders(source)
+
+		expect(headers.has('host')).toBe(false)
+		expect(headers.has('origin')).toBe(false)
+		expect(headers.has('connection')).toBe(false)
+		expect(headers.has('content-length')).toBe(false)
+		expect(headers.get('authorization')).toBe('Bearer test')
+		expect(headers.get('content-type')).toBe('application/json')
+	})
+})
+
+describe('withSecurityHeaders', () => {
+	test('adds hardening headers without dropping existing ones', async () => {
+		const response = withSecurityHeaders(
+			new Response('ok', {
+				headers: { 'content-type': 'text/plain' },
+				status: 200,
+			}),
+		)
+
+		expect(response.headers.get('content-type')).toBe('text/plain')
+		expect(response.headers.get('x-frame-options')).toBe('DENY')
+		expect(response.headers.get('x-content-type-options')).toBe('nosniff')
+		expect(response.headers.get('referrer-policy')).toBe('no-referrer')
+		expect(response.headers.get('cross-origin-resource-policy')).toBe('same-origin')
+		expect(response.headers.get('permissions-policy')).toContain('camera=()')
+		expect(response.headers.get('content-security-policy')).toContain("frame-ancestors 'none'")
+		expect(await response.text()).toBe('ok')
 	})
 })

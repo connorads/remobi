@@ -65,6 +65,14 @@ describe('parseCliArgs', () => {
 		}
 	})
 
+	test('parses serve with --host flag', () => {
+		const result = parseCliArgs(['serve', '--host', '0.0.0.0'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.host).toBe('0.0.0.0')
+		}
+	})
+
 	test('parses serve with -p short flag', () => {
 		const result = parseCliArgs(['serve', '-p', '9000'])
 		expect(result.ok).toBe(true)
@@ -107,6 +115,22 @@ describe('parseCliArgs', () => {
 		expect(result.ok).toBe(false)
 		if (!result.ok) {
 			expect(result.error).toContain("only valid for 'serve'")
+		}
+	})
+
+	test('rejects --host outside serve command', () => {
+		const result = parseCliArgs(['build', '--host', '0.0.0.0'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain("only valid for 'serve'")
+		}
+	})
+
+	test('rejects missing --host value', () => {
+		const result = parseCliArgs(['serve', '--host'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Missing value for --host')
 		}
 	})
 

@@ -13,6 +13,7 @@ import { sleep, spawnProcess } from './util/node-compat'
 import type { SpawnedProcess } from './util/node-compat'
 
 const DEFAULT_PORT = 7681
+const DEFAULT_HOST = '127.0.0.1'
 const DEFAULT_COMMAND = ['tmux', 'new-session', '-A', '-s', 'main']
 // Walk up from module location to find package root, then resolve icons
 function findIconsDir(): string {
@@ -31,6 +32,79 @@ const ICONS_DIR = findIconsDir()
 interface WsData {
 	backend: WebSocket | null
 	buffer: (string | Uint8Array)[]
+}
+
+const RESPONSE_SECURITY_HEADERS = {
+	'content-security-policy':
+		"frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
+	'x-frame-options': 'DENY',
+	'x-content-type-options': 'nosniff',
+	'referrer-policy': 'no-referrer',
+	'cross-origin-resource-policy': 'same-origin',
+	'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+} as const
+
+const STRIPPED_PROXY_REQUEST_HEADERS = new Set([
+	'connection',
+	'content-length',
+	'host',
+	'keep-alive',
+	'origin',
+	'proxy-authenticate',
+	'proxy-authorization',
+	'te',
+	'trailer',
+	'transfer-encoding',
+	'upgrade',
+])
+
+export function isLoopbackHost(host: string): boolean {
+	return host === '127.0.0.1' || host === '::1' || host === 'localhost'
+}
+
+export function isAllowedWebSocketOrigin(
+	originHeader: string | undefined,
+	hostHeader: string | undefined,
+): boolean {
+	if (originHeader === undefined) {
+		return true
+	}
+	if (hostHeader === undefined) {
+		return false
+	}
+
+	try {
+		return new URL(originHeader).host === hostHeader
+	} catch {
+		return false
+	}
+}
+
+export function buildProxyRequestHeaders(source: Headers): Headers {
+	const headers = new Headers()
+
+	for (const [name, value] of source.entries()) {
+		if (STRIPPED_PROXY_REQUEST_HEADERS.has(name.toLowerCase())) {
+			continue
+		}
+		headers.append(name, value)
+	}
+
+	return headers
+}
+
+export function withSecurityHeaders(response: Response): Response {
+	const headers = new Headers(response.headers)
+
+	for (const [name, value] of Object.entries(RESPONSE_SECURITY_HEADERS)) {
+		headers.set(name, value)
+	}
+
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers,
+	})
 }
 
 /** Poll until ttyd is accepting connections on the given port */
@@ -113,6 +187,7 @@ export async function serve(
 	port: number = DEFAULT_PORT,
 	command: readonly string[] = DEFAULT_COMMAND,
 	noSleep = false,
+	host: string = DEFAULT_HOST,
 ): Promise<void> {
 	console.log('remobi: building overlay...')
 	const { js, css } = await bundleOverlay(config)
@@ -146,6 +221,13 @@ export async function serve(
 
 	const app = new Hono()
 	const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
+
+	app.use('/ws', async (c, next) => {
+		if (!isAllowedWebSocketOrigin(c.req.header('origin'), c.req.header('host'))) {
+			return withSecurityHeaders(c.text('Forbidden', 403))
+		}
+		await next()
+	})
 
 	app.get(
 		'/ws',
@@ -209,36 +291,42 @@ export async function serve(
 		})),
 	)
 
-	app.get('/', (c) => c.html(html))
+	app.get('/', (c) => withSecurityHeaders(c.html(html)))
 
 	if (manifestJson !== null) {
 		app.get('/manifest.json', (c) => {
 			// oxlint-disable-next-line typescript/consistent-type-assertions -- JSON.parse returns unknown, safe for manifest
-			return c.json(JSON.parse(manifestJson) as Record<string, unknown>)
+			return withSecurityHeaders(c.json(JSON.parse(manifestJson) as Record<string, unknown>))
 		})
 	}
 
 	if (icon180) {
 		app.get('/apple-touch-icon.png', () => {
-			return new Response(Uint8Array.from(icon180), {
-				headers: { 'content-type': 'image/png' },
-			})
+			return withSecurityHeaders(
+				new Response(Uint8Array.from(icon180), {
+					headers: { 'content-type': 'image/png' },
+				}),
+			)
 		})
 	}
 
 	if (icon192) {
 		app.get('/icon-192.png', () => {
-			return new Response(Uint8Array.from(icon192), {
-				headers: { 'content-type': 'image/png' },
-			})
+			return withSecurityHeaders(
+				new Response(Uint8Array.from(icon192), {
+					headers: { 'content-type': 'image/png' },
+				}),
+			)
 		})
 	}
 
 	if (icon512) {
 		app.get('/icon-512.png', () => {
-			return new Response(Uint8Array.from(icon512), {
-				headers: { 'content-type': 'image/png' },
-			})
+			return withSecurityHeaders(
+				new Response(Uint8Array.from(icon512), {
+					headers: { 'content-type': 'image/png' },
+				}),
+			)
 		})
 	}
 
@@ -248,19 +336,24 @@ export async function serve(
 		const backendUrl = `http://127.0.0.1:${internalPort}${url.pathname}${url.search}`
 		const resp = await fetch(backendUrl, {
 			method: c.req.method,
-			headers: c.req.raw.headers,
+			headers: buildProxyRequestHeaders(c.req.raw.headers),
 			body: c.req.raw.body,
 		})
-		return new Response(resp.body, {
-			status: resp.status,
-			headers: resp.headers,
-		})
+		return withSecurityHeaders(
+			new Response(resp.body, {
+				status: resp.status,
+				headers: resp.headers,
+			}),
+		)
 	})
 
-	const server = honoServe({ fetch: app.fetch, port })
+	const server = honoServe({ fetch: app.fetch, port, hostname: host })
 	injectWebSocket(server)
 
-	console.log(`remobi: serving on http://localhost:${port}`)
+	console.log(`remobi: serving on http://${isLoopbackHost(host) ? 'localhost' : host}:${port}`)
+	if (!isLoopbackHost(host)) {
+		console.warn(`remobi: warning: --host ${host} exposes terminal control beyond localhost`)
+	}
 
 	// Clean shutdown on SIGINT / SIGTERM
 	const cleanup = () => {
