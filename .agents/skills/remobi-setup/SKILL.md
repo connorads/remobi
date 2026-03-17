@@ -123,10 +123,12 @@ For each missing item, offer a concrete snippet the user can paste into `tmux.co
 
 Ask: "How do you want to access remobi from your phone?"
 
+remobi is a remote-control surface for your terminal — never expose it to the public internet. All deployment options below keep access private.
+
 Common options:
-- **Tailscale Serve** (recommended) — HTTPS over your tailnet, no public exposure. Read `references/tailscale-serve.md` for the full guide.
-- **Cloudflare Tunnel** — public internet via `cloudflared tunnel --url http://localhost:7681`
-- **Local network only** — `remobi serve --host 0.0.0.0` (LAN exposure, warn about security)
+- **Tailscale Serve** (recommended) — HTTPS over your private tailnet. Read `references/tailscale-serve.md` for the full guide.
+- **Cloudflare Tunnel + Access** — private tunnel with Cloudflare Access policies controlling who can connect (e.g. restrict by email, IdP group, device posture). Do not use unauthenticated quick tunnels.
+- **Local network only** — `remobi serve` on localhost behind your own VPN or private network.
 
 For macOS users, mention `--no-sleep` and point to `references/keep-awake.md` for persistent options.
 
