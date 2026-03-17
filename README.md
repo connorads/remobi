@@ -20,7 +20,9 @@ It's a terminal on a 6-inch screen. It won't win design awards. But you can do *
 
 Your coding agent handles the rest. It installs remobi, inspects your tmux config, generates a config, and suggests tweaks to make your tmux more mobile-friendly — one conversation. Works with Claude Code and Codex.
 
-<!-- TODO: add demo video -->
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/9c7174b7-8ead-470d-b6b9-0c5adf27826f" />
+</div>
 
 ## Why remobi
 
