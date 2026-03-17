@@ -34,6 +34,14 @@ Running coding agents in tmux? remobi lets you monitor and control them from you
 - **Config-driven** — your buttons, your gestures, your layout. Or let an AI agent configure it for you
 - **Self-hosted** — local-first by default. Bring your own access layer (Tailscale, Cloudflare, ngrok)
 
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/connorads/remobi/refs/heads/main/install.sh | bash
+```
+
+Installs the setup skill, picks your coding agent, and walks you through the full setup interactively.
+
 ## Requirements
 
 - [Node.js](https://nodejs.org/) ≥ 22
@@ -42,7 +50,7 @@ Running coding agents in tmux? remobi lets you monitor and control them from you
 
 remobi uses standard ttyd flags (`--writable`, `-t`, `-i`) and should work with any recent ttyd release.
 
-## Quick start
+## Manual setup
 
 ```bash
 # 1. Install
