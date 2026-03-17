@@ -3,7 +3,7 @@ import { defaultConfig } from '../src/config'
 import {
 	buildProxyRequestHeaders,
 	buildTtydArgs,
-	isAllowedWebSocketOrigin,
+	isAllowedOrigin,
 	isLoopbackHost,
 	randomInternalPort,
 	withSecurityHeaders,
@@ -79,29 +79,29 @@ describe('isLoopbackHost', () => {
 	})
 })
 
-describe('isAllowedWebSocketOrigin', () => {
+describe('isAllowedOrigin', () => {
 	test('allows matching origin and host', () => {
-		expect(isAllowedWebSocketOrigin('https://term.example.ts.net', 'term.example.ts.net')).toBe(
+		expect(isAllowedOrigin('https://term.example.ts.net', 'term.example.ts.net')).toBe(
 			true,
 		)
-		expect(isAllowedWebSocketOrigin('http://localhost:7681', 'localhost:7681')).toBe(true)
+		expect(isAllowedOrigin('http://localhost:7681', 'localhost:7681')).toBe(true)
 	})
 
 	test('rejects mismatched or invalid origins', () => {
-		expect(isAllowedWebSocketOrigin('https://evil.example', 'localhost:7681')).toBe(false)
-		expect(isAllowedWebSocketOrigin('not a url', 'localhost:7681')).toBe(false)
-		expect(isAllowedWebSocketOrigin('https://term.example.ts.net', undefined)).toBe(false)
+		expect(isAllowedOrigin('https://evil.example', 'localhost:7681')).toBe(false)
+		expect(isAllowedOrigin('not a url', 'localhost:7681')).toBe(false)
+		expect(isAllowedOrigin('https://term.example.ts.net', undefined)).toBe(false)
 	})
 
 	test('allows requests without an origin header on loopback', () => {
-		expect(isAllowedWebSocketOrigin(undefined, 'localhost:7681')).toBe(true)
-		expect(isAllowedWebSocketOrigin(undefined, '127.0.0.1:7681')).toBe(true)
+		expect(isAllowedOrigin(undefined, 'localhost:7681')).toBe(true)
+		expect(isAllowedOrigin(undefined, '127.0.0.1:7681')).toBe(true)
 	})
 
 	test('rejects requests without an origin header on non-loopback', () => {
-		expect(isAllowedWebSocketOrigin(undefined, 'term.example.ts.net')).toBe(false)
-		expect(isAllowedWebSocketOrigin(undefined, '0.0.0.0:7681')).toBe(false)
-		expect(isAllowedWebSocketOrigin(undefined, undefined)).toBe(false)
+		expect(isAllowedOrigin(undefined, 'term.example.ts.net')).toBe(false)
+		expect(isAllowedOrigin(undefined, '0.0.0.0:7681')).toBe(false)
+		expect(isAllowedOrigin(undefined, undefined)).toBe(false)
 	})
 })
 

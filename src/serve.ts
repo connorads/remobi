@@ -64,7 +64,7 @@ export function isLoopbackHost(host: string): boolean {
 	return host === '127.0.0.1' || host === '::1' || host === 'localhost'
 }
 
-export function isAllowedWebSocketOrigin(
+export function isAllowedOrigin(
 	originHeader: string | undefined,
 	hostHeader: string | undefined,
 ): boolean {
@@ -226,7 +226,7 @@ export async function serve(
 	const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
 
 	app.use('/ws', async (c, next) => {
-		if (!isAllowedWebSocketOrigin(c.req.header('origin'), c.req.header('host'))) {
+		if (!isAllowedOrigin(c.req.header('origin'), c.req.header('host'))) {
 			return withSecurityHeaders(c.text('Forbidden', 403))
 		}
 		await next()
@@ -340,6 +340,18 @@ export async function serve(
 			)
 		})
 	}
+
+	// Origin check for non-safe methods and sensitive paths (e.g. /token)
+	app.use('/*', async (c, next) => {
+		const method = c.req.method
+		const isSafe = method === 'GET' || method === 'HEAD' || method === 'OPTIONS'
+		if (!isSafe || c.req.path === '/token') {
+			if (!isAllowedOrigin(c.req.header('origin'), c.req.header('host'))) {
+				return withSecurityHeaders(c.text('Forbidden', 403))
+			}
+		}
+		await next()
+	})
 
 	// Proxy remaining requests to ttyd (e.g. /token)
 	app.all('/*', async (c) => {
