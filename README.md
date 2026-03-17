@@ -58,11 +58,17 @@ Open `http://localhost:7681` on the same machine to verify it works. For phone a
 
 ## Set up with AI
 
-Tell your coding agent:
+Install the remobi skill:
 
-> Install the remobi skill (`npx skills add connorads/remobi`) and use it to onboard me.
+```bash
+npx skills add connorads/remobi
+```
 
-The agent will install the skill, check your environment, inspect your tmux config, ask what you want, and generate everything — remobi config, tmux mobile tweaks, deployment setup. Full guided experience in one conversation.
+Then tell your coding agent:
+
+> Use the remobi-setup skill to onboard me.
+
+The agent will check your environment, inspect your tmux config, ask what you want, and generate everything — remobi config, tmux mobile tweaks, deployment setup. Full guided experience in one conversation.
 
 ## Security model
 
