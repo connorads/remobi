@@ -1,3 +1,10 @@
+## [0.2.6](https://github.com/connorads/remobi/compare/v0.2.5...v0.2.6) (2026-03-17)
+
+
+### Bug Fixes
+
+* **ci:** gate release on CI success ([0171dcf](https://github.com/connorads/remobi/commit/0171dcf1a7bd07b9bf92be9c7889ce345432eed3))
+
 ## [0.2.5](https://github.com/connorads/remobi/compare/v0.2.4...v0.2.5) (2026-03-17)
 
 
