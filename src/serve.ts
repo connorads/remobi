@@ -15,6 +15,7 @@ import type { SpawnedProcess } from './util/node-compat'
 const DEFAULT_PORT = 7681
 const DEFAULT_HOST = '127.0.0.1'
 const DEFAULT_COMMAND = ['tmux', 'new-session', '-A', '-s', 'main']
+const MAX_WS_BUFFER_BYTES = 1024 * 1024 // 1 MB
 // Walk up from module location to find package root, then resolve icons
 function findIconsDir(): string {
 	let dir = import.meta.dirname
@@ -32,6 +33,7 @@ const ICONS_DIR = findIconsDir()
 interface WsData {
 	backend: WebSocket | null
 	buffer: (string | Uint8Array)[]
+	bufferBytes: number
 }
 
 const RESPONSE_SECURITY_HEADERS = {
@@ -237,7 +239,7 @@ export async function serve(
 				const raw = ws.raw
 				if (!raw) return
 
-				const data: WsData = { backend: null, buffer: [] }
+				const data: WsData = { backend: null, buffer: [], bufferBytes: 0 }
 				connections.set(raw, data)
 
 				const backend = new WebSocket(`ws://127.0.0.1:${internalPort}/ws`, ['tty'])
@@ -249,6 +251,7 @@ export async function serve(
 						backend.send(msg)
 					}
 					data.buffer = []
+					data.bufferBytes = 0
 				})
 
 				backend.on('message', (message: WebSocket.RawData, isBinary: boolean) => {
@@ -280,7 +283,14 @@ export async function serve(
 				} else {
 					const msg = event.data
 					// oxlint-disable-next-line typescript/consistent-type-assertions -- WSMessageReceive union needs narrowing for Uint8Array ctor
-					buffer.push(typeof msg === 'string' ? msg : new Uint8Array(msg as ArrayBuffer))
+					const entry = typeof msg === 'string' ? msg : new Uint8Array(msg as ArrayBuffer)
+					const entrySize = typeof entry === 'string' ? entry.length : entry.byteLength
+					if (data.bufferBytes + entrySize > MAX_WS_BUFFER_BYTES) {
+						ws.close()
+						return
+					}
+					data.bufferBytes += entrySize
+					buffer.push(entry)
 				}
 			},
 			onClose(_event: CloseEvent, ws: WSContext<WebSocket>) {
