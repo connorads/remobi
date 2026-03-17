@@ -56,6 +56,14 @@ For local development, use `pnpm link --global` from the repo root instead of `n
 
 Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](docs/guides/tailscale-serve.md).
 
+## Set up with AI
+
+Tell your coding agent:
+
+> Install the remobi skill (`npx skills add connorads/remobi`) and use it to onboard me.
+
+The agent will install the skill, check your environment, inspect your tmux config, ask what you want, and generate everything — remobi config, tmux mobile tweaks, deployment setup. Full guided experience in one conversation.
+
 ## Security model
 
 `remobi` is a remote-control surface for your terminal. Anyone who can reach it can drive the tmux session with your user privileges.
@@ -165,25 +173,6 @@ export default defineConfig({
 })
 ```
 
-<details>
-<summary>Configure with an AI agent</summary>
-
-### Install the remobi skill
-
-```bash
-npx skills add connorads/remobi
-```
-
-For a specific agent only (e.g. Claude Code, globally): `npx skills add connorads/remobi -a claude-code -g`
-
-### Or paste this prompt
-
-> Inspect my tmux config (`tmux show-options -g prefix` and `tmux list-keys`), then generate a `remobi.config.ts` tailored to my setup. Allowed root keys: `name theme font toolbar drawer gestures mobile floatingButtons pwa reconnect`. Action types: `send | ctrl-modifier | paste | combo-picker | drawer-toggle`. Use `drawer.buttons` not `drawer.commands`. Validate with `remobi build --dry-run` and fix any errors. Summarise what was configured.
-
-See the full [agent setup guide](docs/guides/agent-setup.md) for examples and escape-code reference.
-
-</details>
-
 All fields are optional — defaults are filled in via `defineConfig()`.
 
 Shipped tmux drawer defaults stick to stock tmux bindings (`c`, `%`, `"`, `s`, `w`, `[`, `?`, `x`, `z`) rather than personal popup workflows.
@@ -238,7 +227,6 @@ init(undefined, hooks)
 - [ttyd flags](docs/guides/ttyd-flags.md) — recommended ttyd options and theme flags
 - [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
 - [Mobile-friendly tmux config](docs/guides/mobile-tmux.md) — responsive status bar, popup sizing, binding ergonomics
-- [Agent setup](docs/guides/agent-setup.md) — configure remobi with AI agents
 
 ## Architecture
 
