@@ -143,6 +143,9 @@ describe('withSecurityHeaders', () => {
 		expect(response.headers.get('cross-origin-resource-policy')).toBe('same-origin')
 		expect(response.headers.get('permissions-policy')).toContain('camera=()')
 		expect(response.headers.get('content-security-policy')).toContain("frame-ancestors 'none'")
+		expect(response.headers.get('content-security-policy')).toContain(
+			"script-src 'self' 'unsafe-inline'",
+		)
 		expect(await response.text()).toBe('ok')
 	})
 })

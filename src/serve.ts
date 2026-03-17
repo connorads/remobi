@@ -38,7 +38,7 @@ interface WsData {
 
 const RESPONSE_SECURITY_HEADERS = {
 	'content-security-policy':
-		"frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
+		"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; img-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
 	'x-frame-options': 'DENY',
 	'x-content-type-options': 'nosniff',
 	'referrer-policy': 'no-referrer',
