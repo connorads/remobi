@@ -12,7 +12,7 @@
 
 Running coding agents in tmux? remobi lets you monitor and control them from your phone. Swipe between windows, scroll through output, pinch to zoom, tap buttons for tmux commands. Same session, touch-native controls. No workflow changes.
 
-[ttyd](https://github.com/tsl0922/ttyd) gives you a terminal in a browser. On mobile, it's unusable — no toolbar, no gestures, tiny unresizable text. remobi adds a touch overlay on top. One command. Install it like a native app.
+[ttyd](https://github.com/tsl0922/ttyd) is brilliant for sharing a terminal over the web, but it's built for desktop browsers. remobi adds mobile touch controls on top — toolbar, gestures, pinch-to-zoom. One command. Install it like a native app.
 
 <div align="center">
   <!-- Upload demo/out/demo.mp4 via GitHub issue/PR drag-and-drop, then replace the src below -->
