@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { serve as honoServe } from '@hono/node-server'
@@ -133,9 +134,9 @@ async function waitForTtyd(port: number, retries = 40, intervalMs = 200): Promis
 	)
 }
 
-/** Pick a random internal port */
+/** Pick a random internal port in the IANA ephemeral range (crypto-secure) */
 export function randomInternalPort(): number {
-	return 19000 + Math.floor(Math.random() * 1000)
+	return randomInt(49152, 65536)
 }
 
 /** Build ttyd args from remobi config */

@@ -11,11 +11,11 @@ import {
 } from '../src/serve'
 
 describe('randomInternalPort', () => {
-	test('returns a number in the 19000–19999 range', () => {
+	test('returns a number in the IANA ephemeral range (49152–65535)', () => {
 		for (let i = 0; i < 50; i++) {
 			const port = randomInternalPort()
-			expect(port).toBeGreaterThanOrEqual(19000)
-			expect(port).toBeLessThan(20000)
+			expect(port).toBeGreaterThanOrEqual(49152)
+			expect(port).toBeLessThanOrEqual(65535)
 		}
 	})
 
