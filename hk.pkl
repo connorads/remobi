@@ -19,6 +19,9 @@ hooks {
 			["tsc"] {
 				check = "pnpm exec tsc --noEmit"
 			}
+			["knip"] {
+				check = "pnpm run lint:knip"
+			}
 		}
 	}
 	["commit-msg"] {

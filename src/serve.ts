@@ -316,11 +316,12 @@ export async function serve(
 
 	if (manifestJson !== null) {
 		app.get('/manifest.json', (c) => {
-			// oxlint-disable-next-line typescript/consistent-type-assertions -- JSON.parse returns unknown, safe for manifest
+			/* oxlint-disable typescript/consistent-type-assertions -- JSON.parse returns unknown, safe for manifest */
 			return withSecurityHeaders(
 				c.json(JSON.parse(manifestJson) as Record<string, unknown>),
 				securityHeaders,
 			)
+			/* oxlint-enable typescript/consistent-type-assertions */
 		})
 	}
 
