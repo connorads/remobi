@@ -37,7 +37,7 @@ Running coding agents in tmux? remobi lets you monitor and control them from you
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/connorads/remobi/refs/heads/main/install.sh | bash
+/bin/bash -c "$(curl -fsSL http://remobi.app/install.sh)"
 ```
 
 Installs the setup skill, picks your coding agent, and walks you through the full setup interactively.
