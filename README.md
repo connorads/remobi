@@ -77,6 +77,8 @@ The agent will check your environment, inspect your tmux config, ask what you wa
 - Safe default: keep it on localhost and publish it through a trusted layer like Tailscale Serve.
 - If you use `remobi serve --host 0.0.0.0`, you are exposing terminal control to your LAN/whatever can route to that port. Do that only if you intentionally want direct network exposure and have separate network controls in place.
 
+To report a vulnerability, see [SECURITY.md](SECURITY.md).
+
 ## CLI reference
 
 ```text
@@ -268,18 +270,28 @@ remobi follows semantic versioning. The public API is defined by the following i
 ## Development
 
 ```bash
+git clone https://github.com/connorads/remobi.git && cd remobi
 pnpm install
-pnpm test
-pnpm run check     # biome lint + format
-pnpm run build     # build dist/index.html (dev-time, uses tsx)
+git config core.hooksPath .hk-hooks   # enable commit hooks (conventional commits, biome)
 ```
 
-For local development:
+### Running locally
 
 ```bash
-cd ~/git/remobi
-pnpm link --global   # remobi CLI available globally
-pnpm run build:dist  # transpile TS → JS (tsdown)
+pnpm run build:dist          # transpile TS → JS (tsdown) — must re-run after source changes
+node dist/cli.mjs serve      # runs the locally-built version on http://localhost:7681
+```
+
+Or use `pnpm link --global` to make the `remobi` CLI available globally, then run `remobi serve`.
+
+There is no watch mode — re-run `pnpm run build:dist` after each code change.
+
+### Checks
+
+```bash
+pnpm test            # vitest
+pnpm run check       # biome lint + format
+pnpm run build       # build dist/index.html (dev-time, uses tsx + esbuild)
 ```
 
 ## FAQ
