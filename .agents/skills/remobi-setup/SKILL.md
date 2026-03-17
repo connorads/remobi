@@ -62,7 +62,28 @@ Note down:
 - Status bar complexity (affects mobile width recommendations)
 - Plugin manager (tpm, etc.)
 
-If the user has no tmux config at all, offer to help set up a basic one before continuing.
+If the user has no tmux config at all, read `references/tmux-basics.md` and help them create a starter config:
+- Explain what tmux is and its benefits (persistent sessions, windows/panes, popup tools)
+- Install tmux if missing
+- Create `~/.config/tmux/tmux.conf` with mouse, renumber-windows, true colour, scrollback, vi keys
+- Explain sessions/windows/panes and the essential keybindings
+- Set up a help popup as the first `display-popup` binding: `bind ? display-popup -E -w 80% -h 80% "tmux list-keys | less"` — immediate payoff, no extra tools, teaches the popup concept
+- Suggest `status-position top` (keeps status away from remobi toolbar)
+- Optionally set up tpm for plugin management
+
+Only proceed to Phase 3 once the user has a working tmux session.
+
+**Detect installed tools** — check for popular tools that work well as tmux popup bindings:
+
+```bash
+which lazygit              # Git TUI — great as popup
+which yazi                 # File manager — great as popup
+which btm || which htop    # System monitor
+which nvim || which vim    # Editor
+which gh                   # GitHub CLI (gh-dash)
+```
+
+Note which tools are installed. In Phase 3, suggest popup bindings for each. In Phase 4, generate matching drawer buttons. If none are installed, suggest lazygit as the most valuable first popup tool.
 
 ### Phase 3: Interview the user
 
@@ -70,12 +91,14 @@ Ask questions **one at a time** — don't dump a list. Adapt based on what you l
 
 1. **What do you primarily use tmux for?** (coding agents, dev workflow, server monitoring, all of the above)
 2. **Do you use popup bindings for tools?** Which ones? (lazygit, yazi, neovim, scratch shell, gh-dash, session picker)
-3. **Do you want touch scrolling?** What strategy? (`wheel` for mouse-event scrolling, `keys` for PageUp/PageDown paging)
-4. **Auto-zoom on mobile?** When you open remobi on your phone, should the current pane zoom to full screen automatically?
-5. **Floating zoom button?** A persistent button overlaid on the terminal for one-tap zoom toggle
-6. **Custom theme or Catppuccin Mocha?** (Catppuccin Mocha is the default and looks great — only ask if the user's tmux theme is clearly different)
-7. **Font preference?** (default: JetBrainsMono NFM)
-8. **Any other tmux bindings you want on your phone?** (This catches anything the inspection missed)
+3. **Detected tools** — "I detected [lazygit/yazi/btm/etc.] on your system. Would you like popup bindings in tmux and matching drawer buttons in remobi for any of these?" Adapt based on Phase 2 detection. For tools not installed, briefly explain what they are and ask if the user wants to install any.
+4. **Custom split bindings?** — Stock tmux uses `%` (vertical) and `"` (horizontal). Some configs remap to `|` and `-`. If custom, the drawer buttons need updated escape codes.
+5. **Do you want touch scrolling?** — `wheel` (default, recommended) sends mouse-wheel events — works in vim, less, htop, and any mouse-aware app. `keys` sends PageUp/PageDown — simpler, works everywhere including plain tmux copy-mode. Which fits your workflow?
+6. **Auto-zoom on mobile?** When you open remobi on your phone, should the current pane zoom to full screen automatically?
+7. **Floating zoom button?** A persistent button overlaid on the terminal for one-tap zoom toggle
+8. **Custom theme or Catppuccin Mocha?** (Catppuccin Mocha is the default and looks great — only ask if the user's tmux theme is clearly different)
+9. **Font preference?** (default: JetBrainsMono NFM)
+10. **Any other tmux bindings you want on your phone?** (This catches anything the inspection missed)
 
 Skip questions where you already know the answer from phase 2. Summarise what you've gathered before moving to config generation.
 
@@ -130,6 +153,18 @@ Common options:
 - **Cloudflare Tunnel + Access** — private tunnel with Cloudflare Access policies controlling who can connect (e.g. restrict by email, IdP group, device posture). Do not use unauthenticated quick tunnels.
 - **Local network only** — `remobi serve` on localhost behind your own VPN or private network.
 
+#### Security hardening
+
+remobi hardens the connection even on private networks. Mention these if the user has security concerns:
+
+- **Binds `127.0.0.1` only** — never exposed to network without explicit `--host` flag
+- **Content-Security-Policy** — strict default-src, script-src, connect-src scoped to same host
+- **WebSocket origin validation** — rejects cross-origin upgrade requests
+- **Relay buffer limit** — 1 MB per connection; drops oversized payloads
+- **Crypto-secure internal port** — ttyd listens on a random ephemeral port (crypto PRNG), never exposed
+- **X-Frame-Options DENY** — prevents clickjacking via iframes
+- **Referrer-Policy: no-referrer** — no URL leaking to external sites
+
 For macOS users, mention `--no-sleep` and point to `references/keep-awake.md` for persistent options.
 
 For users who want manual ttyd control, point to `references/ttyd-flags.md`.
@@ -141,6 +176,16 @@ Tell the user:
 2. How to start: `remobi serve`
 3. How to access from their phone (URL from deployment choice)
 4. PWA install: on mobile, tap "Add to Home Screen" for a standalone app experience
+5. Built-in mobile controls (these work out of the box, no config needed):
+   - **Font size**: `+`/`-` buttons in top-right. Config: `font.mobileSizeDefault` (default 16px), `font.sizeRange` (default [8, 32]), steps by 2
+   - **Scroll buttons**: Floating arrow buttons on the sides. Long-press for rapid repeat (300ms delay, 100ms interval). Auto-fade after 2s. Strategy follows `gestures.scroll.strategy` (`wheel` sends mouse events, `keys` sends PageUp/PageDown)
+   - **Combo picker**: Modal for arbitrary key combos — type `C-s`, `M-Enter`, `Alt-x`, `C-[`. Supports Ctrl, Alt, Shift modifiers + named keys (PageUp, Escape, etc.). Opened via drawer "Combo" button
+   - **Help overlay**: `?` button in top-right. Shows all configured buttons, gestures, and floating buttons in tables. Config-driven, updates when you change buttons
+   - **Landscape + keyboard**: When on-screen keyboard opens in landscape, row 2 auto-hides and buttons shrink. No config needed
+6. PWA: enabled by default. On mobile Safari/Chrome, tap Share then "Add to Home Screen" for standalone app experience. Config options:
+   - `pwa.enabled` (default `true`) — set `false` to disable manifest + icons
+   - `pwa.themeColor` (default `'#1e1e2e'`) — status bar colour on mobile
+   - `pwa.shortName` (optional) — short name for home screen icon (falls back to `name`)
 
 ---
 
@@ -213,6 +258,88 @@ floatingButtons: [
 ```
 
 Valid positions: `top-left | top-right | top-centre | bottom-left | bottom-right | bottom-centre | centre-left | centre-right`
+
+### Default button IDs
+
+**Toolbar row 1** (10 buttons):
+
+| `id` | `label` | `action` |
+|------|---------|----------|
+| `esc` | Esc | `send` `\x1b` |
+| `tmux-prefix` | Prefix | `send` `\x02` |
+| `tab` | Tab | `send` `\t` |
+| `shift-tab` | S-Tab | `send` `\x1b[Z` |
+| `left` | ← | `send` `\x1b[D` |
+| `up` | ↑ | `send` `\x1b[A` |
+| `down` | ↓ | `send` `\x1b[B` |
+| `right` | → | `send` `\x1b[C` |
+| `ctrl-c` | C-c | `send` `\x03` |
+| `enter` | ⏎ | `send` `\r` |
+
+**Toolbar row 2** (7 buttons):
+
+| `id` | `label` | `action` |
+|------|---------|----------|
+| `q` | q | `send` `q` |
+| `alt-enter` | M-↵ | `send` `\x1b\r` |
+| `ctrl-d` | C-d | `send` `\x04` |
+| `drawer-toggle` | ☰ More | `drawer-toggle` |
+| `paste` | Paste | `paste` |
+| `backspace` | ⌫ | `send` `\x7f` |
+| `space` | Space | `send` `' '` |
+
+**Drawer** (12 buttons):
+
+| `id` | `label` | `action` |
+|------|---------|----------|
+| `tmux-new-window` | + Win | `send` `\x02c` |
+| `tmux-split-vertical` | Split \| | `send` `\x02%` |
+| `tmux-split-horizontal` | Split — | `send` `\x02"` |
+| `tmux-zoom` | Zoom | `send` `\x02z` |
+| `tmux-sessions` | Sessions | `send` `\x02s` |
+| `tmux-windows` | Windows | `send` `\x02w` |
+| `page-up` | PgUp | `send` `\x1b[5~` |
+| `page-down` | PgDn | `send` `\x1b[6~` |
+| `tmux-copy` | Copy | `send` `\x02[` |
+| `tmux-help` | Help | `send` `\x02?` |
+| `tmux-kill-pane` | Kill | `send` `\x02x` |
+| `combo-picker` | Combo | `combo-picker` |
+
+### Gestures
+
+| Field | Default | Notes |
+|-------|---------|-------|
+| `gestures.swipe.enabled` | `true` | |
+| `gestures.swipe.left` | `'\x02n'` | Next tmux window |
+| `gestures.swipe.right` | `'\x02p'` | Previous tmux window |
+| `gestures.swipe.threshold` | `80` | Pixels |
+| `gestures.swipe.maxDuration` | `400` | Milliseconds |
+| `gestures.pinch.enabled` | `false` | |
+| `gestures.scroll.enabled` | `true` | |
+| `gestures.scroll.strategy` | `'wheel'` | `'wheel'` (recommended) sends SGR mouse wheel sequences — works in vim, less, htop. `'keys'` sends PageUp/PageDown — simpler, works everywhere |
+| `gestures.scroll.sensitivity` | `40` | |
+| `gestures.scroll.wheelIntervalMs` | `24` | |
+
+### Font
+
+| Field | Default | Notes |
+|-------|---------|-------|
+| `font.family` | `'JetBrainsMono NFM, monospace'` | CSS font-family |
+| `font.cdnUrl` | jsdelivr nerdfont URL | CSS file for web font |
+| `font.mobileSizeDefault` | `16` | px, applied on mobile |
+| `font.sizeRange` | `[8, 32]` | Min/max for +/- buttons |
+
+### PWA
+
+| Field | Default | Notes |
+|-------|---------|-------|
+| `pwa.enabled` | `true` | Set `false` to disable manifest + icons |
+| `pwa.themeColor` | `'#1e1e2e'` | Status bar colour on mobile |
+| `pwa.shortName` | (none) | Short name for home screen icon, falls back to `name` |
+
+### Hooks (advanced)
+
+Hooks are programmatic, not via `defineConfig()`. See `references/hooks.md` if the user asks about analytics, action filtering, or custom DOM. Do not proactively suggest hooks during setup.
 
 ### Escape-code cheat sheet
 
@@ -328,6 +455,43 @@ export default defineConfig({
   ],
 })
 ```
+
+### Popup-heavy workflow — lazygit, yazi, scratch shell
+
+Uses function form to keep default drawer buttons and append popup triggers:
+
+```typescript
+import { defineConfig } from 'remobi'
+
+export default defineConfig({
+  name: 'dev',
+  drawer: {
+    buttons: (defaults) => [
+      ...defaults,
+      {
+        id: 'lazygit',
+        label: 'Git',
+        description: 'Open lazygit popup (prefix + g)',
+        action: { type: 'send', data: '\x02g' },
+      },
+      {
+        id: 'yazi',
+        label: 'Files',
+        description: 'Open yazi file manager popup (prefix + y)',
+        action: { type: 'send', data: '\x02y' },
+      },
+      {
+        id: 'scratch',
+        label: 'Scratch',
+        description: 'Open scratch shell popup (prefix + `)',
+        action: { type: 'send', data: '\x02`' },
+      },
+    ],
+  },
+})
+```
+
+Requires matching tmux bindings (see `references/tmux-basics.md` popup section).
 
 ## Guardrails
 
