@@ -109,7 +109,7 @@ async function fetchTtydHtml(): Promise<string> {
 
 /** Synchronous script that captures WebSocket instances for reconnect detection */
 const WS_INTERCEPTOR =
-	'<script>(function(){var O=WebSocket,S=window.__remobiSockets=[];window.WebSocket=class extends O{constructor(u,p){super(u,p);S.push(this)}}})()</script>'
+	"<script>(function(){var O=WebSocket,S=[];Object.defineProperty(window,'__remobiSockets',{value:S});window.WebSocket=class extends O{constructor(u,p){super(u,p);S.push(this)}}})()</script>"
 
 /** Inject remobi overlay into ttyd's HTML */
 export function injectOverlay(html: string, js: string, css: string, config: RemobiConfig): string {
