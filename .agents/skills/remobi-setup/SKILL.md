@@ -1,39 +1,148 @@
 ---
 name: remobi-setup
-description: Configure remobi mobile terminal overlay — inspect tmux bindings, generate a valid remobi.config.ts, validate with --dry-run, iterate.
+description: >
+  Full interactive onboarding for remobi — the mobile terminal overlay for tmux.
+  Checks prerequisites, inspects tmux config, interviews the user about their
+  workflow, generates a validated remobi.config.ts, suggests tmux mobile
+  optimisations, and walks through deployment. Use this skill whenever someone
+  asks to set up remobi, configure remobi, onboard with remobi, generate a
+  remobi config, make tmux mobile-friendly, or deploy remobi with Tailscale.
+  Also use when the user says "onboard me" or "set up my phone terminal".
 ---
 
-# remobi-setup skill
+# remobi-setup
 
-## When to use
+Interactive onboarding skill for [remobi](https://github.com/connorads/remobi) — monitor and control tmux from your phone.
 
-Use this skill whenever you need to:
-
-- Create or update a `remobi.config.ts`
-- Map tmux key bindings to remobi toolbar/drawer buttons
-- Configure swipe gestures, floating buttons, or mobile init behaviour
-- Validate a config before building
+This skill walks the user through the full setup journey in one conversation. Each phase builds on the last; skip phases the user doesn't need.
 
 ## Workflow
 
-1. **Inspect tmux config** — run `tmux show-options -g prefix` and `tmux list-keys` to find the user's prefix and any custom bindings worth surfacing.
-2. **Generate `remobi.config.ts`** — write only the keys that differ from defaults; omit everything else (`defineConfig()` fills in the rest).
-3. **Validate** — run `remobi build --dry-run`. Fix any reported issues (unknown keys, wrong action payloads).
-4. **Iterate** — repeat until `--dry-run` exits 0 with no errors.
-5. **Summarise** — tell the user what was configured and why (prefix byte, custom bindings, gestures).
-6. **Offer tmux mobile optimisation (optional)** — ask: "Would you like suggestions for making your tmux.conf more mobile-friendly?" If yes, run the checks in the [tmux mobile optimisation](#tmux-mobile-optimisation) section below.
+### Phase 1: Assess environment
 
-## Config structure
+Check what's installed and help fill gaps.
 
-All config goes through `defineConfig(overrides)`. Only override what you need.
+```bash
+node --version          # need >= 22
+which ttyd              # must be on PATH
+tmux -V                 # target multiplexer
+which remobi            # npm install -g remobi
+```
+
+If anything is missing, help install it:
+- **Node**: suggest mise, nvm, or direct install
+- **ttyd**: `brew install ttyd` (macOS), distro package or source build (Linux) — see [ttyd installation](https://github.com/tsl0922/ttyd#installation)
+- **tmux**: `brew install tmux` or distro package
+- **remobi**: `npm install -g remobi`
+
+Move on once all four are present.
+
+### Phase 2: Inspect tmux setup
+
+Gather the user's tmux configuration to inform config generation.
+
+```bash
+tmux show-options -g prefix                    # prefix key
+tmux list-keys                                 # all bindings
+tmux show-options -g mouse                     # mouse mode
+tmux show-options -g status-left               # status bar
+tmux list-keys | grep display-popup            # popup bindings
+```
+
+If tmux isn't running, fall back to reading the config file directly:
+
+```bash
+cat ~/.config/tmux/tmux.conf 2>/dev/null || cat ~/.tmux.conf 2>/dev/null
+```
+
+Note down:
+- Prefix key and byte (Ctrl-B = `\x02`, Ctrl-A = `\x01`, etc.)
+- Custom bindings worth surfacing as buttons (especially popup bindings for lazygit, yazi, neovim, fzf pickers, gh-dash, scratch shells)
+- Whether mouse mode is on
+- Status bar complexity (affects mobile width recommendations)
+- Plugin manager (tpm, etc.)
+
+If the user has no tmux config at all, offer to help set up a basic one before continuing.
+
+### Phase 3: Interview the user
+
+Ask questions **one at a time** — don't dump a list. Adapt based on what you learned in phase 2.
+
+1. **What do you primarily use tmux for?** (coding agents, dev workflow, server monitoring, all of the above)
+2. **Do you use popup bindings for tools?** Which ones? (lazygit, yazi, neovim, scratch shell, gh-dash, session picker)
+3. **Do you want touch scrolling?** What strategy? (`wheel` for mouse-event scrolling, `keys` for PageUp/PageDown paging)
+4. **Auto-zoom on mobile?** When you open remobi on your phone, should the current pane zoom to full screen automatically?
+5. **Floating zoom button?** A persistent button overlaid on the terminal for one-tap zoom toggle
+6. **Custom theme or Catppuccin Mocha?** (Catppuccin Mocha is the default and looks great — only ask if the user's tmux theme is clearly different)
+7. **Font preference?** (default: JetBrainsMono NFM)
+8. **Any other tmux bindings you want on your phone?** (This catches anything the inspection missed)
+
+Skip questions where you already know the answer from phase 2. Summarise what you've gathered before moving to config generation.
+
+### Phase 4: Generate `remobi.config.ts`
+
+Write the config using `defineConfig()`. Only include keys that differ from defaults — omit everything else.
 
 ```typescript
 import { defineConfig } from 'remobi'
 
 export default defineConfig({
-  // All fields are optional — defaults filled in automatically
+  // Only non-default overrides here
 })
 ```
+
+After writing, validate:
+
+```bash
+remobi build --dry-run
+```
+
+A zero exit with "Dry run: build" output means valid. Fix any errors and re-validate until clean.
+
+See [Config reference](#config-reference) below for the full schema, allowed keys, action types, and escape codes.
+
+### Phase 5: Suggest tmux mobile optimisations
+
+Ask: "Would you like suggestions for making your tmux config more mobile-friendly?"
+
+If yes, run the checks below. If tmux isn't running, read the config file directly. For full context and examples, read `references/mobile-tmux.md` and `references/mobile-panes.md`.
+
+| Check | Command | Good sign | Suggestion if missing |
+|-------|---------|-----------|----------------------|
+| Responsive status-left | `tmux show -g status-left` | Contains `#{client_width}` | Add width breakpoints to strip content on narrow terminals |
+| Responsive status-right | `tmux show -g status-right` | Contains `#{client_width}` or calls a script | Progressive content stripping |
+| Popup sizing | `tmux list-keys \| grep display-popup` | Uses `%` dimensions | Replace fixed char sizes with `95%`/`100%` |
+| Zoom indicator | `tmux show -g status-left` | Contains `window_zoomed_flag` | Add `#{?window_zoomed_flag,[Z] ,}` |
+| Mouse mode | `tmux show -g mouse` | `on` | `set -g mouse on` |
+| Window renumbering | `tmux show -g renumber-windows` | `on` | `set -g renumber-windows on` |
+| Zoom-aware navigation | `tmux list-keys \| grep 'select-pane.*resize-pane'` | Present | Add zoom-aware `n`/`p` bindings (see `references/mobile-panes.md`) |
+
+For each missing item, offer a concrete snippet the user can paste into `tmux.conf`. Suggest snippets only — never modify `tmux.conf` without explicit permission.
+
+### Phase 6: Deployment guidance
+
+Ask: "How do you want to access remobi from your phone?"
+
+Common options:
+- **Tailscale Serve** (recommended) — HTTPS over your tailnet, no public exposure. Read `references/tailscale-serve.md` for the full guide.
+- **Cloudflare Tunnel** — public internet via `cloudflared tunnel --url http://localhost:7681`
+- **Local network only** — `remobi serve --host 0.0.0.0` (LAN exposure, warn about security)
+
+For macOS users, mention `--no-sleep` and point to `references/keep-awake.md` for persistent options.
+
+For users who want manual ttyd control, point to `references/ttyd-flags.md`.
+
+### Phase 7: Summarise
+
+Tell the user:
+1. What was configured and why (prefix byte, custom bindings, gestures, theme)
+2. How to start: `remobi serve`
+3. How to access from their phone (URL from deployment choice)
+4. PWA install: on mobile, tap "Add to Home Screen" for a standalone app experience
+
+---
+
+## Config reference
 
 ### Allowed root keys
 
@@ -43,7 +152,7 @@ Exactly these — validation rejects anything else:
 name  theme  font  toolbar  drawer  gestures  mobile  floatingButtons  pwa  reconnect
 ```
 
-### ButtonAction union — exact allowed values for `action.type`
+### ButtonAction union
 
 | `type`           | Required fields     | Notes |
 |------------------|---------------------|-------|
@@ -61,7 +170,7 @@ Every button in toolbar rows, drawer, and floatingButtons uses this schema:
 
 ```typescript
 {
-  id: string           // unique within its array; used by patch operations
+  id: string           // unique within its array
   label: string        // text shown on the button
   description: string  // shown in help overlay — keep user-facing and clear
   action: ButtonAction
@@ -70,17 +179,11 @@ Every button in toolbar rows, drawer, and floatingButtons uses this schema:
 
 ### Button array forms (`toolbar.row1`, `toolbar.row2`, `drawer.buttons`)
 
-Two forms are accepted — pick the least invasive:
+Two forms — pick the least invasive:
 
 ```typescript
 // 1. Replace entirely (plain array)
 toolbar: { row1: [{ id, label, description, action }, ...] }
-
-drawer: {
-  buttons: [
-    { id: 'sessions', label: 'Sessions', description: 'Choose tmux session', action: { type: 'send', data: '\x02s' } },
-  ],
-}
 
 // 2. Transform (function receives defaults, returns new array)
 toolbar: { row2: (defaults) => defaults.filter(b => b.id !== 'q') }
@@ -109,7 +212,7 @@ floatingButtons: [
 
 Valid positions: `top-left | top-right | top-centre | bottom-left | bottom-right | bottom-centre | centre-left | centre-right`
 
-## Escape-code cheat sheet
+### Escape-code cheat sheet
 
 Use these in `action.data` and gesture `left`/`right` fields:
 
@@ -224,23 +327,6 @@ export default defineConfig({
 })
 ```
 
-## Tmux mobile optimisation
-
-Run these checks when the user accepts the step 6 offer. If tmux is not running, fall back to reading `~/.config/tmux/tmux.conf` (or `~/.tmux.conf`) directly.
-
-**Guardrails:** suggest snippets only — never modify `tmux.conf` without explicit permission. Link to the full guide at `docs/guides/mobile-tmux.md`.
-
-| Check | Command | Good sign | Suggestion if missing |
-|-------|---------|-----------|----------------------|
-| Responsive status-left | `tmux show -g status-left` | Contains `#{client_width}` | Add width breakpoints |
-| Responsive status-right | `tmux show -g status-right` | Contains `#{client_width}` or calls a script | Progressive content stripping |
-| Popup sizing | `tmux list-keys \| grep display-popup` | Uses `%` dimensions | Replace fixed char sizes with `95%`/`100%` |
-| Zoom indicator | `tmux show -g status-left` | Contains `window_zoomed_flag` | Add `#{?window_zoomed_flag,[Z] ,}` |
-| Mouse mode | `tmux show -g mouse` | `on` | `set -g mouse on` |
-| Window renumbering | `tmux show -g renumber-windows` | `on` | `set -g renumber-windows on` |
-
-For each missing item, offer a concrete snippet the user can paste into `tmux.conf`. See the full guide for context and examples.
-
 ## Guardrails
 
 - **Never invent root keys.** The validator rejects unknown keys with a path-based error.
@@ -260,3 +346,16 @@ remobi build --dry-run -c ./remobi.config.ts   # explicit path
 ```
 
 A zero exit with "Dry run: build" output means the config is valid. Any error output means fix the reported paths before proceeding.
+
+### Common validation errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `config.<unknown-key>` | Invented or legacy root key | Remove it; only allowed root keys are valid |
+| `config.drawer.commands` | Old key name | Rename to `drawer.buttons` |
+| `config.toolbar.buttons` | Wrong toolbar shape | Use `toolbar.row1` and/or `toolbar.row2` |
+| `action.type: expected 'send' \| ...` | Wrong type string | Use exact literal from ButtonAction union |
+| `action.data: expected string, received undefined` | `send` action missing `data` | Add `data: '\x...'` |
+| `action.data: expected undefined` | `data` on non-`send` action | Remove `data` from non-`send` actions |
+| `floatingButtons[0]: expected object` | Flat `ControlButton[]` | Wrap in group: `{ position: 'top-left', buttons: [...] }` |
+| `mobile.initData: expected string or null` | `false` or `0` passed | Use `null` to disable, or a string to send |
