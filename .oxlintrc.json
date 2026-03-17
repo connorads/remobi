@@ -18,5 +18,5 @@
 		"typescript/no-non-null-asserted-optional-chain": "error",
 		"unicorn/throw-new-error": "warn"
 	},
-	"ignorePatterns": ["tests/", "demo/"]
+	"ignorePatterns": ["tests/"]
 }

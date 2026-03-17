@@ -46,6 +46,6 @@
 		}
 	],
 	"files": {
-		"ignore": ["dist/", "node_modules/", "demo/"]
+		"ignore": ["dist/", "node_modules/"]
 	}
 }
