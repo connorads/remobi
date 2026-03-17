@@ -1,22 +1,3 @@
-# 1.0.0 (2026-03-17)
-
-
-### Bug Fixes
-
-* **ci:** add npm to mise.toml for OIDC trusted publishing ([62bfd3a](https://github.com/connorads/remobi/commit/62bfd3a79864dfe60c0edc0bd6528be0bfbf5e34))
-* exclude package.json from Biome formatter ([eb88ac5](https://github.com/connorads/remobi/commit/eb88ac525c4acd04afe8b01ae71b80295ebce508))
-* guard process.argv[1] for strict index access ([fd07a60](https://github.com/connorads/remobi/commit/fd07a6026135caffc189ba40fc0051d5ee9215fa))
-* remove leading ./ from bin path for npm 11 compatibility ([b350ecb](https://github.com/connorads/remobi/commit/b350ecbe8197346c91f78bdb64bc2906b483a047))
-* remove redundant checks from prepublishOnly ([9f2247c](https://github.com/connorads/remobi/commit/9f2247c6a915578e7c7e1394fd9f562c7faea70c))
-* resolve symlink in entry guard so npx execution works ([f2409e1](https://github.com/connorads/remobi/commit/f2409e1ae63540f5594cc2384b76f6be4a701c2b))
-* **security:** escape font CDN URL and tighten WS origin check ([1c55d5c](https://github.com/connorads/remobi/commit/1c55d5c28d85d14fc42a90813d4e479b531e4243))
-* **serve:** default remobi serve to localhost ([6b8706e](https://github.com/connorads/remobi/commit/6b8706ec144ff2c92f92538a2c39997534b32e4d))
-
-
-### Features
-
-* add pixel R> logo and integrate across project ([0235c4b](https://github.com/connorads/remobi/commit/0235c4be3f1d0b503f4531a4c8adc90283eece0f))
-
 ## [0.2.4](https://github.com/connorads/remobi/compare/v0.2.3...v0.2.4) (2026-03-16)
 
 
