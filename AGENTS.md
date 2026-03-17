@@ -37,6 +37,21 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`, `style`, `build`, `revert`
 - Breaking changes: `!` after type/scope or `BREAKING CHANGE:` in footer
 
+**Choosing the right type matters** — it controls whether semantic-release publishes to npm:
+
+| Type | Release | When to use |
+|------|---------|-------------|
+| `fix` | patch | Bug fix **visible to package consumers** (runtime behaviour, CLI output, published types) |
+| `feat` | minor | New feature visible to consumers |
+| `fix!`/`feat!` | major | Breaking change to public API |
+| `ci` | none | CI/CD workflow changes (GitHub Actions, release config) |
+| `chore` | none | Tooling, deps, repo hygiene — anything not shipped to consumers |
+| `docs` | none | Documentation only |
+| `refactor` | none | Code restructuring with no behaviour change |
+| `test` | none | Adding or updating tests |
+
+**Key rule**: `fix` means a consumer-facing bug fix that warrants an npm release. If the change only affects CI, dev tooling, or repo internals, use `ci` or `chore` instead — even if it "fixes" something.
+
 ## Module Layout
 
 - `src/index.ts` — entry: waitForTerm then init overlay
