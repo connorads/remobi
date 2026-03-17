@@ -1,3 +1,15 @@
+## [0.2.5](https://github.com/connorads/remobi/compare/v0.2.4...v0.2.5) (2026-03-17)
+
+
+### Bug Fixes
+
+* add WS relay buffer size limit ([40478fb](https://github.com/connorads/remobi/commit/40478fb43e596078b2d3e94229db6aaf0533f06f))
+* apply origin check to catch-all ttyd proxy ([240d8c3](https://github.com/connorads/remobi/commit/240d8c371baf97db0b98b0f5669e6ac9e0992595))
+* scope CSP connect-src WebSocket to same host ([75f2149](https://github.com/connorads/remobi/commit/75f21498e175593393450ee240c967a76ee79468))
+* seal __remobiSockets global ([be6e2db](https://github.com/connorads/remobi/commit/be6e2db1546eeca393e6e486289536bfd1f52f98))
+* tighten CSP with script-src directive ([5a076fe](https://github.com/connorads/remobi/commit/5a076fedf3bd08ed81f9c54c90f91dcdaabe8ac9))
+* use crypto PRNG for internal ttyd port ([10e7493](https://github.com/connorads/remobi/commit/10e7493ebf499ef813354548b8c31ced52602589))
+
 ## [0.2.4](https://github.com/connorads/remobi/compare/v0.2.3...v0.2.4) (2026-03-16)
 
 
