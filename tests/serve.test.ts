@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { defaultConfig } from '../src/config'
 import {
 	buildProxyRequestHeaders,
+	buildSecurityHeaders,
 	buildTtydArgs,
 	isAllowedOrigin,
 	isLoopbackHost,
@@ -81,9 +82,7 @@ describe('isLoopbackHost', () => {
 
 describe('isAllowedOrigin', () => {
 	test('allows matching origin and host', () => {
-		expect(isAllowedOrigin('https://term.example.ts.net', 'term.example.ts.net')).toBe(
-			true,
-		)
+		expect(isAllowedOrigin('https://term.example.ts.net', 'term.example.ts.net')).toBe(true)
 		expect(isAllowedOrigin('http://localhost:7681', 'localhost:7681')).toBe(true)
 	})
 
@@ -127,13 +126,26 @@ describe('buildProxyRequestHeaders', () => {
 	})
 })
 
+describe('buildSecurityHeaders', () => {
+	test('scopes connect-src to the specific host:port', () => {
+		const headers = buildSecurityHeaders('192.168.1.10', 7681)
+		const csp = headers['content-security-policy']
+		expect(csp).toContain('ws://192.168.1.10:7681')
+		expect(csp).toContain('wss://192.168.1.10:7681')
+		expect(csp).not.toMatch(/\bws:\b(?!\/\/)/)
+		expect(csp).not.toMatch(/\bwss:\b(?!\/\/)/)
+	})
+})
+
 describe('withSecurityHeaders', () => {
 	test('adds hardening headers without dropping existing ones', async () => {
+		const securityHeaders = buildSecurityHeaders('127.0.0.1', 7681)
 		const response = withSecurityHeaders(
 			new Response('ok', {
 				headers: { 'content-type': 'text/plain' },
 				status: 200,
 			}),
+			securityHeaders,
 		)
 
 		expect(response.headers.get('content-type')).toBe('text/plain')
@@ -146,6 +158,7 @@ describe('withSecurityHeaders', () => {
 		expect(response.headers.get('content-security-policy')).toContain(
 			"script-src 'self' 'unsafe-inline'",
 		)
+		expect(response.headers.get('content-security-policy')).toContain('ws://127.0.0.1:7681')
 		expect(await response.text()).toBe('ok')
 	})
 })

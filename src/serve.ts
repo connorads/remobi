@@ -36,15 +36,19 @@ interface WsData {
 	bufferBytes: number
 }
 
-const RESPONSE_SECURITY_HEADERS = {
-	'content-security-policy':
-		"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; img-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
-	'x-frame-options': 'DENY',
-	'x-content-type-options': 'nosniff',
-	'referrer-policy': 'no-referrer',
-	'cross-origin-resource-policy': 'same-origin',
-	'permissions-policy': 'camera=(), microphone=(), geolocation=()',
-} as const
+/** Build security headers with CSP connect-src scoped to the serving host:port.
+ * Safari doesn't match ws:/wss: against CSP 'self' (WebKit bug 201591), so we
+ * emit explicit ws:// and wss:// origins for the bound host instead of bare ws:/wss:. */
+export function buildSecurityHeaders(host: string, port: number) {
+	return {
+		'content-security-policy': `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; img-src 'self' data:; connect-src 'self' ws://${host}:${port} wss://${host}:${port}; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'`,
+		'x-frame-options': 'DENY',
+		'x-content-type-options': 'nosniff',
+		'referrer-policy': 'no-referrer',
+		'cross-origin-resource-policy': 'same-origin',
+		'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+	} as const
+}
 
 const STRIPPED_PROXY_REQUEST_HEADERS = new Set([
 	'connection',
@@ -96,10 +100,13 @@ export function buildProxyRequestHeaders(source: Headers): Headers {
 	return headers
 }
 
-export function withSecurityHeaders(response: Response): Response {
+export function withSecurityHeaders(
+	response: Response,
+	securityHeaders: Record<string, string>,
+): Response {
 	const headers = new Headers(response.headers)
 
-	for (const [name, value] of Object.entries(RESPONSE_SECURITY_HEADERS)) {
+	for (const [name, value] of Object.entries(securityHeaders)) {
 		headers.set(name, value)
 	}
 
@@ -219,6 +226,8 @@ export async function serve(
 	const icon192 = readIcon('icon-192.png')
 	const icon512 = readIcon('icon-512.png')
 
+	const securityHeaders = buildSecurityHeaders(host, port)
+
 	// Per-connection data via WeakMap (replaces Bun's ws.data)
 	const connections = new WeakMap<WebSocket, WsData>()
 
@@ -227,7 +236,7 @@ export async function serve(
 
 	app.use('/ws', async (c, next) => {
 		if (!isAllowedOrigin(c.req.header('origin'), c.req.header('host'))) {
-			return withSecurityHeaders(c.text('Forbidden', 403))
+			return withSecurityHeaders(c.text('Forbidden', 403), securityHeaders)
 		}
 		await next()
 	})
@@ -302,12 +311,15 @@ export async function serve(
 		})),
 	)
 
-	app.get('/', (c) => withSecurityHeaders(c.html(html)))
+	app.get('/', (c) => withSecurityHeaders(c.html(html), securityHeaders))
 
 	if (manifestJson !== null) {
 		app.get('/manifest.json', (c) => {
 			// oxlint-disable-next-line typescript/consistent-type-assertions -- JSON.parse returns unknown, safe for manifest
-			return withSecurityHeaders(c.json(JSON.parse(manifestJson) as Record<string, unknown>))
+			return withSecurityHeaders(
+				c.json(JSON.parse(manifestJson) as Record<string, unknown>),
+				securityHeaders,
+			)
 		})
 	}
 
@@ -317,6 +329,7 @@ export async function serve(
 				new Response(Uint8Array.from(icon180), {
 					headers: { 'content-type': 'image/png' },
 				}),
+				securityHeaders,
 			)
 		})
 	}
@@ -327,6 +340,7 @@ export async function serve(
 				new Response(Uint8Array.from(icon192), {
 					headers: { 'content-type': 'image/png' },
 				}),
+				securityHeaders,
 			)
 		})
 	}
@@ -337,6 +351,7 @@ export async function serve(
 				new Response(Uint8Array.from(icon512), {
 					headers: { 'content-type': 'image/png' },
 				}),
+				securityHeaders,
 			)
 		})
 	}
@@ -347,7 +362,7 @@ export async function serve(
 		const isSafe = method === 'GET' || method === 'HEAD' || method === 'OPTIONS'
 		if (!isSafe || c.req.path === '/token') {
 			if (!isAllowedOrigin(c.req.header('origin'), c.req.header('host'))) {
-				return withSecurityHeaders(c.text('Forbidden', 403))
+				return withSecurityHeaders(c.text('Forbidden', 403), securityHeaders)
 			}
 		}
 		await next()
@@ -367,6 +382,7 @@ export async function serve(
 				status: resp.status,
 				headers: resp.headers,
 			}),
+			securityHeaders,
 		)
 	})
 
