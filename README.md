@@ -10,37 +10,26 @@
 
 **Your terminal. Everywhere.**
 
-Running coding agents in tmux? remobi lets you monitor and control them from your phone. Swipe between windows, scroll through output, pinch to zoom, tap buttons for tmux commands. Same session, touch-native controls. No workflow changes.
+Your tmux session, on your phone. Same panes, same windows, same bindings — nothing changes on your computer. Swipe between windows, pinch to zoom, tap to send commands. You just get a remote control.
 
-[ttyd](https://github.com/tsl0922/ttyd) is brilliant for sharing a terminal over the web, but it's built for desktop browsers. remobi adds mobile touch controls on top — toolbar, gestures, pinch-to-zoom. One command. Install it like a native app.
-
-<div align="center">
-  <!-- Upload demo/out/demo.mp4 via GitHub issue/PR drag-and-drop, then replace the src below -->
-  <video src="https://github.com/user-attachments/assets/PLACEHOLDER" width="300" autoplay loop muted playsinline></video>
-</div>
-
-## Who this is for
-
-- You run coding agents (Claude Code, OpenCode, Codex, pi, etc.) in tmux and want to monitor or interact from your phone
-- You're a terminal-first developer who wants your full tmux setup accessible anywhere
-- You want self-hosted mobile terminal access without changing your existing workflow
-
-## Why remobi
-
-- **One command** — `remobi serve` builds the overlay, manages ttyd, serves with PWA support
-- **Swipe between panes** — gesture navigation, no prefix key fumbling on a phone screen
-- **Pinch to zoom** — resize text like every other app on your phone
-- **Install to your home screen** — standalone PWA, looks and feels native
-- **Config-driven** — your buttons, your gestures, your layout. Or let an AI agent configure it for you
-- **Self-hosted** — local-first by default. Bring your own access layer (Tailscale, Cloudflare, ngrok)
-
-## Install
+It's a terminal on a 6-inch screen. It won't win design awards. But you can do *everything* — monitor coding agents, intervene when they're stuck, scroll through output, switch contexts. Full power.
 
 ```bash
 /bin/bash -c "$(curl -fsSL http://remobi.app/install.sh)"
 ```
 
-Installs the setup skill, picks your coding agent, and walks you through the full setup interactively.
+Your coding agent handles the rest. It installs remobi, inspects your tmux config, generates a config, and suggests tweaks to make your tmux more mobile-friendly — one conversation. Works with Claude Code and Codex.
+
+<!-- TODO: add demo video -->
+
+## Why remobi
+
+- **Zero workflow changes** — your existing tmux setup, untouched
+- **Swipe between windows** — gesture navigation, no prefix key fumbling on a phone screen
+- **Pinch to zoom** — resize text like every other app on your phone
+- **Install to your home screen** — standalone PWA, looks and feels native
+- **Config-driven** — your buttons, your gestures, your layout
+- **Self-hosted** — local-first by default. Bring your own access layer (Tailscale, Cloudflare, ngrok)
 
 ## Requirements
 
