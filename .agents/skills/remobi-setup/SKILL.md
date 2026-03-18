@@ -93,7 +93,7 @@ Ask questions **one at a time** — don't dump a list. Adapt based on what you l
 2. **Do you use popup bindings for tools?** Which ones? (lazygit, yazi, neovim, scratch shell, gh-dash, session picker)
 3. **Detected tools** — "I detected [lazygit/yazi/btm/etc.] on your system. Would you like popup bindings in tmux and matching drawer buttons in remobi for any of these?" Adapt based on Phase 2 detection. For tools not installed, briefly explain what they are and ask if the user wants to install any.
 4. **Custom split bindings?** — Stock tmux uses `%` (vertical) and `"` (horizontal). Some configs remap to `|` and `-`. If custom, the drawer buttons need updated escape codes.
-5. **Do you want touch scrolling?** — `wheel` (default, recommended) sends mouse-wheel events — works in vim, less, htop, and any mouse-aware app. `keys` sends PageUp/PageDown — simpler, works everywhere including plain tmux copy-mode. Which fits your workflow?
+5. **Do you want touch scrolling?** — `wheel` (default, recommended) sends mouse-wheel events — works in vim, less, htop, and any mouse-aware app. `keys` sends PageUp/PageDown — simpler, works everywhere including plain tmux copy-mode. Which fits your workflow? Config shape: `gestures: { scroll: { strategy: 'wheel' } }` or `gestures: { scroll: { strategy: 'keys' } }`.
 6. **Auto-zoom on mobile?** When you open remobi on your phone, should the current pane zoom to full screen automatically?
 7. **Floating zoom button?** A persistent button overlaid on the terminal for one-tap zoom toggle
 8. **Custom theme or Catppuccin Mocha?** (Catppuccin Mocha is the default and looks great — only ask if the user's tmux theme is clearly different)
@@ -104,14 +104,12 @@ Skip questions where you already know the answer from phase 2. Summarise what yo
 
 ### Phase 4: Generate `remobi.config.ts`
 
-Write the config using `defineConfig()`. Only include keys that differ from defaults — omit everything else.
+Export a plain config object — only include keys that differ from defaults, omit everything else. **Do not** `import { defineConfig } from 'remobi'` — the CLI calls `defineConfig()` internally so the config just needs a plain object export.
 
 ```typescript
-import { defineConfig } from 'remobi'
-
-export default defineConfig({
+export default {
   // Only non-default overrides here
-})
+}
 ```
 
 After writing, validate:
@@ -387,11 +385,9 @@ For a custom prefix (e.g. Ctrl-A): replace `\x02` with `\x01`.
 ### Minimal — default Ctrl-B prefix, custom name only
 
 ```typescript
-import { defineConfig } from 'remobi'
-
-export default defineConfig({
+export default {
   name: 'dev',
-})
+}
 ```
 
 ### Custom prefix — Ctrl-A (screen/byobu style)
@@ -399,9 +395,7 @@ export default defineConfig({
 Replace the default `tmux-prefix` button and update swipe gestures:
 
 ```typescript
-import { defineConfig } from 'remobi'
-
-export default defineConfig({
+export default {
   name: 'dev',
   toolbar: {
     row1: (defaults) => defaults.map(b =>
@@ -427,15 +421,13 @@ export default defineConfig({
       return b
     }),
   },
-})
+}
 ```
 
 ### Floating buttons + mobile auto-zoom
 
 ```typescript
-import { defineConfig } from 'remobi'
-
-export default defineConfig({
+export default {
   mobile: {
     initData: '\x02z',    // zoom focused pane on mobile load
     widthThreshold: 768,
@@ -453,7 +445,17 @@ export default defineConfig({
       ],
     },
   ],
-})
+}
+```
+
+### Scroll strategy — keys instead of wheel
+
+```typescript
+export default {
+  gestures: {
+    scroll: { strategy: 'keys' },
+  },
+}
 ```
 
 ### Popup-heavy workflow — lazygit, yazi, scratch shell
@@ -461,9 +463,7 @@ export default defineConfig({
 Uses function form to keep default drawer buttons and append popup triggers:
 
 ```typescript
-import { defineConfig } from 'remobi'
-
-export default defineConfig({
+export default {
   name: 'dev',
   drawer: {
     buttons: (defaults) => [
@@ -488,13 +488,14 @@ export default defineConfig({
       },
     ],
   },
-})
+}
 ```
 
 Requires matching tmux bindings (see `references/tmux-basics.md` popup section).
 
 ## Guardrails
 
+- **Do not `import` from `'remobi'`** — the CLI calls `defineConfig()` internally, so configs just export a plain object. Using `import { defineConfig } from 'remobi'` fails when the config lives outside a project with remobi installed.
 - **Never invent root keys.** The validator rejects unknown keys with a path-based error.
 - **Use `drawer.buttons`, never `drawer.commands`** — the latter was renamed and no longer works.
 - **`send` actions require `data`** — omitting it fails validation.
@@ -503,6 +504,7 @@ Requires matching tmux bindings (see `references/tmux-basics.md` popup section).
 - **`toolbar` has `row1` and `row2`** — there is no `row3` or flat `buttons` key on toolbar.
 - **`mobile.initData`** is `string | null` — set to `null` to disable, not `false` or `''`.
 - **`reconnect`** has only `enabled: boolean` — defaults to `true`. Set `{ enabled: false }` to disable.
+- **`gestures.scroll` is an object, not a string** — use `{ strategy: 'wheel' }` or `{ strategy: 'keys' }`, never a bare `'wheel'` / `'keys'` string.
 
 ## Validation
 
@@ -525,3 +527,5 @@ A zero exit with "Dry run: build" output means the config is valid. Any error ou
 | `action.data: expected undefined` | `data` on non-`send` action | Remove `data` from non-`send` actions |
 | `floatingButtons[0]: expected object` | Flat `ControlButton[]` | Wrap in group: `{ position: 'top-left', buttons: [...] }` |
 | `mobile.initData: expected string or null` | `false` or `0` passed | Use `null` to disable, or a string to send |
+| `Cannot find package 'remobi'` | Config uses `import ... from 'remobi'` | Remove the import — export a plain object instead. The CLI calls `defineConfig()` internally |
+| `gestures.scroll: expected Object, received string` | Bare `'wheel'` / `'keys'` string | Use `{ strategy: 'wheel' }` or `{ strategy: 'keys' }` |
