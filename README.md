@@ -30,7 +30,9 @@ Your coding agent handles the rest. It installs remobi, inspects your tmux confi
 - **Self-hosted** — local-first by default. Bring your own access layer (Tailscale, Cloudflare, ngrok)
 
 <div align="center">
-  <video src="https://github.com/user-attachments/assets/952bdb34-4b73-4210-815a-b2b60f99f87f" />
+
+![remobi demo](https://github.com/user-attachments/assets/952bdb34-4b73-4210-815a-b2b60f99f87f)
+
 </div>
 
 ## Requirements
