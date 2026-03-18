@@ -57,7 +57,7 @@ cat ~/.config/tmux/tmux.conf 2>/dev/null || cat ~/.tmux.conf 2>/dev/null
 
 Note down:
 - Prefix key and byte (Ctrl-B = `\x02`, Ctrl-A = `\x01`, etc.)
-- Custom bindings worth surfacing as buttons (especially popup bindings for lazygit, yazi, neovim, fzf pickers, gh-dash, scratch shells)
+- Custom bindings worth surfacing as buttons (especially popup bindings for lazygit, yazi, neovim, fzf pickers, scratch shells)
 - Whether mouse mode is on
 - Status bar complexity (affects mobile width recommendations)
 - Plugin manager (tpm, etc.)
@@ -80,7 +80,6 @@ which lazygit              # Git TUI — great as popup
 which yazi                 # File manager — great as popup
 which btm || which htop    # System monitor
 which nvim || which vim    # Editor
-which gh                   # GitHub CLI (gh-dash)
 ```
 
 Note which tools are installed. In Phase 3, suggest popup bindings for each. In Phase 4, generate matching drawer buttons. If none are installed, suggest lazygit as the most valuable first popup tool.
@@ -90,7 +89,7 @@ Note which tools are installed. In Phase 3, suggest popup bindings for each. In 
 Ask questions **one at a time** — don't dump a list. Adapt based on what you learned in phase 2.
 
 1. **What do you primarily use tmux for?** (coding agents, dev workflow, server monitoring, all of the above)
-2. **Do you use popup bindings for tools?** Which ones? (lazygit, yazi, neovim, scratch shell, gh-dash, session picker)
+2. **Do you use popup bindings for tools?** Which ones? (lazygit, yazi, neovim, scratch shell, session picker)
 3. **Detected tools** — "I detected [lazygit/yazi/btm/etc.] on your system. Would you like popup bindings in tmux and matching drawer buttons in remobi for any of these?" Adapt based on Phase 2 detection. For tools not installed, briefly explain what they are and ask if the user wants to install any.
 4. **Custom split bindings?** — Stock tmux uses `%` (vertical) and `"` (horizontal). Some configs remap to `|` and `-`. If custom, the drawer buttons need updated escape codes.
 5. **Do you want touch scrolling?** — `wheel` (default, recommended) sends mouse-wheel events — works in vim, less, htop, and any mouse-aware app. `keys` sends PageUp/PageDown — simpler, works everywhere including plain tmux copy-mode. Which fits your workflow? Config shape: `gestures: { scroll: { strategy: 'wheel' } }` or `gestures: { scroll: { strategy: 'keys' } }`.
