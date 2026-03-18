@@ -14,13 +14,31 @@ description: >
 
 Interactive onboarding skill for [remobi](https://github.com/connorads/remobi) — monitor and control tmux from your phone.
 
-This skill walks the user through the full setup journey in one conversation. Each phase builds on the last; skip phases the user doesn't need.
+This skill walks the user through setup in one conversation. The guiding principle: **detect everything possible, default everything sensible, ask only what requires human intent.** Most users answer 1-3 questions total.
 
 ## Workflow
 
-### Phase 1: Assess environment
+### Phase 1: Welcome and understand (1 question)
 
-Check what's installed and help fill gaps.
+Ask what brings the user to remobi. Keep it natural — guided examples, not a numbered list:
+
+> "What brings you to remobi? For example: monitoring coding agents from your phone, getting phone access to your dev sessions, or just curious to try it out."
+
+Map the answer to a persona internally (don't tell the user their "persona"):
+
+| Persona | Signals | Downstream effect |
+|---------|---------|-------------------|
+| **Agent Watcher** | Mentions coding agents, Claude Code, Codex, AI, monitoring | Auto-zoom on, floating zoom button, zoom-aware tmux bindings, lean config, minimal questions |
+| **Remote Dev** | Mentions tmux, SSH, dev workflow, existing setup | Inspect config thoroughly, offer popup drawer buttons, ask about auto-zoom |
+| **Newcomer** | Says curious, trying it out, heard about it, no specific use case | Offer tmux setup, explain concepts, auto-zoom on, sensible defaults |
+
+If the answer is ambiguous, lean towards Agent Watcher — it's the most common path and the defaults work well for everyone.
+
+### Phase 2: Environment and tmux setup
+
+#### Check prerequisites
+
+Run silently, then report what's present vs missing:
 
 ```bash
 node --version          # need >= 22
@@ -35,9 +53,7 @@ If anything is missing, help install it:
 - **tmux**: `brew install tmux` or distro package
 - **remobi**: `npm install -g remobi`
 
-Move on once all four are present.
-
-### Phase 2: Inspect tmux setup
+#### Inspect tmux
 
 Gather the user's tmux configuration to inform config generation.
 
@@ -46,6 +62,7 @@ tmux show-options -g prefix                    # prefix key
 tmux list-keys                                 # all bindings
 tmux show-options -g mouse                     # mouse mode
 tmux show-options -g status-left               # status bar
+tmux show-options -g status-position            # top or bottom
 tmux list-keys | grep display-popup            # popup bindings
 ```
 
@@ -55,53 +72,89 @@ If tmux isn't running, fall back to reading the config file directly:
 cat ~/.config/tmux/tmux.conf 2>/dev/null || cat ~/.tmux.conf 2>/dev/null
 ```
 
-Note down:
+Auto-detect and note:
 - Prefix key and byte (Ctrl-B = `\x02`, Ctrl-A = `\x01`, etc.)
-- Custom bindings worth surfacing as buttons (especially popup bindings for lazygit, yazi, neovim, fzf pickers, scratch shells)
+- Custom popup bindings (lazygit, yazi, scratch shell, system monitor, etc.)
 - Whether mouse mode is on
-- Status bar complexity (affects mobile width recommendations)
+- Split bindings (stock `%`/`"` or remapped `|`/`-`)
+- Status bar complexity and position
 - Plugin manager (tpm, etc.)
-
-If the user has no tmux config at all, read `references/tmux-basics.md` and help them create a starter config:
-- Explain what tmux is and its benefits (persistent sessions, windows/panes, popup tools)
-- Install tmux if missing
-- Create `~/.config/tmux/tmux.conf` with mouse, renumber-windows, true colour, scrollback, vi keys
-- Explain sessions/windows/panes and the essential keybindings
-- Set up a help popup as the first `display-popup` binding: `bind ? display-popup -E -w 80% -h 80% "tmux list-keys | less"` — immediate payoff, no extra tools, teaches the popup concept
-- Suggest `status-position top` (keeps status away from remobi toolbar)
-- Optionally set up tpm for plugin management
-
-Only proceed to Phase 3 once the user has a working tmux session.
+- Zoom-aware n/p bindings (from `references/mobile-panes.md`)
 
 **Detect installed tools** — check for popular tools that work well as tmux popup bindings:
 
 ```bash
-which lazygit              # Git TUI — great as popup
-which yazi                 # File manager — great as popup
+which lazygit              # Git TUI
+which yazi                 # File manager
 which btm || which htop    # System monitor
 which nvim || which vim    # Editor
 ```
 
-Note which tools are installed. In Phase 3, suggest popup bindings for each. In Phase 4, generate matching drawer buttons. If none are installed, suggest lazygit as the most valuable first popup tool.
+#### Offer tmux setup (Agent Watcher and Newcomer only)
 
-### Phase 3: Interview the user
+If no tmux config exists, read `references/tmux-basics.md` and offer to create one. Frame it as a proposal, not a gap:
 
-Ask questions **one at a time** — don't dump a list. Adapt based on what you learned in phase 2.
+**Agent Watcher framing:**
+> "I'll create a tmux config tuned for monitoring agents — mouse support, status bar at top, and zoom-aware navigation so you can swipe between agent panes on your phone. Go ahead?"
 
-1. **What do you primarily use tmux for?** (coding agents, dev workflow, server monitoring, all of the above)
-2. **Do you use popup bindings for tools?** Which ones? (lazygit, yazi, neovim, scratch shell, session picker)
-3. **Detected tools** — "I detected [lazygit/yazi/btm/etc.] on your system. Would you like popup bindings in tmux and matching drawer buttons in remobi for any of these?" Adapt based on Phase 2 detection. For tools not installed, briefly explain what they are and ask if the user wants to install any.
-4. **Custom split bindings?** — Stock tmux uses `%` (vertical) and `"` (horizontal). Some configs remap to `|` and `-`. If custom, the drawer buttons need updated escape codes.
-5. **Do you want touch scrolling?** — `wheel` (default, recommended) sends mouse-wheel events — works in vim, less, htop, and any mouse-aware app. `keys` sends PageUp/PageDown — simpler, works everywhere including plain tmux copy-mode. Which fits your workflow? Config shape: `gestures: { scroll: { strategy: 'wheel' } }` or `gestures: { scroll: { strategy: 'keys' } }`.
-6. **Auto-zoom on mobile?** When you open remobi on your phone, should the current pane zoom to full screen automatically?
-7. **Floating zoom button?** A persistent button overlaid on the terminal for one-tap zoom toggle
-8. **Custom theme or Catppuccin Mocha?** (Catppuccin Mocha is the default and looks great — only ask if the user's tmux theme is clearly different)
-9. **Font preference?** (default: JetBrainsMono NFM)
-10. **Any other tmux bindings you want on your phone?** (This catches anything the inspection missed)
+**Newcomer framing:**
+> "tmux is the terminal multiplexer that remobi sits on top of — it keeps your sessions running even when you disconnect. I'll set up a config with mouse support, sensible defaults, and a help popup to learn the keybindings. Want me to explain what each setting does as I go?"
 
-Skip questions where you already know the answer from phase 2. Summarise what you've gathered before moving to config generation.
+**Remote Dev:** Skip — they already have a config.
 
-### Phase 4: Generate `remobi.config.ts`
+The starter config comes from `references/tmux-basics.md`. For Agent Watchers, include the "Agent watcher starter config" section (zoom-aware n/p, zoom indicator, auto-rename).
+
+For Newcomers with detected tools, also offer popup bindings:
+> "I found lazygit and yazi on your system. These work great as tmux popups — one keypress to open a floating window. Want me to add popup bindings for them?"
+
+Only proceed to Phase 3 once the user has a working tmux session.
+
+### Phase 3: Confirm detections and ask what's needed (0-3 questions)
+
+Present a summary of what you found and what you plan to configure. The style is "here's what I'll do" with checkpoints, not an interview.
+
+**Summary format:**
+> "Based on your setup, here's what I'll configure:
+> - Prefix: Ctrl-B (detected from your tmux config)
+> - Auto-zoom on mobile load (pane fills the phone screen)
+> - Floating zoom button (one-tap zoom toggle)
+> - Default toolbar and drawer buttons
+> - [If applicable:] Drawer buttons for lazygit and yazi (matching your popup bindings)"
+
+Then ask **only** questions that can't be detected or defaulted:
+
+#### Questions by persona
+
+**Agent Watcher (0-1 questions):**
+
+If popup bindings or tools were detected:
+> "I found [lazygit/yazi/btm] on your system and matching popup bindings. Want drawer buttons for these in remobi so you can trigger them from your phone?"
+
+If nothing special detected: **zero questions** — proceed straight to config generation.
+
+**Remote Dev (1-3 questions):**
+
+Question 1 (if popup bindings or tools detected):
+> "I found popup bindings for [list]. Want matching drawer buttons in remobi?"
+
+Question 2 (if multi-pane layout likely):
+> "Do you want auto-zoom when you open remobi on your phone? This zooms the current pane to full screen — works well with multi-pane layouts on a small screen."
+
+Question 3 (catch-all):
+> "Anything else you want accessible from your phone? Custom tmux bindings, specific tools, anything I missed?"
+
+**Newcomer (0-1 questions):**
+
+If tools were detected and popup bindings were set up in Phase 2:
+> "I set up popup bindings for [lazygit/yazi]. Want matching buttons in remobi's command drawer?"
+
+Otherwise: **zero questions** — defaults are great to start with.
+
+Summarise what you've gathered before moving to config generation.
+
+### Phase 4: Generate config and suggest tmux tweaks
+
+#### Generate `remobi.config.ts`
 
 Export a plain config object — only include keys that differ from defaults, omit everything else. **Do not** `import { defineConfig } from 'remobi'` — the CLI calls `defineConfig()` internally so the config just needs a plain object export.
 
@@ -110,6 +163,8 @@ export default {
   // Only non-default overrides here
 }
 ```
+
+Place at `~/.config/remobi/remobi.config.ts` (XDG location) unless the user prefers elsewhere.
 
 After writing, validate:
 
@@ -121,34 +176,53 @@ A zero exit with "Dry run: build" output means valid. Fix any errors and re-vali
 
 See [Config reference](#config-reference) below for the full schema, allowed keys, action types, and escape codes.
 
-### Phase 5: Suggest tmux mobile optimisations
+#### Suggest tmux mobile optimisations (Remote Dev only)
 
-Ask: "Would you like suggestions for making your tmux config more mobile-friendly?"
+For Remote Dev users who already had a tmux config, offer mobile tweaks as a single confirmation. Read `references/mobile-tmux.md` and `references/mobile-panes.md` for full context.
 
-If yes, run the checks below. If tmux isn't running, read the config file directly. For full context and examples, read `references/mobile-tmux.md` and `references/mobile-panes.md`.
+> "I have a few suggestions to make your tmux more mobile-friendly: [list 2-3 most impactful items]. Want me to add these to your tmux.conf?"
+
+Prioritise by impact, suggest maximum 3:
+
+1. **Zoom-aware n/p bindings** (if multi-pane user and not already present)
+2. **Responsive status bar** (if status bar would overflow on phone — see `references/mobile-tmux.md`)
+3. **Zoom indicator** (if `#{window_zoomed_flag}` missing from status)
+
+Also check and mention (but don't push):
 
 | Check | Command | Good sign | Suggestion if missing |
 |-------|---------|-----------|----------------------|
-| Responsive status-left | `tmux show -g status-left` | Contains `#{client_width}` | Add width breakpoints to strip content on narrow terminals |
-| Responsive status-right | `tmux show -g status-right` | Contains `#{client_width}` or calls a script | Progressive content stripping |
-| Popup sizing | `tmux list-keys \| grep display-popup` | Uses `%` dimensions | Replace fixed char sizes with `95%`/`100%` |
-| Zoom indicator | `tmux show -g status-left` | Contains `window_zoomed_flag` | Add `#{?window_zoomed_flag,[Z] ,}` |
 | Mouse mode | `tmux show -g mouse` | `on` | `set -g mouse on` |
+| Status position | `tmux show -g status-position` | `top` | `set -g status-position top` (keeps status away from remobi toolbar) |
+| Popup sizing | `tmux list-keys \| grep display-popup` | Uses `%` dimensions | Replace fixed char sizes with `95%`/`100%` |
 | Window renumbering | `tmux show -g renumber-windows` | `on` | `set -g renumber-windows on` |
-| Zoom-aware navigation | `tmux list-keys \| grep 'select-pane.*resize-pane'` | Present | Add zoom-aware `n`/`p` bindings (see `references/mobile-panes.md`) |
 
-For each missing item, offer a concrete snippet the user can paste into `tmux.conf`. Suggest snippets only — never modify `tmux.conf` without explicit permission.
+Suggest snippets only — never modify `tmux.conf` without explicit permission.
 
-### Phase 6: Deployment guidance
+**Skip this for Newcomers** — their starter config from Phase 2 already includes the essentials.
 
-Ask: "How do you want to access remobi from your phone?"
+### Phase 5: Deploy and wrap up
 
-remobi is a remote-control surface for your terminal — never expose it to the public internet. All deployment options below keep access private.
+#### Deployment
 
-Common options:
-- **Tailscale Serve** (recommended) — HTTPS over your private tailnet. Read `references/tailscale-serve.md` for the full guide.
-- **Cloudflare Tunnel + Access** — private tunnel with Cloudflare Access policies controlling who can connect (e.g. restrict by email, IdP group, device posture). Do not use unauthenticated quick tunnels.
-- **Local network only** — `remobi serve` on localhost behind your own VPN or private network.
+Detect what's available and recommend accordingly:
+
+```bash
+which tailscale            # check for Tailscale
+```
+
+**If Tailscale installed:** recommend Tailscale Serve directly:
+> "I see Tailscale on your system. Tailscale Serve is the simplest way to access remobi from your phone — HTTPS over your private network, no extra setup."
+
+Read `references/tailscale-serve.md` for the full guide.
+
+**If no Tailscale:** offer options:
+> "To access remobi from your phone, you need to put it behind a trusted network layer. Options:
+> - **Tailscale Serve** (recommended) — private VPN, HTTPS, easiest setup
+> - **Cloudflare Tunnel + Access** — private tunnel with access policies
+> - **Local network** — if your phone is on the same WiFi/VPN"
+
+remobi is a remote-control surface for your terminal — never expose it to the public internet. All deployment options keep access private.
 
 #### Security hardening
 
@@ -166,10 +240,10 @@ For macOS users, mention `--no-sleep` and point to `references/keep-awake.md` fo
 
 For users who want manual ttyd control, point to `references/ttyd-flags.md`.
 
-### Phase 7: Summarise
+#### Summary
 
 Tell the user:
-1. What was configured and why (prefix byte, custom bindings, gestures, theme)
+1. What was configured and why (prefix byte, custom bindings, gestures, auto-zoom)
 2. How to start: `remobi serve`
 3. How to access from their phone (URL from deployment choice)
 4. PWA install: on mobile, tap "Add to Home Screen" for a standalone app experience
@@ -266,23 +340,23 @@ Valid positions: `top-left | top-right | top-centre | bottom-left | bottom-right
 | `tmux-prefix` | Prefix | `send` `\x02` |
 | `tab` | Tab | `send` `\t` |
 | `shift-tab` | S-Tab | `send` `\x1b[Z` |
-| `left` | ← | `send` `\x1b[D` |
-| `up` | ↑ | `send` `\x1b[A` |
-| `down` | ↓ | `send` `\x1b[B` |
-| `right` | → | `send` `\x1b[C` |
+| `left` | <- | `send` `\x1b[D` |
+| `up` | up arrow | `send` `\x1b[A` |
+| `down` | down arrow | `send` `\x1b[B` |
+| `right` | -> | `send` `\x1b[C` |
 | `ctrl-c` | C-c | `send` `\x03` |
-| `enter` | ⏎ | `send` `\r` |
+| `enter` | enter | `send` `\r` |
 
 **Toolbar row 2** (7 buttons):
 
 | `id` | `label` | `action` |
 |------|---------|----------|
 | `q` | q | `send` `q` |
-| `alt-enter` | M-↵ | `send` `\x1b\r` |
+| `alt-enter` | M-enter | `send` `\x1b\r` |
 | `ctrl-d` | C-d | `send` `\x04` |
-| `drawer-toggle` | ☰ More | `drawer-toggle` |
+| `drawer-toggle` | hamburger More | `drawer-toggle` |
 | `paste` | Paste | `paste` |
-| `backspace` | ⌫ | `send` `\x7f` |
+| `backspace` | backspace | `send` `\x7f` |
 | `space` | Space | `send` `' '` |
 
 **Drawer** (12 buttons):
@@ -291,7 +365,7 @@ Valid positions: `top-left | top-right | top-centre | bottom-left | bottom-right
 |------|---------|----------|
 | `tmux-new-window` | + Win | `send` `\x02c` |
 | `tmux-split-vertical` | Split \| | `send` `\x02%` |
-| `tmux-split-horizontal` | Split — | `send` `\x02"` |
+| `tmux-split-horizontal` | Split -- | `send` `\x02"` |
 | `tmux-zoom` | Zoom | `send` `\x02z` |
 | `tmux-sessions` | Sessions | `send` `\x02s` |
 | `tmux-windows` | Windows | `send` `\x02w` |
@@ -367,14 +441,14 @@ Use these in `action.data` and gesture `left`/`right` fields:
 tmux bindings are `prefix` + `key`. Concatenate the bytes:
 
 ```
-Ctrl-B + c  →  '\x02c'   (new window)
-Ctrl-B + n  →  '\x02n'   (next window)
-Ctrl-B + p  →  '\x02p'   (previous window)
-Ctrl-B + z  →  '\x02z'   (zoom pane)
-Ctrl-B + %  →  '\x02%'   (split vertical — stock tmux)
-Ctrl-B + "  →  '\x02"'   (split horizontal — stock tmux)
-Ctrl-B + [  →  '\x02['   (copy mode)
-Ctrl-B + d  →  '\x02d'   (detach)
+Ctrl-B + c  ->  '\x02c'   (new window)
+Ctrl-B + n  ->  '\x02n'   (next window)
+Ctrl-B + p  ->  '\x02p'   (previous window)
+Ctrl-B + z  ->  '\x02z'   (zoom pane)
+Ctrl-B + %  ->  '\x02%'   (split vertical -- stock tmux)
+Ctrl-B + "  ->  '\x02"'   (split horizontal -- stock tmux)
+Ctrl-B + [  ->  '\x02['   (copy mode)
+Ctrl-B + d  ->  '\x02d'   (detach)
 ```
 
 For a custom prefix (e.g. Ctrl-A): replace `\x02` with `\x01`.
@@ -423,13 +497,13 @@ export default {
 }
 ```
 
-### Floating buttons + mobile auto-zoom
+### Agent watcher — auto-zoom + floating button
 
 ```typescript
 export default {
+  name: 'agents',
   mobile: {
     initData: '\x02z',    // zoom focused pane on mobile load
-    widthThreshold: 768,
   },
   floatingButtons: [
     {

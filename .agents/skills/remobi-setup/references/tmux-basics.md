@@ -147,6 +147,39 @@ run '~/.tmux/plugins/tpm/tpm'
 
 Install plugins: `prefix + I` (capital i).
 
+## Agent watcher starter config
+
+For users who primarily monitor coding agents (Claude Code, Codex, etc.) from their phone. Extends the base starter config with zoom-aware navigation so swiping on your phone cycles through panes showing different agent sessions.
+
+Add these to the starter config above:
+
+```tmux
+# -- Zoom-aware navigation (mobile-friendly) ---------------------------------
+# When zoomed: prefix+n/p cycles panes (stays zoomed)
+# When not zoomed: prefix+n/p switches windows (normal behaviour)
+bind -N "Next window (zoom-aware)" n \
+  if -F '#{window_zoomed_flag}' \
+  'select-pane -t :.+ ; resize-pane -Z' \
+  'next-window'
+
+bind -N "Previous window (zoom-aware)" p \
+  if -F '#{window_zoomed_flag}' \
+  'select-pane -t :.- ; resize-pane -Z' \
+  'previous-window'
+
+# -- Zoom indicator in status bar ---------------------------------------------
+set -g status-left " #{session_name} #{?window_zoomed_flag,[Z] ,}"
+
+# -- Auto-rename windows to current directory ---------------------------------
+set -g automatic-rename-format '#{b:pane_current_path}'
+```
+
+Combined with remobi's `mobile.initData: '\x02z'` (auto-zoom on phone load), this gives agent watchers:
+- Phone loads → current pane auto-zooms to full screen
+- Swipe left → next pane (re-zoomed) — see the next agent
+- Swipe right → previous pane (re-zoomed)
+- `[Z]` in status bar always shows you're zoomed
+
 ## Tips for remobi users
 
 - `set -g status-position top` keeps the status bar away from remobi's toolbar at the bottom
