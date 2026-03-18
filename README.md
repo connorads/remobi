@@ -20,10 +20,6 @@ It's a terminal on a 6-inch screen. It won't win design awards. But you can do *
 
 Your coding agent handles the rest. It installs remobi, inspects your tmux config, generates a config, and suggests tweaks to make your tmux more mobile-friendly — one conversation. Works with Claude Code and Codex.
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/9c7174b7-8ead-470d-b6b9-0c5adf27826f" />
-</div>
-
 ## Why remobi
 
 - **Zero workflow changes** — your existing tmux setup, untouched
@@ -32,6 +28,10 @@ Your coding agent handles the rest. It installs remobi, inspects your tmux confi
 - **Install to your home screen** — standalone PWA, looks and feels native
 - **Config-driven** — your buttons, your gestures, your layout
 - **Self-hosted** — local-first by default. Bring your own access layer (Tailscale, Cloudflare, ngrok)
+
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/952bdb34-4b73-4210-815a-b2b60f99f87f" />
+</div>
 
 ## Requirements
 
