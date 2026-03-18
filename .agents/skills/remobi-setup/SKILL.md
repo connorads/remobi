@@ -20,8 +20,10 @@ This skill walks the user through setup in one conversation. The guiding princip
 
 ### Phase 1: Welcome and understand (1 question)
 
-Ask what brings the user to remobi. Keep it natural — guided examples, not a numbered list:
+Open with a one-liner confirming what they're getting, then ask what brings them here:
 
+> "remobi puts your tmux session on your phone — same panes, same windows, touch controls on top. Everything we set up here you can change later."
+>
 > "What brings you to remobi? For example: monitoring coding agents from your phone, getting phone access to your dev sessions, or just curious to try it out."
 
 Map the answer to a persona internally (don't tell the user their "persona"):
@@ -257,6 +259,7 @@ Tell the user:
    - `pwa.enabled` (default `true`) — set `false` to disable manifest + icons
    - `pwa.themeColor` (default `'#1e1e2e'`) — status bar colour on mobile
    - `pwa.shortName` (optional) — short name for home screen icon (falls back to `name`)
+7. This is a starting point — not a locked-in config. Run this skill again any time to tweak buttons, add drawer commands, or change gestures.
 
 ---
 
