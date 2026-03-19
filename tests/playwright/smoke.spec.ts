@@ -11,9 +11,9 @@ test('serves HTML with terminal content', async ({ page }) => {
 	expect(html.toLowerCase()).toContain('main')
 })
 
-test('remobi inject pipes ttyd HTML and produces patched output', async () => {
-	const res = await fetch('http://127.0.0.1:7681/')
-	expect(res.ok).toBe(true)
+test('remobi inject pipes ttyd HTML and produces patched output', async ({ request }) => {
+	const res = await request.get('/')
+	expect(res.ok()).toBe(true)
 	const ttydHtml = await res.text()
 
 	const stdout = execSync('tsx cli.ts inject', {

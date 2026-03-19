@@ -5,12 +5,12 @@ export default defineConfig({
 	timeout: 30_000,
 	retries: 0,
 	use: {
-		baseURL: 'http://127.0.0.1:7681',
+		baseURL: 'http://127.0.0.1:17681',
 	},
 	webServer: {
-		command: 'tsx cli.ts serve --port 7681 -- bash --norc --noprofile',
-		port: 7681,
-		reuseExistingServer: !process.env.CI,
+		command: 'tsx cli.ts serve --port 17681 -- bash --norc --noprofile',
+		port: 17681,
+		reuseExistingServer: false,
 		timeout: 15_000,
 	},
 	projects: [
