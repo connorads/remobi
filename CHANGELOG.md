@@ -1,3 +1,10 @@
+## [0.2.7](https://github.com/connorads/remobi/compare/v0.2.6...v0.2.7) (2026-03-19)
+
+
+### Bug Fixes
+
+* respond to touch events on all buttons for iOS Safari ([5af6dda](https://github.com/connorads/remobi/commit/5af6ddadfc6865be05ffff976da661db100b6783)), closes [#19](https://github.com/connorads/remobi/issues/19)
+
 ## [0.2.6](https://github.com/connorads/remobi/compare/v0.2.5...v0.2.6) (2026-03-17)
 
 
