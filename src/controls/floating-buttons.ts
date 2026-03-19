@@ -25,8 +25,7 @@ function createGroupButton(
 	button.textContent = def.label
 	button.setAttribute('aria-label', def.description)
 
-	onTap(button, (e: Event) => {
-		e.preventDefault()
+	onTap(button, () => {
 		const kbWasOpen = isKeyboardOpen()
 		haptic()
 

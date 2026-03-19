@@ -31,14 +31,12 @@ export function createFontControls(term: XTerminal, font: FontConfig): FontContr
 	container.appendChild(btnPlus)
 	container.appendChild(btnHelp)
 
-	onTap(btnMinus, (e: Event) => {
-		e.preventDefault()
+	onTap(btnMinus, () => {
 		haptic()
 		changeFontSize(term, -2, font)
 	})
 
-	onTap(btnPlus, (e: Event) => {
-		e.preventDefault()
+	onTap(btnPlus, () => {
 		haptic()
 		changeFontSize(term, 2, font)
 	})

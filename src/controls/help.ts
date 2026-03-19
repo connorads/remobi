@@ -135,8 +135,7 @@ export function createHelpOverlay(
 		}
 	})
 
-	onTap(helpButton, (e: Event) => {
-		e.preventDefault()
+	onTap(helpButton, () => {
 		haptic()
 		open()
 	})

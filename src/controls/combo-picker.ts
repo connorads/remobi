@@ -281,14 +281,12 @@ export function createComboPicker(): ComboPickerResult {
 		closeAndFocus()
 	})
 
-	onTap(cancelButton, (event: Event) => {
-		event.preventDefault()
+	onTap(cancelButton, () => {
 		haptic()
 		closeAndFocus()
 	})
 
-	onTap(sendButton, (event: Event) => {
-		event.preventDefault()
+	onTap(sendButton, () => {
 		haptic()
 		void submit()
 	})

@@ -27,6 +27,14 @@ describe('onTap', () => {
 		expect(handler).toHaveBeenCalledOnce()
 	})
 
+	test('touchend does not call preventDefault', () => {
+		const element = document.createElement('button')
+		onTap(element, () => {})
+		const event = new TouchEvent('touchend')
+		element.dispatchEvent(event)
+		expect(event.defaultPrevented).toBe(false)
+	})
+
 	test('click fires again after guard timeout', () => {
 		vi.useFakeTimers()
 		const element = document.createElement('button')

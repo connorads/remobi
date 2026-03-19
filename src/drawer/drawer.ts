@@ -46,8 +46,7 @@ export function createDrawer(
 	for (const buttonDef of buttons) {
 		const button = el('button')
 		button.textContent = buttonDef.label
-		onTap(button, (e: Event) => {
-			e.preventDefault()
+		onTap(button, () => {
 			const kbWasOpen = isKeyboardOpen()
 			haptic()
 			close()

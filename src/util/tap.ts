@@ -10,7 +10,10 @@ export function onTap(element: HTMLElement, handler: (e: Event) => void): void {
 	let touchFired = false
 
 	element.addEventListener('touchend', (e: TouchEvent) => {
-		e.preventDefault()
+		// No preventDefault — allow the browser to synthesise mousedown/click,
+		// which transfers focus to the button and away from the terminal textarea.
+		// Without this, Android re-shows the keyboard when buttons are pressed.
+		// The touchFired guard below prevents the handler from double-firing.
 		touchFired = true
 		handler(e)
 		setTimeout(() => {

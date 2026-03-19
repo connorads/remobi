@@ -68,8 +68,7 @@ function wireButton(
 		readonly focusIfNeeded: () => void
 	}) => void,
 ): void {
-	onTap(button, (e: Event) => {
-		e.preventDefault()
+	onTap(button, () => {
 		const kbWasOpen = isKeyboardOpen()
 		haptic()
 
