@@ -1,7 +1,14 @@
 import { describe, expect, test } from 'vitest'
 import { createGestureLock, resetLock, tryLock } from '../src/gestures/lock'
 import { clampFontSize, touchDistance } from '../src/gestures/pinch'
-import { averageY, pageSeq, scrollSeq, terminalGrid, touchToCell } from '../src/gestures/scroll'
+import {
+	averageY,
+	pageSeq,
+	resolveScrollAction,
+	scrollSeq,
+	terminalGrid,
+	touchToCell,
+} from '../src/gestures/scroll'
 import { isValidSwipe } from '../src/gestures/swipe'
 import { mockTerminal } from './fixtures'
 
@@ -212,7 +219,9 @@ describe('terminalGrid', () => {
 		expect(terminalGrid(rect, term)).toEqual({ cols: 80, rows: 24 })
 	})
 
-	test('uses char measure element when term cols/rows unavailable', () => {
+	test('falls back to 80x24 when char measure element has zero dimensions', () => {
+		// happy-dom doesn't compute real layout so getBoundingClientRect returns zeros,
+		// which exercises the fallback path rather than the measure element path
 		const term = mockTerminal()
 		const rect = { width: 800, height: 480 } as DOMRect
 		const measure = document.createElement('span')
@@ -220,8 +229,6 @@ describe('terminalGrid', () => {
 		measure.style.width = '10px'
 		measure.style.height = '20px'
 		document.body.appendChild(measure)
-
-		// happy-dom may not compute real layout, so this tests the fallback path
 		const result = terminalGrid(rect, term)
 		expect(result.cols).toBeGreaterThan(0)
 		expect(result.rows).toBeGreaterThan(0)
@@ -281,5 +288,56 @@ describe('touchToCell', () => {
 		expect(touchToCell(makeTouch(9999, 9999), screen, term)).toEqual({ x: 80, y: 24 })
 		// Touch above/left of screen
 		expect(touchToCell(makeTouch(-100, -100), screen, term)).toEqual({ x: 1, y: 1 })
+	})
+})
+
+describe('resolveScrollAction', () => {
+	test('keys strategy returns pageSeq for up', () => {
+		const action = resolveScrollAction('up', 'keys', { x: 1, y: 1 }, 0, 1000, 50)
+		expect(action).toEqual({ type: 'send', seq: '\x1b[5~', newWheelAt: 0 })
+	})
+
+	test('keys strategy returns pageSeq for down', () => {
+		const action = resolveScrollAction('down', 'keys', { x: 1, y: 1 }, 0, 1000, 50)
+		expect(action).toEqual({ type: 'send', seq: '\x1b[6~', newWheelAt: 0 })
+	})
+
+	test('keys strategy preserves lastWheelAt unchanged', () => {
+		const action = resolveScrollAction('up', 'keys', { x: 1, y: 1 }, 500, 1000, 50)
+		expect(action).toEqual({ type: 'send', seq: '\x1b[5~', newWheelAt: 500 })
+	})
+
+	test('wheel strategy returns scrollSeq when interval elapsed', () => {
+		const action = resolveScrollAction('up', 'wheel', { x: 5, y: 10 }, 0, 1000, 50)
+		expect(action).toEqual({
+			type: 'send',
+			seq: scrollSeq('up', 5, 10),
+			newWheelAt: 1000,
+		})
+	})
+
+	test('wheel strategy skips when rate limited', () => {
+		// lastWheelAt=990, now=1000, interval=50 → 10ms < 50ms → skip
+		const action = resolveScrollAction('up', 'wheel', { x: 5, y: 10 }, 990, 1000, 50)
+		expect(action).toEqual({ type: 'skip' })
+	})
+
+	test('wheel strategy sends when exactly at interval boundary', () => {
+		// lastWheelAt=950, now=1000, interval=50 → 50ms >= 50ms → send
+		const action = resolveScrollAction('up', 'wheel', { x: 1, y: 1 }, 950, 1000, 50)
+		expect(action).toEqual({
+			type: 'send',
+			seq: scrollSeq('up', 1, 1),
+			newWheelAt: 1000,
+		})
+	})
+
+	test('wheel strategy down returns correct sequence', () => {
+		const action = resolveScrollAction('down', 'wheel', { x: 3, y: 7 }, 0, 1000, 50)
+		expect(action).toEqual({
+			type: 'send',
+			seq: scrollSeq('down', 3, 7),
+			newWheelAt: 1000,
+		})
 	})
 })

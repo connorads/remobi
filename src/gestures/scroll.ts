@@ -61,6 +61,63 @@ export function touchToCell(
 	return { x, y }
 }
 
+/** Result of deciding what scroll action to take */
+type ScrollAction =
+	| { readonly type: 'send'; readonly seq: string; readonly newWheelAt: number }
+	| { readonly type: 'skip' }
+
+/** Pure decision: given a scroll direction and strategy, return the action to take */
+export function resolveScrollAction(
+	dir: 'up' | 'down',
+	strategy: ScrollConfig['strategy'],
+	cell: { x: number; y: number },
+	lastWheelAt: number,
+	now: number,
+	wheelIntervalMs: number,
+): ScrollAction {
+	if (strategy === 'keys') {
+		return { type: 'send', seq: pageSeq(dir), newWheelAt: lastWheelAt }
+	}
+	if (now - lastWheelAt < wheelIntervalMs) {
+		return { type: 'skip' }
+	}
+	return { type: 'send', seq: scrollSeq(dir, cell.x, cell.y), newWheelAt: now }
+}
+
+/** Mutable scroll gesture state */
+interface ScrollState {
+	startY: number
+	lastY: number
+	accDelta: number
+	lastWheelAt: number
+}
+
+/** Drain accumulated delta, dispatching scroll actions until exhausted or rate-limited */
+function drainScrollDelta(
+	state: ScrollState,
+	touch: Touch,
+	screen: HTMLElement,
+	term: XTerminal,
+	config: ScrollConfig,
+): void {
+	while (Math.abs(state.accDelta) >= config.sensitivity) {
+		const dir = state.accDelta < 0 ? 'down' : 'up'
+		const cell = touchToCell(touch, screen, term)
+		const action = resolveScrollAction(
+			dir,
+			config.strategy,
+			cell,
+			state.lastWheelAt,
+			Date.now(),
+			config.wheelIntervalMs,
+		)
+		if (action.type === 'skip') break
+		sendData(term, action.seq)
+		state.lastWheelAt = action.newWheelAt
+		state.accDelta -= (state.accDelta < 0 ? -1 : 1) * config.sensitivity
+	}
+}
+
 /** Attach single-finger vertical scroll to the xterm screen */
 export function attachScrollGesture(
 	term: XTerminal,
@@ -68,21 +125,17 @@ export function attachScrollGesture(
 	lock: GestureLock,
 	isDrawerOpen: () => boolean,
 ): void {
-	let startY = 0
-	let lastY = 0
-	let accDelta = 0
-	let lastWheelAt = 0
+	const state: ScrollState = { startY: 0, lastY: 0, accDelta: 0, lastWheelAt: 0 }
 	let screenEl: HTMLElement | null = null
 
 	function onTouchStart(e: Event): void {
 		if (!(e instanceof TouchEvent)) return
-		if (e.touches.length === 1) {
-			const t = e.touches[0]
-			if (!t) return
-			startY = t.clientY
-			lastY = t.clientY
-			accDelta = 0
-		}
+		if (e.touches.length !== 1) return
+		const t = e.touches[0]
+		if (!t) return
+		state.startY = t.clientY
+		state.lastY = t.clientY
+		state.accDelta = 0
 	}
 
 	function onTouchMove(e: Event): void {
@@ -92,7 +145,7 @@ export function attachScrollGesture(
 		if (!t) return
 
 		const y = t.clientY
-		const totalDy = y - startY
+		const totalDy = y - state.startY
 
 		// Try to claim lock if unclaimed
 		if (lock.current === 'none' && Math.abs(totalDy) > config.sensitivity) {
@@ -104,36 +157,16 @@ export function attachScrollGesture(
 
 		e.preventDefault()
 
-		const moveDy = y - lastY
-		lastY = y
-		accDelta += moveDy
+		state.accDelta += y - state.lastY
+		state.lastY = y
 
-		// Send one scroll action per sensitivity-worth of pixels
-		while (Math.abs(accDelta) >= config.sensitivity) {
-			const dir = accDelta < 0 ? 'down' : 'up'
-
-			if (config.strategy === 'keys') {
-				sendData(term, pageSeq(dir))
-			} else {
-				const now = Date.now()
-				if (now - lastWheelAt < config.wheelIntervalMs) break
-				lastWheelAt = now
-
-				const screen = screenEl
-				if (!screen) break
-				const { x, y: row } = touchToCell(t, screen, term)
-				sendData(term, scrollSeq(dir, x, row))
-			}
-
-			accDelta -= (accDelta < 0 ? -1 : 1) * config.sensitivity
-		}
+		const screen = screenEl
+		if (screen) drainScrollDelta(state, t, screen, term, config)
 	}
 
 	function onTouchEnd(e: Event): void {
 		if (!(e instanceof TouchEvent)) return
-		if (lock.current === 'scroll') {
-			resetLock(lock)
-		}
+		if (lock.current === 'scroll') resetLock(lock)
 	}
 
 	function attach(): void {
@@ -144,12 +177,8 @@ export function attachScrollGesture(
 		}
 
 		screenEl = screen
-		screen.addEventListener('touchstart', onTouchStart, {
-			passive: true,
-		})
-		screen.addEventListener('touchmove', onTouchMove, {
-			passive: false,
-		})
+		screen.addEventListener('touchstart', onTouchStart, { passive: true })
+		screen.addEventListener('touchmove', onTouchMove, { passive: false })
 		screen.addEventListener('touchend', onTouchEnd, { passive: true })
 		screen.addEventListener('touchcancel', onTouchEnd, { passive: true })
 	}
