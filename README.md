@@ -18,6 +18,8 @@ It's a terminal on a 6-inch screen. It won't win design awards. But you can do *
 /bin/bash -c "$(curl -fsSL http://remobi.app/install.sh)"
 ```
 
+To upgrade: `npm install -g remobi@latest`
+
 Your coding agent handles the rest. It installs remobi, inspects your tmux config, generates a config, and suggests tweaks to make your tmux more mobile-friendly — one conversation. Works with Claude Code and Codex.
 
 ## Why remobi
