@@ -2,3 +2,5 @@ node_modules/
 dist/
 coverage/
 .tmp-entry.ts
+test-results/
+playwright-report/
