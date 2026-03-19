@@ -1,5 +1,6 @@
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
+import { onTap } from '../util/tap'
 
 interface ComboDispatch {
 	readonly sendText: (data: string) => Promise<void>
@@ -274,19 +275,19 @@ export function createComboPicker(): ComboPickerResult {
 		closeAndFocus()
 	}
 
-	backdrop.addEventListener('click', (event: Event) => {
+	onTap(backdrop, (event: Event) => {
 		if (event.target !== backdrop) return
 		haptic()
 		closeAndFocus()
 	})
 
-	cancelButton.addEventListener('click', (event: Event) => {
+	onTap(cancelButton, (event: Event) => {
 		event.preventDefault()
 		haptic()
 		closeAndFocus()
 	})
 
-	sendButton.addEventListener('click', (event: Event) => {
+	onTap(sendButton, (event: Event) => {
 		event.preventDefault()
 		haptic()
 		void submit()

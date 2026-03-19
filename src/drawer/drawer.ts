@@ -5,6 +5,7 @@ import type { ControlButton, RemobiConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
+import { onTap } from '../util/tap'
 import { sendData } from '../util/terminal'
 
 interface DrawerResult {
@@ -45,7 +46,7 @@ export function createDrawer(
 	for (const buttonDef of buttons) {
 		const button = el('button')
 		button.textContent = buttonDef.label
-		button.addEventListener('click', (e: Event) => {
+		onTap(button, (e: Event) => {
 			e.preventDefault()
 			const kbWasOpen = isKeyboardOpen()
 			haptic()
@@ -107,7 +108,7 @@ export function createDrawer(
 	}
 
 	// Backdrop dismisses drawer
-	backdrop.addEventListener('click', () => {
+	onTap(backdrop, () => {
 		const kbWasOpen = isKeyboardOpen()
 		haptic()
 		close()

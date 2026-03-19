@@ -1,6 +1,7 @@
 import type { FontConfig, XTerminal } from '../types'
 import { btn, el } from '../util/dom'
 import { haptic } from '../util/haptic'
+import { onTap } from '../util/tap'
 import { resizeTerm } from '../util/terminal'
 
 /** Change terminal font size by delta, clamped to config range */
@@ -30,13 +31,13 @@ export function createFontControls(term: XTerminal, font: FontConfig): FontContr
 	container.appendChild(btnPlus)
 	container.appendChild(btnHelp)
 
-	btnMinus.addEventListener('click', (e: Event) => {
+	onTap(btnMinus, (e: Event) => {
 		e.preventDefault()
 		haptic()
 		changeFontSize(term, -2, font)
 	})
 
-	btnPlus.addEventListener('click', (e: Event) => {
+	onTap(btnPlus, (e: Event) => {
 		e.preventDefault()
 		haptic()
 		changeFontSize(term, 2, font)

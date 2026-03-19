@@ -1,5 +1,6 @@
 import type { ReconnectConfig, XTerminal } from './types'
 import { el } from './util/dom'
+import { onTap } from './util/tap'
 
 /** Find the ttyd WebSocket from the interceptor array */
 function findTtydSocket(): WebSocket | undefined {
@@ -51,12 +52,12 @@ function createOverlay(onReconnect: () => void): ReconnectOverlay {
 	})
 	button.type = 'button'
 	button.textContent = 'Reconnect'
-	button.addEventListener('click', (event: Event) => {
+	onTap(button, (event: Event) => {
 		event.stopPropagation()
 		onReconnect()
 	})
 
-	overlay.addEventListener('click', () => {
+	onTap(overlay, () => {
 		onReconnect()
 	})
 

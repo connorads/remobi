@@ -4,6 +4,7 @@ import type { ControlButton, FloatingButtonGroup, RemobiConfig, XTerminal } from
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
+import { onTap } from '../util/tap'
 import { sendData } from '../util/terminal'
 
 function createGroupButton(
@@ -24,7 +25,7 @@ function createGroupButton(
 	button.textContent = def.label
 	button.setAttribute('aria-label', def.description)
 
-	button.addEventListener('click', (e: Event) => {
+	onTap(button, (e: Event) => {
 		e.preventDefault()
 		const kbWasOpen = isKeyboardOpen()
 		haptic()

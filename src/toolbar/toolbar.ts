@@ -5,6 +5,7 @@ import type { ControlButton, RemobiConfig, XTerminal } from '../types'
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
+import { onTap } from '../util/tap'
 import { sendData } from '../util/terminal'
 
 /** Ctrl sticky modifier state */
@@ -67,7 +68,7 @@ function wireButton(
 		readonly focusIfNeeded: () => void
 	}) => void,
 ): void {
-	button.addEventListener('click', (e: Event) => {
+	onTap(button, (e: Event) => {
 		e.preventDefault()
 		const kbWasOpen = isKeyboardOpen()
 		haptic()

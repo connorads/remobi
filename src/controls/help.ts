@@ -2,6 +2,7 @@ import type { ControlButton, FloatingButtonGroup, RemobiConfig, XTerminal } from
 import { el } from '../util/dom'
 import { haptic } from '../util/haptic'
 import { conditionalFocus, isKeyboardOpen } from '../util/keyboard'
+import { onTap } from '../util/tap'
 
 /** Create a table row with two cells — textContent auto-escapes */
 function row(left: string, right: string): HTMLTableRowElement {
@@ -118,7 +119,7 @@ export function createHelpOverlay(
 		overlay.style.display = 'none'
 	}
 
-	overlay.addEventListener('click', (e: Event) => {
+	onTap(overlay, (e: Event) => {
 		const target = e.target
 		if (!(target instanceof HTMLElement)) return
 		if (target === overlay || target.classList.contains('wt-help-close')) {
@@ -129,7 +130,7 @@ export function createHelpOverlay(
 		}
 	})
 
-	helpButton.addEventListener('click', (e: Event) => {
+	onTap(helpButton, (e: Event) => {
 		e.preventDefault()
 		haptic()
 		open()
