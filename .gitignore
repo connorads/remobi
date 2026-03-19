@@ -4,3 +4,4 @@ coverage/
 .tmp-entry.ts
 test-results/
 playwright-report/
+demo/
