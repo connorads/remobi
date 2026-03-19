@@ -150,6 +150,34 @@ describe('help overlay integration', () => {
 		expect(element.innerHTML).toContain('Gestures')
 	})
 
+	test('shows version when provided', () => {
+		const term = mockTerminal()
+		const { helpButton } = createFontControls(term, defaultConfig.font)
+		const { element } = createHelpOverlay(term, helpButton, defaultConfig, '1.2.3')
+
+		document.body.appendChild(element)
+
+		const versionEl = element.querySelector('.wt-help-version')
+		expect(versionEl).not.toBeNull()
+		expect(versionEl?.textContent).toBe('remobi v1.2.3')
+	})
+
+	test('shows dev version with hash', () => {
+		const term = mockTerminal()
+		const { helpButton } = createFontControls(term, defaultConfig.font)
+		const { element } = createHelpOverlay(term, helpButton, defaultConfig, '0.2.6-dev+abc1234')
+
+		expect(element.innerHTML).toContain('remobi v0.2.6-dev+abc1234')
+	})
+
+	test('omits version when not provided', () => {
+		const term = mockTerminal()
+		const { helpButton } = createFontControls(term, defaultConfig.font)
+		const { element } = createHelpOverlay(term, helpButton, defaultConfig)
+
+		expect(element.querySelector('.wt-help-version')).toBeNull()
+	})
+
 	test('renders configured button descriptions and no stale Claude section', () => {
 		const term = mockTerminal()
 		const { helpButton } = createFontControls(term, defaultConfig.font)

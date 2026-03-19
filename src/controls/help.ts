@@ -55,7 +55,7 @@ function renderGestures(config: RemobiConfig): DocumentFragment {
 }
 
 /** Build the help overlay content as a DocumentFragment — no innerHTML */
-function buildHelpContent(config: RemobiConfig): DocumentFragment {
+function buildHelpContent(config: RemobiConfig, version?: string): DocumentFragment {
 	const topRightButtons: readonly ControlButton[] = [
 		{
 			id: 'font-size',
@@ -93,6 +93,10 @@ function buildHelpContent(config: RemobiConfig): DocumentFragment {
 		}
 	}
 
+	if (version !== undefined) {
+		frag.appendChild(el('p', { class: 'wt-help-version' }, `remobi v${version}`))
+	}
+
 	return frag
 }
 
@@ -107,9 +111,10 @@ export function createHelpOverlay(
 	term: XTerminal,
 	helpButton: HTMLButtonElement,
 	config: RemobiConfig,
+	version?: string,
 ): HelpOverlayResult {
 	const overlay = el('div', { id: 'wt-help' })
-	overlay.appendChild(buildHelpContent(config))
+	overlay.appendChild(buildHelpContent(config, version))
 
 	function open(): void {
 		overlay.style.display = 'block'

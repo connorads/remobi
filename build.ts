@@ -17,7 +17,10 @@ function findProjectRoot(): string {
 const PROJECT_ROOT = findProjectRoot()
 
 /** Bundle the overlay JS + CSS into strings */
-export async function bundleOverlay(config: RemobiConfig): Promise<{ js: string; css: string }> {
+export async function bundleOverlay(
+	config: RemobiConfig,
+	version: string,
+): Promise<{ js: string; css: string }> {
 	// Read CSS
 	const cssPath = resolve(PROJECT_ROOT, 'styles/base.css')
 	const css = readFileSync(cssPath, 'utf-8')
@@ -26,7 +29,7 @@ export async function bundleOverlay(config: RemobiConfig): Promise<{ js: string;
 	const prebuiltPath = resolve(PROJECT_ROOT, 'dist/overlay.iife.js')
 	if (existsSync(prebuiltPath)) {
 		const overlayJs = readFileSync(prebuiltPath, 'utf-8')
-		const js = `globalThis.__remobiConfig=${JSON.stringify(config)};${overlayJs}`
+		const js = `globalThis.__remobiVersion=${JSON.stringify(version)};globalThis.__remobiConfig=${JSON.stringify(config)};${overlayJs}`
 		return { js, css }
 	}
 
@@ -34,11 +37,13 @@ export async function bundleOverlay(config: RemobiConfig): Promise<{ js: string;
 	const esbuild = await import('esbuild')
 
 	const configJson = JSON.stringify(config)
+	const versionJson = JSON.stringify(version)
 	const entryCode = `
 import { init, createHookRegistry } from './src/index.ts'
 const hooks = createHookRegistry()
 const config = ${configJson}
-;(function() { init(config, hooks) })()
+const version = ${versionJson}
+;(function() { init(config, hooks, version) })()
 `
 
 	const tmpEntry = resolve(PROJECT_ROOT, '.tmp-entry.ts')
@@ -132,16 +137,20 @@ export function injectOverlay(html: string, js: string, css: string, config: Rem
 }
 
 /** Full build pipeline: bundle → fetch ttyd HTML → inject → write output */
-export async function build(config: RemobiConfig, outputPath: string): Promise<void> {
-	const { js, css } = await bundleOverlay(config)
+export async function build(
+	config: RemobiConfig,
+	outputPath: string,
+	version: string,
+): Promise<void> {
+	const { js, css } = await bundleOverlay(config, version)
 	const baseHtml = await fetchTtydHtml()
 	const patched = injectOverlay(baseHtml, js, css, config)
 	writeFileSync(outputPath, patched)
 }
 
 /** Build from stdin HTML (pipe mode) */
-export async function injectFromStdin(config: RemobiConfig): Promise<string> {
-	const { js, css } = await bundleOverlay(config)
+export async function injectFromStdin(config: RemobiConfig, version: string): Promise<string> {
+	const { js, css } = await bundleOverlay(config, version)
 	const stdin = await readStdin()
 	if (stdin.trim().length === 0) {
 		throw new Error('remobi inject expects piped ttyd HTML on stdin')

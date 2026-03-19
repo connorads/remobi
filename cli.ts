@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -14,22 +15,45 @@ import { serve } from './src/serve'
 import type { RemobiConfig, RemobiConfigOverrides } from './src/types'
 import { readStdin } from './src/util/node-compat'
 
-// Walk up from module location to find package.json — works from both source and dist/
-function loadPackageVersion(): string {
+// Walk up from module location to find project root — works from both source and dist/
+function findProjectRoot(): string {
 	let dir = import.meta.dirname
 	for (let i = 0; i < 5; i++) {
-		try {
-			const content = readFileSync(resolve(dir, 'package.json'), 'utf-8')
-			// oxlint-disable-next-line typescript/consistent-type-assertions -- JSON.parse returns unknown
-			return (JSON.parse(content) as { version: string }).version
-		} catch {
-			dir = dirname(dir)
-		}
+		if (existsSync(resolve(dir, 'package.json'))) return dir
+		dir = dirname(dir)
 	}
-	return '0.0.0'
+	return import.meta.dirname
 }
 
-const VERSION: string = loadPackageVersion()
+function loadPackageVersion(root: string): string {
+	try {
+		const content = readFileSync(resolve(root, 'package.json'), 'utf-8')
+		// oxlint-disable-next-line typescript/consistent-type-assertions -- JSON.parse returns unknown
+		return (JSON.parse(content) as { version: string }).version
+	} catch {
+		return '0.0.0'
+	}
+}
+
+// Source checkout has src/index.ts (not published to npm per files array in package.json).
+// For dev builds, append git short hash so local vs npm is obvious.
+function resolveVersion(): string {
+	const root = findProjectRoot()
+	const pkgVersion = loadPackageVersion(root)
+	if (!existsSync(resolve(root, 'src/index.ts'))) return pkgVersion
+	try {
+		const hash = execSync('git rev-parse --short HEAD', {
+			cwd: root,
+			encoding: 'utf-8',
+			stdio: ['ignore', 'pipe', 'ignore'],
+		}).trim()
+		return `${pkgVersion}-dev+${hash}`
+	} catch {
+		return pkgVersion
+	}
+}
+
+const VERSION: string = resolveVersion()
 
 function usage(): void {
 	console.log(`remobi v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
@@ -212,7 +236,14 @@ async function main(): Promise<void> {
 	switch (command) {
 		case 'serve': {
 			const loaded = await loadConfig(configPath)
-			await serve(loaded.config, port, command_.length > 0 ? command_ : undefined, noSleep, host)
+			await serve(
+				loaded.config,
+				port,
+				command_.length > 0 ? command_ : undefined,
+				noSleep,
+				host,
+				VERSION,
+			)
 			break
 		}
 
@@ -233,7 +264,7 @@ async function main(): Promise<void> {
 			// Ensure output directory exists
 			mkdirSync(dirname(targetPath), { recursive: true })
 
-			await build(loaded.config, targetPath)
+			await build(loaded.config, targetPath, VERSION)
 			console.log(`Built: ${targetPath}`)
 			break
 		}
@@ -254,7 +285,7 @@ async function main(): Promise<void> {
 			}
 
 			ensureInjectInputMode('remobi inject')
-			const result = await injectFromStdin(loaded.config)
+			const result = await injectFromStdin(loaded.config, VERSION)
 			process.stdout.write(result)
 			break
 		}

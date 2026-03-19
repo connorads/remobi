@@ -199,9 +199,10 @@ export async function serve(
 	command: readonly string[] = DEFAULT_COMMAND,
 	noSleep = false,
 	host: string = DEFAULT_HOST,
+	version = 'unknown',
 ): Promise<void> {
 	console.log('remobi: building overlay...')
-	const { js, css } = await bundleOverlay(config)
+	const { js, css } = await bundleOverlay(config, version)
 
 	const internalPort = randomInternalPort()
 	const ttydArgs = buildTtydArgs(config, internalPort, command)

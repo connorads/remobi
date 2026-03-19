@@ -247,6 +247,13 @@ body {
 	width: 30%;
 }
 
+#wt-help .wt-help-version {
+	text-align: center;
+	color: #6c7086;
+	font-size: 12px;
+	margin: 16px 0 0;
+}
+
 #wt-help .wt-help-close {
 	position: fixed;
 	top: 12px;

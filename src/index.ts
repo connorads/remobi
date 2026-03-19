@@ -49,6 +49,7 @@ function isMobile(): boolean {
 export function init(
 	config: RemobiConfig = defaultConfig,
 	hooks: HookRegistry = createHookRegistry(),
+	version?: string,
 ): void {
 	void waitForTerm()
 		.then(async (term) => {
@@ -195,7 +196,7 @@ export function init(
 
 				// Help overlay should never break core controls.
 				try {
-					const { element: helpOverlay } = createHelpOverlay(term, helpButton, config)
+					const { element: helpOverlay } = createHelpOverlay(term, helpButton, config, version)
 					document.body.appendChild(helpOverlay)
 				} catch (error) {
 					console.error('remobi: failed to initialise help overlay', error)
