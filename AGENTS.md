@@ -68,6 +68,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - `src/util/terminal.ts` — sendData, resizeTerm, waitForTerm
 - `src/util/haptic.ts` — vibration feedback
 - `src/util/keyboard.ts` — isKeyboardOpen, conditionalFocus
+- `src/util/tap.ts` — onTap: touch + click handler for iOS Safari compatibility
 - `src/util/node-compat.ts` — sleep, readStdin, spawnProcess, collectStream
 - `src/actions/registry.ts` — action dispatch + clipboard
 - `src/hooks/registry.ts` — lifecycle hook system
