@@ -23,10 +23,26 @@ Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm 
 ```bash
 git config core.hooksPath .hk-hooks  # Run once after clone
 pnpm test              # Run all tests
+pnpm run test:pw       # Playwright e2e tests (chromium + webkit)
 pnpm run check         # Biome lint + format check
 pnpm run check:fix     # Auto-fix lint + format
 pnpm run build         # Build dist/index.html (dev-time, uses tsx)
 pnpm run build:dist    # Transpile for publishing (tsdown)
+```
+
+## Local Development
+
+From source (bundles overlay on the fly, no build step):
+
+```bash
+tsx cli.ts serve                                # localhost:7681, default tmux session
+tsx cli.ts serve --port 8080 -- bash --norc     # custom port, bash instead of tmux
+```
+
+From a local build:
+
+```bash
+pnpm run build:dist && node dist/cli.mjs serve
 ```
 
 ## Conventional Commits
@@ -93,7 +109,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
   - `npx semantic-release --dry-run` for local verification
   - Release triggers: `feat:` → minor, `fix:` → patch, `BREAKING CHANGE` → major
   - No release: `chore:`, `docs:`, `refactor:`, `test:`, `ci:`
-- `pnpm link --global` for local development (CLI available globally)
+- See **Local Development** above for running from source
 
 ## Conventions
 

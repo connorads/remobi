@@ -53,7 +53,7 @@ npm install -g remobi
 remobi serve
 ```
 
-For local development, use `pnpm link --global` from the repo root instead of `npm install -g remobi`.
+For local development, see the [Development](#development) section below.
 
 Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](docs/guides/tailscale-serve.md).
 
@@ -281,21 +281,27 @@ git config core.hooksPath .hk-hooks   # enable commit hooks (conventional commit
 
 ### Running locally
 
+From source (bundles overlay on the fly via esbuild — no build step needed):
+
 ```bash
-pnpm run build:dist          # transpile TS → JS (tsdown) — must re-run after source changes
-node dist/cli.mjs serve      # runs the locally-built version on http://localhost:7681
+tsx cli.ts serve              # localhost:7681, default tmux session
 ```
 
-Or use `pnpm link --global` to make the `remobi` CLI available globally, then run `remobi serve`.
+Or build first, then run from dist/:
 
-There is no watch mode — re-run `pnpm run build:dist` after each code change.
+```bash
+pnpm run build:dist          # transpile TS → JS + bundle overlay
+node dist/cli.mjs serve      # run locally-built version on localhost:7681
+```
+
+No watch mode — re-run the build or use `tsx` for automatic source bundling.
 
 ### Checks
 
 ```bash
-pnpm test            # vitest
+pnpm test            # vitest (unit + integration)
+pnpm run test:pw     # playwright e2e (needs: pnpm exec playwright install chromium webkit --with-deps)
 pnpm run check       # biome lint + format
-pnpm run build       # build dist/index.html (dev-time, uses tsx + esbuild)
 ```
 
 ## FAQ
