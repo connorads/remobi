@@ -23,7 +23,7 @@ function clamp(value: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, value))
 }
 
-function terminalGrid(screenRect: DOMRect, term: XTerminal): { cols: number; rows: number } {
+export function terminalGrid(screenRect: DOMRect, term: XTerminal): { cols: number; rows: number } {
 	const colsFromTerm = term.cols
 	const rowsFromTerm = term.rows
 	if (typeof colsFromTerm === 'number' && typeof rowsFromTerm === 'number') {
@@ -45,7 +45,11 @@ function terminalGrid(screenRect: DOMRect, term: XTerminal): { cols: number; row
 	return { cols: 80, rows: 24 }
 }
 
-function touchToCell(touch: Touch, screen: HTMLElement, term: XTerminal): { x: number; y: number } {
+export function touchToCell(
+	touch: Touch,
+	screen: HTMLElement,
+	term: XTerminal,
+): { x: number; y: number } {
 	const rect = screen.getBoundingClientRect()
 	const { cols, rows } = terminalGrid(rect, term)
 	const width = Math.max(1, rect.width)

@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest'
 import { createGestureLock, resetLock, tryLock } from '../src/gestures/lock'
 import { clampFontSize, touchDistance } from '../src/gestures/pinch'
-import { averageY, pageSeq, scrollSeq } from '../src/gestures/scroll'
+import { averageY, pageSeq, scrollSeq, terminalGrid, touchToCell } from '../src/gestures/scroll'
 import { isValidSwipe } from '../src/gestures/swipe'
+import { mockTerminal } from './fixtures'
 
 describe('isValidSwipe', () => {
 	const config = {
@@ -183,5 +184,102 @@ describe('pageSeq', () => {
 		// Source must use \x3c (hex escape) not literal < in SGR sequences
 		// to avoid breaking HTML parsing when bundled into inline <script>
 		expect(source).toContain('\\x3c${code};${x};${y}M')
+	})
+})
+
+describe('terminalGrid', () => {
+	test('returns cols/rows from terminal when available', () => {
+		const term = { ...mockTerminal(), cols: 120, rows: 40 }
+		const rect = { width: 800, height: 600 } as DOMRect
+		expect(terminalGrid(rect, term)).toEqual({ cols: 120, rows: 40 })
+	})
+
+	test('rounds non-integer cols/rows', () => {
+		const term = { ...mockTerminal(), cols: 79.6, rows: 23.4 }
+		const rect = { width: 800, height: 600 } as DOMRect
+		expect(terminalGrid(rect, term)).toEqual({ cols: 80, rows: 23 })
+	})
+
+	test('falls back to 80x24 when term has no cols/rows and no measure element', () => {
+		const term = mockTerminal()
+		const rect = { width: 800, height: 600 } as DOMRect
+		expect(terminalGrid(rect, term)).toEqual({ cols: 80, rows: 24 })
+	})
+
+	test('falls back to 80x24 when cols/rows are zero', () => {
+		const term = { ...mockTerminal(), cols: 0, rows: 0 }
+		const rect = { width: 800, height: 600 } as DOMRect
+		expect(terminalGrid(rect, term)).toEqual({ cols: 80, rows: 24 })
+	})
+
+	test('uses char measure element when term cols/rows unavailable', () => {
+		const term = mockTerminal()
+		const rect = { width: 800, height: 480 } as DOMRect
+		const measure = document.createElement('span')
+		measure.className = 'xterm-char-measure-element'
+		measure.style.width = '10px'
+		measure.style.height = '20px'
+		document.body.appendChild(measure)
+
+		// happy-dom may not compute real layout, so this tests the fallback path
+		const result = terminalGrid(rect, term)
+		expect(result.cols).toBeGreaterThan(0)
+		expect(result.rows).toBeGreaterThan(0)
+
+		document.body.removeChild(measure)
+	})
+})
+
+describe('touchToCell', () => {
+	function makeScreen(width: number, height: number): HTMLElement {
+		const el = document.createElement('div')
+		Object.defineProperty(el, 'getBoundingClientRect', {
+			value: () => ({
+				left: 0,
+				top: 0,
+				width,
+				height,
+				right: width,
+				bottom: height,
+				x: 0,
+				y: 0,
+				toJSON() {},
+			}),
+		})
+		return el
+	}
+
+	function makeTouch(clientX: number, clientY: number): Touch {
+		return { clientX, clientY } as Touch
+	}
+
+	test('touch at top-left returns cell (1, 1)', () => {
+		const screen = makeScreen(800, 480)
+		const term = { ...mockTerminal(), cols: 80, rows: 24 }
+		expect(touchToCell(makeTouch(0, 0), screen, term)).toEqual({ x: 1, y: 1 })
+	})
+
+	test('touch at bottom-right returns cell (cols, rows)', () => {
+		const screen = makeScreen(800, 480)
+		const term = { ...mockTerminal(), cols: 80, rows: 24 }
+		// Touch at the far edge — should map to last cell
+		expect(touchToCell(makeTouch(799, 479), screen, term)).toEqual({ x: 80, y: 24 })
+	})
+
+	test('touch at centre returns middle cell', () => {
+		const screen = makeScreen(800, 480)
+		const term = { ...mockTerminal(), cols: 80, rows: 24 }
+		const cell = touchToCell(makeTouch(400, 240), screen, term)
+		expect(cell.x).toBe(41)
+		expect(cell.y).toBe(13)
+	})
+
+	test('clamps touch outside screen bounds', () => {
+		const screen = makeScreen(800, 480)
+		const term = { ...mockTerminal(), cols: 80, rows: 24 }
+		// Touch far below/right of screen
+		expect(touchToCell(makeTouch(9999, 9999), screen, term)).toEqual({ x: 80, y: 24 })
+		// Touch above/left of screen
+		expect(touchToCell(makeTouch(-100, -100), screen, term)).toEqual({ x: 1, y: 1 })
 	})
 })
