@@ -247,6 +247,88 @@ describe('parseCliArgs', () => {
 		}
 	})
 
+	test('duplicate flags use last value (last-wins)', () => {
+		const result = parseCliArgs(['serve', '--port', '8080', '--port', '9000'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.port).toBe(9000)
+		}
+	})
+
+	test('accepts port boundary value 1', () => {
+		const result = parseCliArgs(['serve', '--port', '1'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.port).toBe(1)
+		}
+	})
+
+	test('accepts port boundary value 65535', () => {
+		const result = parseCliArgs(['serve', '--port', '65535'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.port).toBe(65535)
+		}
+	})
+
+	test('rejects port 0', () => {
+		const result = parseCliArgs(['serve', '--port', '0'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Invalid port')
+		}
+	})
+
+	test('rejects port 65536', () => {
+		const result = parseCliArgs(['serve', '--port', '65536'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Invalid port')
+		}
+	})
+
+	test('rejects missing --port value at end of args', () => {
+		const result = parseCliArgs(['serve', '--port'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Missing value for --port')
+		}
+	})
+
+	test('rejects --port when next token is a flag', () => {
+		const result = parseCliArgs(['serve', '--port', '--no-sleep'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Missing value for --port')
+		}
+	})
+
+	test('rejects --host when next token is a flag', () => {
+		const result = parseCliArgs(['serve', '--host', '--port', '8080'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Missing value for --host')
+		}
+	})
+
+	test('empty trailing command after --', () => {
+		const result = parseCliArgs(['serve', '--'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.command_).toEqual([])
+		}
+	})
+
+	test('flags in different order', () => {
+		const result = parseCliArgs(['serve', '--no-sleep', '--port', '8080', '--config', './c.ts'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.noSleep).toBe(true)
+			expect(result.value.port).toBe(8080)
+			expect(result.value.configPath).toBe('./c.ts')
+		}
+	})
+
 	test('parses serve with --no-sleep combined with --port and trailing command', () => {
 		const result = parseCliArgs([
 			'serve',
