@@ -1,5 +1,66 @@
-import { describe, expect, test } from 'vitest'
-import { parseComboInput } from '../src/controls/combo-picker'
+import { GlobalRegistrator } from '@happy-dom/global-registrator'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { createComboPicker, parseComboInput } from '../src/controls/combo-picker'
+
+beforeEach(() => {
+	GlobalRegistrator.register()
+})
+
+afterEach(() => {
+	GlobalRegistrator.unregister()
+})
+
+describe('createComboPicker', () => {
+	test('open with custom title and description sets DOM text', () => {
+		const picker = createComboPicker()
+		document.body.appendChild(picker.element)
+
+		picker.open({
+			async sendText() {},
+			focusIfNeeded() {},
+			title: 'After prefix',
+			description: 'Examples: r (reload), c (new window)',
+		})
+
+		const title = picker.element.querySelector('h3')
+		const desc = picker.element.querySelector('p')
+		expect(title?.textContent).toBe('After prefix')
+		expect(desc?.textContent).toBe('Examples: r (reload), c (new window)')
+	})
+
+	test('open without custom title uses defaults', () => {
+		const picker = createComboPicker()
+		document.body.appendChild(picker.element)
+
+		picker.open({
+			async sendText() {},
+			focusIfNeeded() {},
+		})
+
+		const title = picker.element.querySelector('h3')
+		const desc = picker.element.querySelector('p')
+		expect(title?.textContent).toBe('Send combo')
+		expect(desc?.textContent).toBe('Examples: C-s, C-[, M-Enter, Alt-x')
+	})
+
+	test('close resets title and description to defaults', () => {
+		const picker = createComboPicker()
+		document.body.appendChild(picker.element)
+
+		picker.open({
+			async sendText() {},
+			focusIfNeeded() {},
+			title: 'Custom',
+			description: 'Custom desc',
+		})
+		picker.close()
+
+		const title = picker.element.querySelector('h3')
+		const desc = picker.element.querySelector('p')
+		expect(title?.textContent).toBe('Send combo')
+		expect(desc?.textContent).toBe('Examples: C-s, C-[, M-Enter, Alt-x')
+	})
+})
 
 describe('parseComboInput', () => {
 	test('parses Ctrl letter combos', () => {

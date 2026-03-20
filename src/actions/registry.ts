@@ -10,6 +10,8 @@ export interface ActionExecutionContext {
 	readonly openComboPicker?: (options: {
 		readonly sendText: (data: string) => Promise<void>
 		readonly focusIfNeeded: () => void
+		readonly title?: string
+		readonly description?: string
 	}) => void
 	readonly toggleCtrlModifier?: () => void
 }
@@ -33,7 +35,7 @@ export function createActionRegistry(): ActionRegistry {
 		const handler = handlers.get(action.type)
 		if (!handler) return false
 
-		if (action.type === 'send') {
+		if (action.type === 'send' || action.type === 'prefix') {
 			const current = sendQueue.then(async () => {
 				await handler(action, context)
 			})
@@ -53,6 +55,17 @@ export function createActionRegistry(): ActionRegistry {
 	}
 
 	return { register, execute }
+}
+
+/** Map a prefix byte to a human-readable label (e.g. '\x02' → 'Ctrl-B') */
+function describePrefixByte(data: string): string | null {
+	if (data.length !== 1) return null
+	const code = data.charCodeAt(0)
+	// Ctrl-A through Ctrl-Z → 0x01–0x1A
+	if (code >= 1 && code <= 26) {
+		return `Ctrl-${String.fromCharCode(code + 64)}`
+	}
+	return null
 }
 
 export function createDefaultActionRegistry(): ActionRegistry {
@@ -103,6 +116,28 @@ export function createDefaultActionRegistry(): ActionRegistry {
 	registry.register('drawer-toggle', (_action, context) => {
 		if (context.openDrawer) {
 			context.openDrawer()
+		} else {
+			context.focusIfNeeded()
+		}
+	})
+
+	registry.register('prefix', async (action, context) => {
+		if (action.type !== 'prefix') return
+		await context.sendText(action.data)
+		if (context.openComboPicker) {
+			const prefixLabel = describePrefixByte(action.data)
+			context.openComboPicker({
+				title: `Prefix sent${prefixLabel ? ` (${prefixLabel})` : ''} — type follow-up`,
+				description:
+					'A letter like r (reload config) or c (new window). ' + 'C-x = Ctrl+x, M-x = Alt+x',
+				sendText: async (data: string) => {
+					await registry.execute(
+						{ type: 'send', data },
+						{ ...context, sendText: context.sendRawText ?? context.sendText },
+					)
+				},
+				focusIfNeeded: context.focusIfNeeded,
+			})
 		} else {
 			context.focusIfNeeded()
 		}

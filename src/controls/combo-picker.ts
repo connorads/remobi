@@ -5,6 +5,8 @@ import { onTap } from '../util/tap'
 interface ComboDispatch {
 	readonly sendText: (data: string) => Promise<void>
 	readonly focusIfNeeded: () => void
+	readonly title?: string
+	readonly description?: string
 }
 
 type ComboParseResult =
@@ -263,15 +265,22 @@ export function createComboPicker(): ComboPickerResult {
 		}
 	}
 
+	const defaultTitle = 'Send combo'
+	const defaultDescription = 'Examples: C-s, C-[, M-Enter, Alt-x'
+
 	function open(dispatch: ComboDispatch): void {
 		currentDispatch = dispatch
 		clearError()
 		input.value = ''
+		title.textContent = dispatch.title ?? defaultTitle
+		description.textContent = dispatch.description ?? defaultDescription
 		backdrop.style.display = 'flex'
 		setTimeout(() => input.focus(), 0)
 	}
 
 	function close(): void {
+		title.textContent = defaultTitle
+		description.textContent = defaultDescription
 		closeAndFocus()
 	}
 

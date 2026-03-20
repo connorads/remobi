@@ -278,12 +278,13 @@ name  theme  font  toolbar  drawer  gestures  mobile  floatingButtons  pwa  reco
 | `type`           | Required fields     | Notes |
 |------------------|---------------------|-------|
 | `send`           | `data: string`      | Optional `keyLabel?: string` for help overlay |
+| `prefix`         | `data: string`      | Sends prefix byte then opens combo picker for follow-up key. Use `{ type: 'send', data: '\x02' }` for raw prefix-only behaviour |
 | `ctrl-modifier`  | (none)              | Opens Ctrl+key combo UI |
 | `paste`          | (none)              | Paste from clipboard |
 | `combo-picker`   | (none)              | Opens Ctrl/Alt + key modal |
 | `drawer-toggle`  | (none)              | Opens/closes command drawer |
 
-Non-`send` actions must NOT have `data` or `keyLabel` — the validator rejects them.
+Non-`send`/`prefix` actions must NOT have `data` or `keyLabel` — the validator rejects them.
 
 ### ControlButton shape
 
@@ -340,7 +341,7 @@ Valid positions: `top-left | top-right | top-centre | bottom-left | bottom-right
 | `id` | `label` | `action` |
 |------|---------|----------|
 | `esc` | Esc | `send` `\x1b` |
-| `tmux-prefix` | Prefix | `send` `\x02` |
+| `tmux-prefix` | Prefix | `prefix` `\x02` (sends prefix then opens combo picker for follow-up key) |
 | `tab` | Tab | `send` `\t` |
 | `shift-tab` | S-Tab | `send` `\x1b[Z` |
 | `left` | <- | `send` `\x1b[D` |
@@ -479,7 +480,7 @@ export default {
   toolbar: {
     row1: (defaults) => defaults.map(b =>
       b.id === 'tmux-prefix'
-        ? { ...b, description: 'Send tmux prefix key (Ctrl-A)', action: { type: 'send', data: '\x01' } }
+        ? { ...b, description: 'Send tmux prefix key (Ctrl-A)', action: { type: 'prefix', data: '\x01' } }
         : b
     ),
   },

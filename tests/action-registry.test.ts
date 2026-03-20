@@ -349,6 +349,107 @@ describe('createDefaultActionRegistry', () => {
 		expect(sent).toBe('raw:abc')
 	})
 
+	test('prefix action sends data then opens combo picker', async () => {
+		const registry = createDefaultActionRegistry()
+		const sent: string[] = []
+		let pickerOptions: { title?: string; description?: string } | null = null
+
+		await registry.execute(
+			{ type: 'prefix', data: '\x02' },
+			{
+				term: mockTerminal(),
+				kbWasOpen: false,
+				focusIfNeeded() {},
+				async sendText(data: string) {
+					sent.push(data)
+				},
+				openComboPicker(options) {
+					pickerOptions = options
+				},
+			},
+		)
+
+		expect(sent).toEqual(['\x02'])
+		expect(pickerOptions).toMatchObject({
+			title: expect.stringContaining('Ctrl-B'),
+			description: expect.stringContaining('C-x = Ctrl+x'),
+		})
+	})
+
+	test('prefix action falls back to focus when picker unavailable', async () => {
+		const registry = createDefaultActionRegistry()
+		const sent: string[] = []
+		let focused = false
+
+		await registry.execute(
+			{ type: 'prefix', data: '\x02' },
+			{
+				term: mockTerminal(),
+				kbWasOpen: false,
+				focusIfNeeded() {
+					focused = true
+				},
+				async sendText(data: string) {
+					sent.push(data)
+				},
+			},
+		)
+
+		expect(sent).toEqual(['\x02'])
+		expect(focused).toBe(true)
+	})
+
+	test('prefix action serialises with send queue', async () => {
+		const registry = createDefaultActionRegistry()
+		const sent: string[] = []
+
+		const context = {
+			term: mockTerminal(),
+			kbWasOpen: false,
+			focusIfNeeded() {},
+			async sendText(data: string) {
+				if (data === '\x02') {
+					await new Promise((resolve) => setTimeout(resolve, 10))
+				}
+				sent.push(data)
+			},
+			openComboPicker() {},
+		}
+
+		const first = registry.execute({ type: 'prefix', data: '\x02' }, context)
+		const second = registry.execute({ type: 'send', data: 'q' }, context)
+		await Promise.all([first, second])
+
+		expect(sent).toEqual(['\x02', 'q'])
+	})
+
+	test('prefix combo follow-up uses raw sender', async () => {
+		const registry = createDefaultActionRegistry()
+		let sent = ''
+		let comboPromise: Promise<void> | null = null
+
+		await registry.execute(
+			{ type: 'prefix', data: '\x02' },
+			{
+				term: mockTerminal(),
+				kbWasOpen: false,
+				focusIfNeeded() {},
+				async sendText(_data: string) {},
+				async sendRawText(data: string) {
+					sent = `raw:${data}`
+				},
+				openComboPicker(options) {
+					comboPromise = options.sendText('r')
+				},
+			},
+		)
+
+		if (comboPromise) {
+			await comboPromise
+		}
+		expect(sent).toBe('raw:r')
+	})
+
 	test('combo-picker falls back to focus when picker unavailable', async () => {
 		const registry = createDefaultActionRegistry()
 		let focused = false

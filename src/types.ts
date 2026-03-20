@@ -3,6 +3,7 @@ export type ButtonAction =
 	| { readonly type: 'send'; readonly data: string; readonly keyLabel?: string }
 	| { readonly type: 'ctrl-modifier' }
 	| { readonly type: 'paste' }
+	| { readonly type: 'prefix'; readonly data: string }
 	| { readonly type: 'combo-picker' }
 	| { readonly type: 'drawer-toggle' }
 

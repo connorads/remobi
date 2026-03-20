@@ -10,7 +10,7 @@ describe('defaultRow1', () => {
 	test('has tmux Prefix button', () => {
 		const prefix = defaultRow1.find((b) => b.id === 'tmux-prefix')
 		expect(prefix).toBeDefined()
-		expect(prefix?.action).toEqual({ type: 'send', data: '\x02' })
+		expect(prefix?.action).toEqual({ type: 'prefix', data: '\x02' })
 	})
 
 	test('has S-Tab after Tab', () => {

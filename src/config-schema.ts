@@ -16,6 +16,10 @@ const sendActionSchema = v.strictObject({
 	keyLabel: v.optional(v.string()),
 })
 
+const prefixActionSchema = v.strictObject({
+	type: v.literal('prefix'),
+	data: v.string(),
+})
 const ctrlModifierActionSchema = v.strictObject({ type: v.literal('ctrl-modifier') })
 const pasteActionSchema = v.strictObject({ type: v.literal('paste') })
 const comboPickerActionSchema = v.strictObject({ type: v.literal('combo-picker') })
@@ -23,6 +27,7 @@ const drawerToggleActionSchema = v.strictObject({ type: v.literal('drawer-toggle
 
 const buttonActionSchema = v.variant('type', [
 	sendActionSchema,
+	prefixActionSchema,
 	ctrlModifierActionSchema,
 	pasteActionSchema,
 	comboPickerActionSchema,

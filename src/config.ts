@@ -45,7 +45,7 @@ const defaultRow1: RemobiConfig['toolbar']['row1'] = [
 		id: 'tmux-prefix',
 		label: 'Prefix',
 		description: 'Send tmux prefix key (Ctrl-B)',
-		action: { type: 'send', data: '\x02' },
+		action: { type: 'prefix', data: '\x02' },
 	},
 	{ id: 'tab', label: 'Tab', description: 'Send Tab key', action: { type: 'send', data: '\t' } },
 	{
