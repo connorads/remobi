@@ -32,7 +32,7 @@ test('help overlay shows version', async ({ page }) => {
 	await page.goto('/')
 	await page.waitForSelector('#wt-toolbar', { timeout: 10_000 })
 
-	// Open help via touchend (same pattern as touch.spec.ts — tap() can miss on mobile viewports)
+	// Open help via touchend — simulates iOS Safari not firing click on dynamic elements
 	const helpBtn = page.locator('#wt-font-controls button', { hasText: '?' })
 	await expect(helpBtn).toBeVisible()
 	await helpBtn.dispatchEvent('touchend', {

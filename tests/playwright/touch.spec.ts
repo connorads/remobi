@@ -65,6 +65,66 @@ test('backdrop responds to touchend-only', async ({ page }) => {
 	await expect(page.locator('#wt-drawer')).not.toHaveClass(/open/)
 })
 
+test('drawer open → close → re-open cycle', async ({ page }) => {
+	const toggle = page.locator('#wt-toolbar button', { hasText: 'More' })
+	const drawer = page.locator('#wt-drawer')
+
+	// Open
+	await toggle.dispatchEvent('touchend', {
+		touches: [],
+		changedTouches: [],
+		targetTouches: [],
+	})
+	await expect(drawer).toHaveClass(/open/)
+
+	// Close via backdrop
+	await page.locator('#wt-backdrop').dispatchEvent('touchend', {
+		touches: [],
+		changedTouches: [],
+		targetTouches: [],
+	})
+	await expect(drawer).not.toHaveClass(/open/)
+
+	// Re-open via tap — synthesised click must not re-close
+	await toggle.tap()
+	await expect(drawer).toHaveClass(/open/)
+})
+
+test('synthesised click from tap() hits backdrop (regression guard)', async ({ page }) => {
+	// Proves the mechanism that caused the open-then-close bug still exists:
+	// after touchend opens the drawer, synthesised mousedown/click land on the
+	// backdrop. The justOpened guard in drawer.ts must block these.
+	// Listen at document level (capture phase) because the fix uses
+	// stopImmediatePropagation on the backdrop element.
+	await page.evaluate(() => {
+		const w = window as unknown as { __backdropClicks: { isTrusted: boolean }[] }
+		w.__backdropClicks = []
+		document.addEventListener(
+			'click',
+			(e) => {
+				if ((e.target as HTMLElement)?.id === 'wt-backdrop') {
+					w.__backdropClicks.push({ isTrusted: e.isTrusted })
+				}
+			},
+			{ capture: true },
+		)
+	})
+
+	const toggle = page.locator('#wt-toolbar button', { hasText: 'More' })
+	await toggle.tap()
+	await page.waitForTimeout(200)
+
+	const clicks = await page.evaluate(
+		() => (window as unknown as { __backdropClicks: { isTrusted: boolean }[] }).__backdropClicks,
+	)
+	// Synthesised click should have reached the backdrop
+	expect(clicks.length).toBeGreaterThan(0)
+	expect(clicks[0]?.isTrusted).toBe(true)
+
+	// But the drawer should still be open (guard blocked the close)
+	await expect(page.locator('#wt-drawer')).toHaveClass(/open/)
+})
+
 test('help button responds to touchend-only', async ({ page }) => {
 	const helpBtn = page.locator('#wt-font-controls button', { hasText: '?' })
 	await expect(helpBtn).toBeVisible()
