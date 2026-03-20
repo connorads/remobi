@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/connorads/remobi/compare/v0.3.0...v0.3.1) (2026-03-20)
+
+
+### Bug Fixes
+
+* prevent synthesised click from closing overlays opened by touch ([e5a625d](https://github.com/connorads/remobi/commit/e5a625db8dadec33c40046a90d230ebe0847b837))
+
 # [0.3.0](https://github.com/connorads/remobi/compare/v0.2.7...v0.3.0) (2026-03-20)
 
 
