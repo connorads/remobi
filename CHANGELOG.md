@@ -1,3 +1,16 @@
+# [0.3.0](https://github.com/connorads/remobi/compare/v0.2.7...v0.3.0) (2026-03-20)
+
+
+### Bug Fixes
+
+* prevent drawer from immediately closing on touch devices ([5cbfefe](https://github.com/connorads/remobi/commit/5cbfefec93d24ff11d9014b47a9da6effe56335c))
+* stop buttons opening keyboard on Android ([d40fa46](https://github.com/connorads/remobi/commit/d40fa4662f11f3fc43b02019b186670cf06f0df1))
+
+
+### Features
+
+* show version in help overlay ([eab3272](https://github.com/connorads/remobi/commit/eab3272e979bcd4cf281325d90c9546d9794b565))
+
 ## [0.2.7](https://github.com/connorads/remobi/compare/v0.2.6...v0.2.7) (2026-03-19)
 
 
