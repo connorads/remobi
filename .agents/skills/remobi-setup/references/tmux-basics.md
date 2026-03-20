@@ -149,24 +149,11 @@ Install plugins: `prefix + I` (capital i).
 
 ## Agent watcher starter config
 
-For users who primarily monitor coding agents (Claude Code, Codex, etc.) from their phone. Extends the base starter config with zoom-aware navigation so swiping on your phone cycles through panes showing different agent sessions.
+For users who primarily monitor coding agents (Claude Code, Codex, etc.) from their phone. Extends the base starter config with a zoom indicator and auto-rename. Pane zoom is handled by remobi's double-tap gesture — no special tmux bindings needed.
 
 Add these to the starter config above:
 
 ```tmux
-# -- Zoom-aware navigation (mobile-friendly) ---------------------------------
-# When zoomed: prefix+n/p cycles panes (stays zoomed)
-# When not zoomed: prefix+n/p switches windows (normal behaviour)
-bind -N "Next window (zoom-aware)" n \
-  if -F '#{window_zoomed_flag}' \
-  'select-pane -t :.+ ; resize-pane -Z' \
-  'next-window'
-
-bind -N "Previous window (zoom-aware)" p \
-  if -F '#{window_zoomed_flag}' \
-  'select-pane -t :.- ; resize-pane -Z' \
-  'previous-window'
-
 # -- Zoom indicator in status bar ---------------------------------------------
 set -g status-left " #{session_name} #{?window_zoomed_flag,[Z] ,}"
 
@@ -174,11 +161,13 @@ set -g status-left " #{session_name} #{?window_zoomed_flag,[Z] ,}"
 set -g automatic-rename-format '#{b:pane_current_path}'
 ```
 
-Combined with remobi's `mobile.initData: '\x02z'` (auto-zoom on phone load), this gives agent watchers:
-- Phone loads → current pane auto-zooms to full screen
-- Swipe left → next pane (re-zoomed) — see the next agent
-- Swipe right → previous pane (re-zoomed)
+Combined with remobi's double-tap zoom and `mobile.initData: '\x02z'` (auto-zoom on phone load), this gives agent watchers:
+- Phone loads -> current pane auto-zooms to full screen
+- Double-tap terminal -> toggle zoom on/off to inspect any pane
+- Swipe left/right -> navigate between windows
 - `[Z]` in status bar always shows you're zoomed
+
+See `mobile-panes.md` for advanced tmux patterns that extend gesture behaviour.
 
 ## Tips for remobi users
 
@@ -187,4 +176,4 @@ Combined with remobi's `mobile.initData: '\x02z'` (auto-zoom on phone load), thi
 - Use `%` dimensions in `display-popup` (e.g. `95%x95%`) not fixed char widths — they scale to phone screens
 - Zoom pane (`prefix + z`) is your best friend on mobile — remobi can auto-zoom on connect via `mobile.initData`
 - See `mobile-tmux.md` for responsive status bar breakpoints and mobile-specific optimisations
-- See `mobile-panes.md` for zoom-aware pane navigation
+- See `mobile-panes.md` for pane workflows and advanced tmux patterns that extend gesture behaviour

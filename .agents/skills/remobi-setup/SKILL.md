@@ -30,7 +30,7 @@ Map the answer to a persona internally (don't tell the user their "persona"):
 
 | Persona | Signals | Downstream effect |
 |---------|---------|-------------------|
-| **Agent Watcher** | Mentions coding agents, Claude Code, Codex, AI, monitoring | Auto-zoom on, floating zoom button, zoom-aware tmux bindings, lean config, minimal questions |
+| **Agent Watcher** | Mentions coding agents, Claude Code, Codex, AI, monitoring | Auto-zoom on, floating zoom button, double-tap zoom enabled, lean config, minimal questions |
 | **Remote Dev** | Mentions tmux, SSH, dev workflow, existing setup | Inspect config thoroughly, offer popup drawer buttons, ask about auto-zoom |
 | **Newcomer** | Says curious, trying it out, heard about it, no specific use case | Offer tmux setup, explain concepts, auto-zoom on, sensible defaults |
 
@@ -81,7 +81,7 @@ Auto-detect and note:
 - Split bindings (stock `%`/`"` or remapped `|`/`-`)
 - Status bar complexity and position
 - Plugin manager (tpm, etc.)
-- Zoom-aware n/p bindings (from `references/mobile-panes.md`)
+- Double-tap zoom gesture (see `references/mobile-panes.md` for pane workflows)
 
 **Detect installed tools** — check for popular tools that work well as tmux popup bindings:
 
@@ -97,14 +97,14 @@ which nvim || which vim    # Editor
 If no tmux config exists, read `references/tmux-basics.md` and offer to create one. Frame it as a proposal, not a gap:
 
 **Agent Watcher framing:**
-> "I'll create a tmux config tuned for monitoring agents — mouse support, status bar at top, and zoom-aware navigation so you can swipe between agent panes on your phone. Go ahead?"
+> "I'll create a tmux config tuned for monitoring agents — mouse support, status bar at top, and double-tap zoom so you can zoom into any agent pane on your phone. Go ahead?"
 
 **Newcomer framing:**
 > "tmux is the terminal multiplexer that remobi sits on top of — it keeps your sessions running even when you disconnect. I'll set up a config with mouse support, sensible defaults, and a help popup to learn the keybindings. Want me to explain what each setting does as I go?"
 
 **Remote Dev:** Skip — they already have a config.
 
-The starter config comes from `references/tmux-basics.md`. For Agent Watchers, include the "Agent watcher starter config" section (zoom-aware n/p, zoom indicator, auto-rename).
+The starter config comes from `references/tmux-basics.md`. For Agent Watchers, include the "Agent watcher starter config" section (zoom indicator, auto-rename, double-tap zoom via remobi config).
 
 For Newcomers with detected tools, also offer popup bindings:
 > "I found lazygit and yazi on your system. These work great as tmux popups — one keypress to open a floating window. Want me to add popup bindings for them?"
@@ -186,7 +186,7 @@ For Remote Dev users who already had a tmux config, offer mobile tweaks as a sin
 
 Prioritise by impact, suggest maximum 3:
 
-1. **Zoom-aware n/p bindings** (if multi-pane user and not already present)
+1. **Double-tap zoom** (if multi-pane user — enable via remobi `gestures.doubleTap`)
 2. **Responsive status bar** (if status bar would overflow on phone — see `references/mobile-tmux.md`)
 3. **Zoom indicator** (if `#{window_zoomed_flag}` missing from status)
 
