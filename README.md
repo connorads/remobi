@@ -41,7 +41,7 @@ Your coding agent handles the rest. It installs remobi, inspects your tmux confi
 - [ttyd](https://github.com/tsl0922/ttyd) — must be on PATH for `remobi serve` and `remobi build` (they spawn a temporary ttyd to fetch base HTML). Install on macOS with `brew install ttyd`; on Linux use your distro package manager or build from source via the [ttyd installation guide](https://github.com/tsl0922/ttyd#installation). `remobi inject` pipes HTML from stdin and does **not** require ttyd — useful for CI or environments where ttyd isn't installed locally.
 - [tmux](https://github.com/tmux/tmux) (the target multiplexer)
 
-remobi uses standard ttyd flags (`--writable`, `-t`, `-i`) and should work with any recent ttyd release.
+Tested with ttyd 1.7.7. Older versions (e.g. 1.7.4 from Ubuntu apt) may have xterm.js incompatibilities.
 
 ## Manual setup
 
