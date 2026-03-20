@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/connorads/remobi/compare/v0.3.1...v0.4.0) (2026-03-20)
+
+
+### Features
+
+* add double-tap gesture for configurable terminal action ([7999f8e](https://github.com/connorads/remobi/commit/7999f8e625bdd38e6df900de6f1e36f3f25b5e2e))
+
 ## [0.3.1](https://github.com/connorads/remobi/compare/v0.3.0...v0.3.1) (2026-03-20)
 
 
