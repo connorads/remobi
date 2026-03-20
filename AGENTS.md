@@ -66,7 +66,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 | `refactor` | none | Code restructuring with no behaviour change |
 | `test` | none | Adding or updating tests |
 
-**Key rule**: `fix` means a consumer-facing bug fix that warrants an npm release. If the change only affects CI, dev tooling, or repo internals, use `ci` or `chore` instead — even if it "fixes" something.
+**NEVER use `fix` for non-consumer-facing changes.** `fix` triggers an npm release — it means a bug fix visible to package consumers (runtime behaviour, CLI output, published types). If the change only affects CI, dev tooling, tests, or repo internals, use `ci`, `chore`, or `test` instead — even if it "fixes" something. When in doubt, ask: "would a consumer notice if this change didn't exist?" If no, it's not `fix`.
 
 ## Module Layout
 
