@@ -1,3 +1,15 @@
+# [0.5.0](https://github.com/connorads/remobi/compare/v0.4.0...v0.5.0) (2026-03-20)
+
+
+### Bug Fixes
+
+* **ci:** pin ttyd 1.7.7 via mise — fixes prefix e2e failures ([2e88df3](https://github.com/connorads/remobi/commit/2e88df39734c427b7973015e64f43a6b958c1cc1))
+
+
+### Features
+
+* prefix button sends prefix then opens combo picker ([cae17de](https://github.com/connorads/remobi/commit/cae17de6889658da8cc46ee8f917b542b4582bb3))
+
 # [0.4.0](https://github.com/connorads/remobi/compare/v0.3.1...v0.4.0) (2026-03-20)
 
 
