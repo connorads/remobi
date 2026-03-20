@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import { isDoubleTap } from '../src/gestures/double-tap'
 import { createGestureLock, resetLock, tryLock } from '../src/gestures/lock'
 import { clampFontSize, touchDistance } from '../src/gestures/pinch'
 import {
@@ -288,6 +289,51 @@ describe('touchToCell', () => {
 		expect(touchToCell(makeTouch(9999, 9999), screen, term)).toEqual({ x: 80, y: 24 })
 		// Touch above/left of screen
 		expect(touchToCell(makeTouch(-100, -100), screen, term)).toEqual({ x: 1, y: 1 })
+	})
+})
+
+describe('isDoubleTap', () => {
+	const maxInterval = 300
+	const maxDistance = 50
+
+	test('within interval and distance returns true', () => {
+		expect(isDoubleTap(200, 30, maxInterval, maxDistance)).toBe(true)
+	})
+
+	test('exceeds interval returns false', () => {
+		expect(isDoubleTap(400, 30, maxInterval, maxDistance)).toBe(false)
+	})
+
+	test('zero dt (simultaneous) returns false', () => {
+		expect(isDoubleTap(0, 10, maxInterval, maxDistance)).toBe(false)
+	})
+
+	test('exact interval boundary returns true', () => {
+		expect(isDoubleTap(300, 30, maxInterval, maxDistance)).toBe(true)
+	})
+
+	test('negative dt returns false', () => {
+		expect(isDoubleTap(-100, 10, maxInterval, maxDistance)).toBe(false)
+	})
+
+	test('within distance returns true', () => {
+		expect(isDoubleTap(200, 49, maxInterval, maxDistance)).toBe(true)
+	})
+
+	test('exceeds distance returns false', () => {
+		expect(isDoubleTap(200, 60, maxInterval, maxDistance)).toBe(false)
+	})
+
+	test('exact distance boundary returns true', () => {
+		expect(isDoubleTap(200, 50, maxInterval, maxDistance)).toBe(true)
+	})
+
+	test('within time but too far apart returns false', () => {
+		expect(isDoubleTap(100, 80, maxInterval, maxDistance)).toBe(false)
+	})
+
+	test('close enough but too slow returns false', () => {
+		expect(isDoubleTap(500, 10, maxInterval, maxDistance)).toBe(false)
 	})
 })
 

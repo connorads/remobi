@@ -6,6 +6,7 @@ import { createFontControls } from './controls/font-size'
 import { createHelpOverlay } from './controls/help'
 import { createScrollButtons } from './controls/scroll-buttons'
 import { createDrawer } from './drawer/drawer'
+import { attachDoubleTapGesture } from './gestures/double-tap'
 import { createGestureLock } from './gestures/lock'
 import { attachPinchGestures } from './gestures/pinch'
 import { attachScrollGesture } from './gestures/scroll'
@@ -162,6 +163,9 @@ export function init(
 				}
 				if (config.gestures.scroll.enabled) {
 					attachScrollGesture(term, config.gestures.scroll, gestureLock, drawer.isOpen)
+				}
+				if (config.gestures.doubleTap.enabled) {
+					attachDoubleTapGesture(term, config.gestures.doubleTap, drawer.isOpen)
 				}
 
 				// Height management

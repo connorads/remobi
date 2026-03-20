@@ -74,11 +74,19 @@ export interface ScrollConfig {
 	readonly wheelIntervalMs: number
 }
 
+/** Double-tap gesture configuration */
+export interface DoubleTapConfig {
+	readonly enabled: boolean
+	readonly data: string
+	readonly maxInterval: number
+}
+
 /** Gesture configuration */
 export interface GestureConfig {
 	readonly swipe: SwipeConfig
 	readonly pinch: PinchConfig
 	readonly scroll: ScrollConfig
+	readonly doubleTap: DoubleTapConfig
 }
 
 /** Mobile-specific behaviour configuration */

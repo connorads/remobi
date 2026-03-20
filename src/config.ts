@@ -30,6 +30,7 @@ const defaultGestures: RemobiConfig['gestures'] = {
 	},
 	pinch: { enabled: false },
 	scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },
+	doubleTap: { enabled: false, data: '\x02z', maxInterval: 300 },
 }
 
 /** Default row 1 buttons (prefix + nav) */

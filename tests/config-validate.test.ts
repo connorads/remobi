@@ -99,6 +99,37 @@ describe('assertValidConfigOverrides', () => {
 		expect(message).toContain('string')
 	})
 
+	test('accepts valid doubleTap overrides', () => {
+		expect(() =>
+			assertValidConfigOverrides({
+				gestures: { doubleTap: { enabled: true } },
+			}),
+		).not.toThrow()
+		expect(() =>
+			assertValidConfigOverrides({
+				gestures: { doubleTap: { data: '\x01z', maxInterval: 500 } },
+			}),
+		).not.toThrow()
+	})
+
+	test('rejects non-string doubleTap data', () => {
+		const message = getValidationMessage(
+			{ gestures: { doubleTap: { data: 42 } } },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.gestures.doubleTap.data')
+		expect(message).toContain('string')
+	})
+
+	test('rejects non-number doubleTap maxInterval', () => {
+		const message = getValidationMessage(
+			{ gestures: { doubleTap: { maxInterval: 'fast' } } },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.gestures.doubleTap.maxInterval')
+		expect(message).toContain('number')
+	})
+
 	test('accepts valid partial mobile overrides including null initData', () => {
 		expect(() => assertValidConfigOverrides({ mobile: { initData: null } })).not.toThrow()
 		expect(() => assertValidConfigOverrides({ mobile: { initData: '\x02z' } })).not.toThrow()
@@ -319,6 +350,7 @@ describe('assertValidResolvedConfig', () => {
 					},
 					pinch: { enabled: false },
 					scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },
+					doubleTap: { enabled: false, data: '\x02z', maxInterval: 300 },
 				},
 				mobile: { initData: null, widthThreshold: 768 },
 				floatingButtons: [],

@@ -190,16 +190,30 @@ const scrollResolvedSchema = v.strictObject({
 	wheelIntervalMs: finiteNumber,
 })
 
+const doubleTapOverridesSchema = v.strictObject({
+	enabled: v.optional(v.boolean()),
+	data: v.optional(v.string()),
+	maxInterval: v.optional(finiteNumber),
+})
+
+const doubleTapResolvedSchema = v.strictObject({
+	enabled: v.boolean(),
+	data: v.string(),
+	maxInterval: finiteNumber,
+})
+
 const gestureOverridesSchema = v.strictObject({
 	swipe: v.optional(swipeOverridesSchema),
 	pinch: v.optional(pinchOverridesSchema),
 	scroll: v.optional(scrollOverridesSchema),
+	doubleTap: v.optional(doubleTapOverridesSchema),
 })
 
 const gestureResolvedSchema = v.strictObject({
 	swipe: swipeResolvedSchema,
 	pinch: pinchResolvedSchema,
 	scroll: scrollResolvedSchema,
+	doubleTap: doubleTapResolvedSchema,
 })
 
 // --- Mobile ---

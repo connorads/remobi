@@ -46,6 +46,10 @@ function renderGestures(config: RemobiConfig): DocumentFragment {
 		}
 	}
 
+	if (config.gestures.doubleTap.enabled) {
+		table.appendChild(row('Double-tap', 'Toggle pane zoom (configurable)'))
+	}
+
 	if (table.rows.length === 0) {
 		table.appendChild(row('None', 'All gestures are disabled in config'))
 	}
