@@ -8,6 +8,7 @@ import { createHelpOverlay } from '../src/controls/help'
 import { createDrawer } from '../src/drawer/drawer'
 import { createHookRegistry } from '../src/hooks/registry'
 import { createToolbar } from '../src/toolbar/toolbar'
+import { _resetTouchGuard } from '../src/util/tap'
 import { mockTerminal } from './fixtures'
 
 beforeEach(() => {
@@ -138,6 +139,10 @@ describe('font controls integration', () => {
 })
 
 describe('help overlay integration', () => {
+	beforeEach(() => {
+		_resetTouchGuard()
+	})
+
 	test('creates help overlay', () => {
 		const term = mockTerminal()
 		const { helpButton } = createFontControls(term, defaultConfig.font)
@@ -176,6 +181,28 @@ describe('help overlay integration', () => {
 		const { element } = createHelpOverlay(term, helpButton, defaultConfig)
 
 		expect(element.querySelector('.wt-help-version')).toBeNull()
+	})
+
+	test('synthesised click after touchend does not immediately close overlay', () => {
+		const term = mockTerminal()
+		const { element: fontControls, helpButton } = createFontControls(term, defaultConfig.font)
+		const { element: overlay } = createHelpOverlay(term, helpButton, defaultConfig)
+
+		document.body.appendChild(fontControls)
+		document.body.appendChild(overlay)
+
+		// Simulate touch on ? button — touchend opens the overlay
+		helpButton.dispatchEvent(new Event('touchend', { bubbles: true }))
+		expect(overlay.style.display).toBe('block')
+
+		// Browser synthesises click ~4ms later. On a real device the overlay
+		// (higher z-index) now covers the ? button area, so hit-testing targets
+		// the overlay element itself. Simulate this by dispatching click on the
+		// overlay with target === overlay.
+		overlay.dispatchEvent(new Event('click', { bubbles: true }))
+
+		// Overlay should still be open — the synthesised click must be ignored
+		expect(overlay.style.display).toBe('block')
 	})
 
 	test('renders configured button descriptions and no stale Claude section', () => {

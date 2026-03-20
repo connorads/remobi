@@ -1,7 +1,11 @@
-import { describe, expect, test, vi } from 'vitest'
-import { onTap } from '../src/util/tap'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { _resetTouchGuard, onTap } from '../src/util/tap'
 
 describe('onTap', () => {
+	beforeEach(() => {
+		_resetTouchGuard()
+	})
+
 	test('fires handler on click', () => {
 		const element = document.createElement('button')
 		const handler = vi.fn()
@@ -47,6 +51,39 @@ describe('onTap', () => {
 		vi.advanceTimersByTime(400)
 		element.click()
 		expect(handler).toHaveBeenCalledTimes(2)
+
+		vi.useRealTimers()
+	})
+
+	test('touchend on element A suppresses click on element B', () => {
+		const a = document.createElement('button')
+		const b = document.createElement('button')
+		const handlerA = vi.fn()
+		const handlerB = vi.fn()
+		onTap(a, handlerA)
+		onTap(b, handlerB)
+
+		a.dispatchEvent(new TouchEvent('touchend'))
+		b.dispatchEvent(new Event('click'))
+
+		expect(handlerA).toHaveBeenCalledOnce()
+		expect(handlerB).not.toHaveBeenCalled()
+	})
+
+	test('cross-element click works after guard timeout', () => {
+		vi.useFakeTimers()
+		const a = document.createElement('button')
+		const b = document.createElement('button')
+		const handlerA = vi.fn()
+		const handlerB = vi.fn()
+		onTap(a, handlerA)
+		onTap(b, handlerB)
+
+		a.dispatchEvent(new TouchEvent('touchend'))
+		vi.advanceTimersByTime(400)
+		b.dispatchEvent(new Event('click'))
+
+		expect(handlerB).toHaveBeenCalledOnce()
 
 		vi.useRealTimers()
 	})

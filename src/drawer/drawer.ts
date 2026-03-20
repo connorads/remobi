@@ -42,7 +42,6 @@ export function createDrawer(
 	drawer.appendChild(grid)
 
 	let drawerOpen = false
-	let justOpened = false
 
 	for (const buttonDef of buttons) {
 		const button = el('button')
@@ -95,14 +94,6 @@ export function createDrawer(
 		backdrop.style.display = 'block'
 		drawer.classList.add('open')
 		drawerOpen = true
-		// Guard against synthesised click on backdrop. When onTap fires on
-		// touchend (no preventDefault), the browser synthesises mousedown/click
-		// ~4ms later at the same coordinates. By then the backdrop is visible
-		// and intercepts the click, immediately closing the drawer.
-		justOpened = true
-		setTimeout(() => {
-			justOpened = false
-		}, 300)
 	}
 
 	function close(): void {
@@ -114,20 +105,6 @@ export function createDrawer(
 	function isOpen(): boolean {
 		return drawerOpen
 	}
-
-	// Backdrop dismisses drawer. The click listener ignores the first click
-	// after open() to avoid synthesised click from the triggering touch.
-	// touchend is never synthesised, so it always works immediately.
-	backdrop.addEventListener(
-		'click',
-		(e: Event) => {
-			if (justOpened) {
-				justOpened = false
-				e.stopImmediatePropagation()
-			}
-		},
-		{ capture: true },
-	)
 
 	onTap(backdrop, () => {
 		const kbWasOpen = isKeyboardOpen()

@@ -93,9 +93,8 @@ test('drawer open → close → re-open cycle', async ({ page }) => {
 test('synthesised click from tap() hits backdrop (regression guard)', async ({ page }) => {
 	// Proves the mechanism that caused the open-then-close bug still exists:
 	// after touchend opens the drawer, synthesised mousedown/click land on the
-	// backdrop. The justOpened guard in drawer.ts must block these.
-	// Listen at document level (capture phase) because the fix uses
-	// stopImmediatePropagation on the backdrop element.
+	// backdrop. The module-level touch guard in tap.ts suppresses the onTap
+	// click handler, so the drawer stays open despite the click reaching it.
 	await page.evaluate(() => {
 		const w = window as unknown as { __backdropClicks: { isTrusted: boolean }[] }
 		w.__backdropClicks = []
