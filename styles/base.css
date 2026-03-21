@@ -1,8 +1,25 @@
 html,
 body {
 	margin: 0;
+	height: 100%;
 	overflow: hidden;
 	overscroll-behavior: none;
+}
+
+#terminal-container,
+#terminal {
+	height: 100%;
+}
+
+#terminal-container {
+	margin: 0 auto;
+	padding: 0;
+	width: auto;
+}
+
+#terminal {
+	box-sizing: border-box;
+	padding: 5px;
 }
 
 @media (pointer: coarse) {

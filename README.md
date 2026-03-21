@@ -38,10 +38,7 @@ Your coding agent handles the rest. It installs remobi, inspects your tmux confi
 ## Requirements
 
 - [Node.js](https://nodejs.org/) ≥ 22
-- [ttyd](https://github.com/tsl0922/ttyd) — must be on PATH for `remobi serve` and `remobi build` (they spawn a temporary ttyd to fetch base HTML). Install on macOS with `brew install ttyd`; on Linux use your distro package manager or build from source via the [ttyd installation guide](https://github.com/tsl0922/ttyd#installation). `remobi inject` pipes HTML from stdin and does **not** require ttyd — useful for CI or environments where ttyd isn't installed locally.
 - [tmux](https://github.com/tmux/tmux) (the target multiplexer)
-
-Tested with ttyd 1.7.7. Older versions (e.g. 1.7.4 from Ubuntu apt) may have xterm.js incompatibilities.
 
 ## Manual setup
 
@@ -49,7 +46,7 @@ Tested with ttyd 1.7.7. Older versions (e.g. 1.7.4 from Ubuntu apt) may have xte
 # 1. Install
 npm install -g remobi
 
-# 2. Start (builds overlay, manages ttyd, serves with PWA support on 127.0.0.1:7681)
+# 2. Start (spawns your command, serves remobi on 127.0.0.1:7681)
 remobi serve
 ```
 
@@ -76,7 +73,7 @@ The agent will check your environment, inspect your tmux config, ask what you wa
 `remobi` is a remote-control surface for your terminal. Anyone who can reach it can drive the tmux session with your user privileges.
 
 - `remobi serve` binds to `127.0.0.1` by default.
-- The inner `ttyd` process also binds to `127.0.0.1`.
+- The inner PTY-backed terminal session stays local to the remobi process.
 - There is no built-in login, password, or ACL in remobi itself.
 - Safe default: keep it on localhost and publish it through a trusted layer like Tailscale Serve.
 - If you use `remobi serve --host 0.0.0.0`, you are exposing terminal control to your LAN/whatever can route to that port. Do that only if you intentionally want direct network exposure and have separate network controls in place.
@@ -87,18 +84,16 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ```text
 remobi serve [--config <path>] [--port <n>] [--host <addr>] [-- <command...>]
-  Build overlay in memory, manage ttyd, serve with PWA support.
+  Start remobi with its built-in web terminal and PWA support.
   Default host: 127.0.0.1. Default port: 7681. Default command: tmux new-session -A -s main
   Example: remobi serve --host 0.0.0.0 --port 8080
   Example: remobi serve --port 8080 -- tmux new -As dev
 
 remobi build [--config <path>] [--output <path>] [--dry-run]
-  Build patched index.html for ttyd --index flag (advanced).
-  Default output: dist/index.html
+  Deprecated. remobi no longer patches ttyd HTML.
 
 remobi inject [--config <path>] [--dry-run]
-  Pipe mode: reads ttyd HTML from stdin, outputs patched HTML to stdout.
-  Example: curl -s http://localhost:7681/ | remobi inject > patched.html
+  Deprecated. remobi no longer patches ttyd HTML.
 
 remobi init
   Scaffold a remobi.config.ts with commented defaults.
@@ -107,7 +102,7 @@ remobi --version
 remobi --help
 ```
 
-Short flags: `-c` (`--config`), `-o` (`--output`), `-p` (`--port`), `-n` (`--dry-run`).
+Short flags: `-c` (`--config`), `-p` (`--port`). Legacy deprecated flags: `-o` (`--output`), `-n` (`--dry-run`).
 
 ### Config resolution
 
@@ -233,13 +228,13 @@ init(undefined, hooks)
 
 - [Tailscale Serve](docs/guides/tailscale-serve.md) — expose over your tailnet with HTTPS
 - [Keeping your Mac awake](docs/guides/keep-awake.md) — prevent sleep during remote sessions
-- [ttyd flags](docs/guides/ttyd-flags.md) — recommended ttyd options and theme flags
+- [ttyd flags](docs/guides/ttyd-flags.md) — legacy notes for old ttyd-based setups
 - [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
 - [Mobile-friendly tmux config](docs/guides/mobile-tmux.md) — responsive status bar, popup sizing, binding ergonomics
 
 ## Architecture
 
-Pure TypeScript + DOM API — no framework. The build bundles all JS/CSS into a single HTML file via esbuild. ttyd handles WebSocket/PTY bridging; remobi only adds the mobile UI overlay.
+Pure TypeScript + DOM API — no framework. The build bundles the browser client via esbuild, serves it from Node, and bridges browser input/output to a local PTY via `node-pty`. `xterm.js` handles terminal rendering in the browser; remobi layers the mobile controls on top.
 
 Key modules:
 
@@ -281,7 +276,7 @@ git config core.hooksPath .hk-hooks   # enable commit hooks (conventional commit
 
 ### Running locally
 
-From source (bundles overlay on the fly via esbuild — no build step needed):
+From source (bundles the browser client on the fly via esbuild — no build step needed):
 
 ```bash
 tsx cli.ts serve              # localhost:7681, default tmux session
@@ -290,7 +285,7 @@ tsx cli.ts serve              # localhost:7681, default tmux session
 Or build first, then run from dist/:
 
 ```bash
-pnpm run build:dist          # transpile TS → JS + bundle overlay
+pnpm run build:dist          # transpile TS → JS + bundle browser client
 node dist/cli.mjs serve      # run locally-built version on localhost:7681
 ```
 
@@ -316,14 +311,16 @@ They work. But you're managing SSH keys, losing your tmux setup, and fighting a 
 Those tools change your workflow. Chat relays route through third-party servers. Claude's resume has limitations. remobi gives you the raw terminal — full power, self-hosted, works with every agent because it works with tmux.
 
 **Why Node?**
-remobi migrated from Bun to Node.js + pnpm for broader compatibility. It transpiles to JS via tsdown for npm distribution and uses esbuild for the browser overlay bundle.
+remobi migrated from Bun to Node.js + pnpm for broader compatibility. It transpiles to JS via tsdown for npm distribution and uses esbuild for the browser client bundle.
 
 **Is this production-ready?**
 It's v0.1. The author uses it daily. It works. It's also early — feedback welcome, forks encouraged.
 
 ## Acknowledgements
 
-remobi is a thin overlay. The heavy lifting is done by [ttyd](https://github.com/tsl0922/ttyd) (terminal sharing over the web) and [xterm.js](https://xtermjs.org/) (terminal rendering in the browser). remobi just adds the mobile touch controls on top.
+remobi owns the full web terminal path now: a local PTY on the server, `xterm.js` in the browser, and the mobile touch controls on top.
+
+Earlier versions were built on top of [ttyd](https://github.com/tsl0922/ttyd). It helped remobi launch quickly, prove the workflow, and shape the product before the runtime moved in-house.
 
 ## Licence
 

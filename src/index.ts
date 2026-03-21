@@ -14,6 +14,7 @@ import { attachSwipeGestures } from './gestures/swipe'
 import { createHookRegistry } from './hooks/registry'
 import type { HookRegistry } from './hooks/registry'
 import { setupReconnect } from './reconnect'
+import { createStartupResizeScheduler } from './startup-resize'
 import { applyTheme } from './theme/apply'
 import { createToolbar } from './toolbar/toolbar'
 import type { RemobiConfig } from './types'
@@ -56,14 +57,23 @@ export function init(
 		.then(async (term) => {
 			// Reconnect overlay — works on both mobile and desktop
 			const disposeReconnect = setupReconnect(term, config.reconnect)
+			const startupResize = createStartupResizeScheduler({
+				resize: resizeTerm,
+				fontsReady: document.fonts.ready,
+			})
 
 			const mobile = isMobile()
 			const actions = createDefaultActionRegistry()
 			let disposed = false
+			const disposeOverlayReadyResize = hooks.on('overlayReady', () => {
+				startupResize.scheduleAfterLayout()
+			})
 
 			function dispose(): void {
 				if (disposed) return
 				disposed = true
+				disposeOverlayReadyResize.dispose()
+				startupResize.dispose()
 				disposeReconnect()
 				window.removeEventListener('pagehide', onPageHide)
 			}
@@ -79,9 +89,6 @@ export function init(
 			try {
 				await hooks.runOverlayInitStart({ term, config, mobile })
 
-				// Resize after fonts load — catch silently; font failure is non-critical
-				document.fonts.ready.then(() => resizeTerm()).catch(() => {})
-
 				document.title = `${config.name} · ${location.hostname.replace(/\..*/, '')}`
 
 				if (!mobile) {
@@ -93,7 +100,7 @@ export function init(
 				applyTheme(term, config.theme)
 				term.options.fontSize = config.font.mobileSizeDefault
 				term.options.fontFamily = config.font.family
-				resizeTerm()
+				startupResize.scheduleImmediate()
 
 				// CSS is injected as a <style> tag by the build script (build.ts)
 

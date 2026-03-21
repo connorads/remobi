@@ -1,10 +1,7 @@
-import * as esbuild from 'esbuild'
+import { mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { writeClientBundle } from '../build'
 
-await esbuild.build({
-	entryPoints: ['src/overlay-entry.ts'],
-	bundle: true,
-	platform: 'browser',
-	minify: true,
-	format: 'iife',
-	outfile: 'dist/overlay.iife.js',
-})
+const distDir = resolve(import.meta.dirname, '..', 'dist')
+mkdirSync(distDir, { recursive: true })
+await writeClientBundle(distDir)

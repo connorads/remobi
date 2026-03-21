@@ -44,14 +44,12 @@ Run silently, then report what's present vs missing:
 
 ```bash
 node --version          # need >= 22
-which ttyd              # must be on PATH
 tmux -V                 # target multiplexer
 which remobi            # npm install -g remobi
 ```
 
 If anything is missing, help install it:
 - **Node**: suggest mise, nvm, or direct install
-- **ttyd**: `brew install ttyd` (macOS), distro package or source build (Linux) — see [ttyd installation](https://github.com/tsl0922/ttyd#installation)
 - **tmux**: `brew install tmux` or distro package
 - **remobi**: `npm install -g remobi`
 
@@ -168,13 +166,13 @@ export default {
 
 Place at `~/.config/remobi/remobi.config.ts` (XDG location) unless the user prefers elsewhere.
 
-After writing, validate:
+After writing, validate by starting remobi:
 
 ```bash
-remobi build --dry-run
+remobi serve --config ~/.config/remobi/remobi.config.ts --port 18765 -- /bin/true
 ```
 
-A zero exit with "Dry run: build" output means valid. Fix any errors and re-validate until clean.
+A zero exit means the config loaded and the command started cleanly. Fix any errors and re-validate until clean.
 
 See [Config reference](#config-reference) below for the full schema, allowed keys, action types, and escape codes.
 
@@ -234,13 +232,13 @@ remobi hardens the connection even on private networks. Mention these if the use
 - **Content-Security-Policy** — strict default-src, script-src, connect-src scoped to same host
 - **WebSocket origin validation** — rejects cross-origin upgrade requests
 - **Relay buffer limit** — 1 MB per connection; drops oversized payloads
-- **Crypto-secure internal port** — ttyd listens on a random ephemeral port (crypto PRNG), never exposed
+- **Local-only default** — remobi binds to `127.0.0.1` unless the user explicitly changes `--host`
 - **X-Frame-Options DENY** — prevents clickjacking via iframes
 - **Referrer-Policy: no-referrer** — no URL leaking to external sites
 
 For macOS users, mention `--no-sleep` and point to `references/keep-awake.md` for persistent options.
 
-For users who want manual ttyd control, point to `references/ttyd-flags.md`.
+For users migrating from old ttyd-based setups, point to `references/ttyd-flags.md` as legacy guidance only.
 
 #### Summary
 
@@ -589,11 +587,11 @@ Requires matching tmux bindings (see `references/tmux-basics.md` popup section).
 ## Validation
 
 ```bash
-remobi build --dry-run          # validates config, prints plan, exits without building
-remobi build --dry-run -c ./remobi.config.ts   # explicit path
+remobi serve --config ~/.config/remobi/remobi.config.ts --port 18765 -- /bin/true
+remobi serve --config ./remobi.config.ts --port 18765 -- /bin/true
 ```
 
-A zero exit with "Dry run: build" output means the config is valid. Any error output means fix the reported paths before proceeding.
+A zero exit means the config is valid. Any error output means fix the reported paths before proceeding.
 
 ### Common validation errors
 

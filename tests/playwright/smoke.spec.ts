@@ -1,31 +1,48 @@
-import { execSync } from 'node:child_process'
-import { join } from 'node:path'
 import { expect, test } from '@playwright/test'
 
-const repoRoot = join(import.meta.dirname, '../..')
-
-test('serves HTML with terminal content', async ({ page }) => {
+test('serves the remobi terminal client', async ({ page }) => {
 	await page.goto('/')
-	const html = await page.content()
-	expect(html).toContain('<!DOCTYPE html>')
-	expect(html.toLowerCase()).toContain('main')
+	await page.waitForSelector('#terminal .xterm', { timeout: 10_000 })
+	await expect(page.locator('#terminal .xterm')).toBeVisible()
+	await expect.poll(() => page.evaluate(() => Boolean(window.term))).toBe(true)
 })
 
-test('remobi inject pipes ttyd HTML and produces patched output', async ({ request }) => {
-	const res = await request.get('/')
-	expect(res.ok()).toBe(true)
-	const ttydHtml = await res.text()
-
-	const stdout = execSync('tsx cli.ts inject', {
-		cwd: repoRoot,
-		input: ttydHtml,
-		encoding: 'utf-8',
-		timeout: 15_000,
+test('loads without console errors', async ({ page }) => {
+	const consoleErrors: string[] = []
+	page.on('console', (message) => {
+		if (message.type() === 'error') {
+			consoleErrors.push(message.text())
+		}
 	})
 
-	expect(stdout).toContain('<!DOCTYPE html>')
-	expect(stdout.indexOf('</head>')).toBeGreaterThan(-1)
-	expect(stdout).toContain('__remobiVersion')
+	await page.goto('/')
+	await page.waitForSelector('#terminal .xterm', { timeout: 10_000 })
+	await page.waitForTimeout(500)
+
+	expect(consoleErrors).toEqual([])
+})
+
+test('terminal accepts keyboard input after tapping the screen', async ({ page }) => {
+	await page.goto('/')
+	await page.waitForSelector('#terminal .xterm', { timeout: 10_000 })
+
+	await page.locator('#terminal').click()
+	await expect
+		.poll(() =>
+			page.evaluate(() => ({
+				tag: document.activeElement?.tagName,
+				className: document.activeElement?.className || '',
+			})),
+		)
+		.toEqual({
+			tag: 'TEXTAREA',
+			className: 'xterm-helper-textarea',
+		})
+
+	await page.keyboard.type('printf "keyboard-smoke\\n"')
+	await page.keyboard.press('Enter')
+
+	await expect(page.locator('body')).toContainText('keyboard-smoke')
 })
 
 test('help overlay shows version', async ({ page }) => {
@@ -47,4 +64,20 @@ test('help overlay shows version', async ({ page }) => {
 	const versionEl = page.locator('#wt-help .wt-help-version')
 	await expect(versionEl).toBeVisible()
 	await expect(versionEl).toContainText(/remobi v\d+\.\d+\.\d+/)
+})
+
+test('late client receives terminal snapshot', async ({ browser, page }) => {
+	await page.goto('/')
+	await page.waitForSelector('#terminal .xterm', { timeout: 10_000 })
+
+	await page.evaluate(() => {
+		window.term?.input('printf "snapshot-smoke\\n"\r', true)
+	})
+
+	await expect(page.locator('body')).toContainText('snapshot-smoke')
+
+	const secondPage = await browser.newPage()
+	await secondPage.goto('/')
+	await secondPage.waitForSelector('#terminal .xterm', { timeout: 10_000 })
+	await expect(secondPage.locator('body')).toContainText('snapshot-smoke')
 })

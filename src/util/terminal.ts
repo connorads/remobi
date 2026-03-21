@@ -7,6 +7,10 @@ export function sendData(term: XTerminal, data: string): void {
 
 /** Trigger xterm resize via window resize event */
 export function resizeTerm(): void {
+	if (typeof window.__remobiResize === 'function') {
+		window.__remobiResize()
+		return
+	}
 	window.dispatchEvent(new Event('resize'))
 }
 

@@ -2,11 +2,11 @@ import type { ReconnectConfig, XTerminal } from './types'
 import { el } from './util/dom'
 import { onTap } from './util/tap'
 
-/** Find the ttyd WebSocket from the interceptor array */
-function findTtydSocket(): WebSocket | undefined {
+/** Find the active remobi terminal WebSocket */
+function findTerminalSocket(): WebSocket | undefined {
 	const sockets = window.__remobiSockets
 	if (!sockets) return undefined
-	return sockets.find((ws) => ws.url.endsWith('/ws'))
+	return sockets.find((ws) => ws.url.includes('/ws'))
 }
 
 interface ReconnectOverlay {
@@ -69,7 +69,7 @@ function createOverlay(onReconnect: () => void): ReconnectOverlay {
 /**
  * Set up reconnect detection and overlay.
  *
- * Watches the ttyd WebSocket for close/error events. Falls back to
+ * Watches the terminal WebSocket for close/error events. Falls back to
  * navigator.onLine + visibilitychange if no WebSocket found.
  * Returns a dispose function that removes listeners and DOM.
  */
@@ -109,8 +109,8 @@ export function setupReconnect(_term: XTerminal, config: ReconnectConfig): () =>
 		}
 	}
 
-	// Try WebSocket interception first
-	const ws = findTtydSocket()
+	// Try direct WebSocket tracking first
+	const ws = findTerminalSocket()
 	if (ws) {
 		ws.addEventListener('close', onDisconnect)
 		ws.addEventListener('error', onDisconnect)

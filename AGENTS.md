@@ -4,19 +4,21 @@ Monitor and control your coding agents from your phone. Touch controls for tmux 
 
 ## Architecture
 
-Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm distribution. Produces a single `index.html` for ttyd's `--index` flag via esbuild.
+Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm distribution. Bundles a browser client via esbuild and serves it from Node.
 
 ## Stack
 
 - **Node 22+** — runtime
 - **pnpm** — package manager
-- **esbuild** — browser bundle (overlay JS)
+- **esbuild** — browser client bundle
 - **tsdown** — transpile TS → JS for npm publish
 - **vitest** — test runner
 - **TypeScript (strict)** — no `any`, discriminated unions for actions
 - **Biome** — lint + format
 - **happy-dom** — DOM testing
 - **Hono** — HTTP + WebSocket server (`remobi serve`)
+- **node-pty** — PTY bridge for `remobi serve`
+- **xterm.js** — browser terminal rendering
 
 ## Key Commands
 
@@ -26,7 +28,7 @@ pnpm test              # Run all tests
 pnpm run test:pw       # Playwright e2e tests (chromium + webkit)
 pnpm run check         # Biome lint + format check
 pnpm run check:fix     # Auto-fix lint + format
-pnpm run build         # Build dist/index.html (dev-time, uses tsx)
+pnpm run build         # Deprecated legacy command
 pnpm run build:dist    # Transpile for publishing (tsdown)
 ```
 
@@ -96,8 +98,8 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - `src/reconnect.ts` — connection loss overlay
 - `src/overlay-entry.ts` — IIFE entry point for browser bundle
 - `styles/base.css` — all CSS
-- `cli.ts` — CLI: build, inject, init, serve, --version
-- `build.ts` — build pipeline: bundle → inject → output
+- `cli.ts` — CLI: serve, init, deprecated build/inject, --version
+- `build.ts` — browser client bundling + HTML rendering
 
 ## Publishing
 
