@@ -1,3 +1,10 @@
+## [0.5.1-dev.1](https://github.com/connorads/remobi/compare/v0.5.0...v0.5.1-dev.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* guard handleClientMessage against resize on exited PTY ([41043ee](https://github.com/connorads/remobi/commit/41043eee23b86005d180ecae770c1055aaa538de))
+
 # [0.5.0](https://github.com/connorads/remobi/compare/v0.4.0...v0.5.0) (2026-03-20)
 
 
