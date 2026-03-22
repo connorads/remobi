@@ -59,6 +59,22 @@ describe('SharedTerminalSession', () => {
 		expect(recorder.getCloseCount()).toBe(1)
 	})
 
+	test('handleClientMessage silently ignores input and resize after PTY exit', async () => {
+		const session = new SharedTerminalSession(['bash', '--norc', '--noprofile', '-lc', 'exit 0'])
+
+		await session.onExit
+
+		const recorder = createClientRecorder()
+
+		// pty.resize() throws EBADF after exit — these must not throw
+		session.handleClientMessage(recorder.client, { type: 'input', data: 'hello' })
+		session.handleClientMessage(recorder.client, { type: 'resize', cols: 120, rows: 40 })
+
+		// ping should still work — pure WS, no PTY involvement
+		session.handleClientMessage(recorder.client, { type: 'ping' })
+		expect(recorder.getMessages()).toEqual([{ type: 'pong' }])
+	})
+
 	test('late clients receive the final snapshot and exit after the PTY is gone', async () => {
 		const session = new SharedTerminalSession([
 			'bash',

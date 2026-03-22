@@ -145,10 +145,12 @@ export class SharedTerminalSession {
 	handleClientMessage(client: SessionClient, message: ClientMessage): void {
 		switch (message.type) {
 			case 'input':
+				if (this.exited) return
 				this.pty.write(message.data)
 				return
 
 			case 'resize':
+				if (this.exited) return
 				this.pty.resize(message.cols, message.rows)
 				this.mirror.resize(message.cols, message.rows)
 				return
