@@ -106,9 +106,12 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - Transpiles to JS via tsdown: `bin` → `dist/cli.mjs`, `exports` → `dist/*.mjs` + `dist/*.d.mts`
 - `files` array controls what's published: `dist/`, `styles/`, `src/pwa/icons/`, `README.md`, `CHANGELOG.md`, `LICENSE`
 - CI: `.github/workflows/ci.yml` — pnpm test + biome check
-- Release: `release` job in `.github/workflows/ci.yml` — semantic-release on push to main, gated on `check` job
+- Release: `release` job in `.github/workflows/ci.yml` — semantic-release on push to `main` and `dev`, gated on `check` job
   - Versioning, changelog, npm publish, and GitHub Release are all automated
   - `npx semantic-release --dry-run` for local verification
+  - Stable channel: `main` → npm `latest`
+  - Prerelease channel: `dev` → npm `dev` + GitHub prereleases
+  - Promote experimental releases by merging `dev` into `main`
   - Release triggers: `feat:` → minor, `fix:` → patch, `BREAKING CHANGE` → major
   - No release: `chore:`, `docs:`, `refactor:`, `test:`, `ci:`
 - See **Local Development** above for running from source

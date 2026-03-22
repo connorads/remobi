@@ -18,7 +18,9 @@ It's a terminal on a 6-inch screen. It won't win design awards. But you can do *
 /bin/bash -c "$(curl -fsSL http://remobi.app/install.sh)"
 ```
 
-To upgrade: `npm install -g remobi@latest`
+To upgrade stable: `npm install -g remobi@latest`
+
+To try the experimental channel: `npm install -g remobi@dev`
 
 Your coding agent handles the rest. It installs remobi, inspects your tmux config, generates a config, and suggests tweaks to make your tmux more mobile-friendly — one conversation. Works with Claude Code and Codex.
 
@@ -53,6 +55,14 @@ remobi serve
 For local development, see the [Development](#development) section below.
 
 Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](docs/guides/tailscale-serve.md).
+
+## Release channels
+
+- `main` publishes stable releases to npm `latest`
+- `dev` publishes prereleases to npm `dev`
+- merge `dev` into `main` to promote an experimental line to stable
+
+If an experimental change is breaking for consumers, mark it with `feat!:` or `BREAKING CHANGE:` so semantic-release computes the right next version on both channels.
 
 ## Set up with AI
 
