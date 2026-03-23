@@ -36,8 +36,8 @@ describe('SharedTerminalSession', () => {
 
 		expect(env.SHELL).toBe('/bin/zsh')
 		expect(env.TERM).toBe('xterm-256color')
-		expect(env.TMUX).toBeUndefined()
-		expect(env.TMUX_PANE).toBeUndefined()
+		expect('TMUX' in env).toBe(false)
+		expect('TMUX_PANE' in env).toBe(false)
 	})
 
 	test('closes connected clients when the PTY exits naturally', async () => {

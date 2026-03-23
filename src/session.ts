@@ -32,10 +32,10 @@ function toSignalValue(signal: number | undefined): number | null {
 }
 
 export function buildSessionEnv(sourceEnv: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-	const env: NodeJS.ProcessEnv = { ...sourceEnv, TERM: 'xterm-256color' }
-	env.TMUX = undefined
-	env.TMUX_PANE = undefined
-	return env
+	// Destructure to exclude TMUX vars — `delete` triggers biome noDelete,
+	// and `env.X = undefined` coerces to the string "undefined" on process.env
+	const { TMUX: _, TMUX_PANE: __, ...rest } = sourceEnv
+	return { ...rest, TERM: 'xterm-256color' }
 }
 
 export class SharedTerminalSession {
