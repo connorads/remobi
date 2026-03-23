@@ -19,7 +19,6 @@ body {
 
 #terminal {
 	box-sizing: border-box;
-	padding: 5px;
 }
 
 @media (pointer: coarse) {
