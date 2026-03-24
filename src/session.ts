@@ -1,4 +1,5 @@
 import { SerializeAddon } from '@xterm/addon-serialize'
+import { Unicode11Addon } from '@xterm/addon-unicode11'
 import XtermHeadless from '@xterm/headless'
 import { type IPty, spawn } from 'node-pty'
 import type { ClientMessage, ServerMessage } from './session-protocol'
@@ -69,6 +70,9 @@ export class SharedTerminalSession {
 		})
 		this.serializeAddon = new SerializeAddon()
 		this.mirror.loadAddon(this.serializeAddon)
+		const unicode11 = new Unicode11Addon()
+		this.mirror.loadAddon(unicode11)
+		this.mirror.unicode.activeVersion = '11'
 
 		this.exitPromise = new Promise<SessionExit>((resolve) => {
 			this.exitResolve = resolve
