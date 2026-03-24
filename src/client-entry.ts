@@ -157,6 +157,8 @@ function main(config: RemobiConfig, version: string | undefined): void {
 	})
 	const fitAddon = attachOptionalAddons(term)
 	term.open(container)
+	document.documentElement.style.background = config.theme.background
+	document.body.style.background = config.theme.background
 	fitAddon.fit()
 
 	const queuedMessages: ClientMessage[] = []

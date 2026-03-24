@@ -4,6 +4,8 @@ body {
 	height: 100%;
 	overflow: hidden;
 	overscroll-behavior: none;
+	/* Prevent white flash before JS sets the theme background */
+	background: #1e1e2e;
 }
 
 #terminal-container,
@@ -15,10 +17,13 @@ body {
 	margin: 0 auto;
 	padding: 0;
 	width: auto;
+	/* Inherits theme background from JS; covers sub-row gaps */
+	background: inherit;
 }
 
 #terminal {
 	box-sizing: border-box;
+	background: inherit;
 }
 
 @media (pointer: coarse) {
