@@ -242,9 +242,14 @@ init(undefined, hooks)
 - [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
 - [Mobile-friendly tmux config](docs/guides/mobile-tmux.md) — responsive status bar, popup sizing, binding ergonomics
 
+## Architecture docs
+
+- [How remobi works](docs/architecture/how-remobi-works.md) — runtime overview, shared session model, and boot path
+- [Networking and WebSocket flow](docs/architecture/networking-and-websockets.md) — request lifecycle, protocol, and network boundary
+
 ## Architecture
 
-Pure TypeScript + DOM API — no framework. The build bundles the browser client via esbuild, serves it from Node, and bridges browser input/output to a local PTY via `node-pty`. `xterm.js` handles terminal rendering in the browser; remobi layers the mobile controls on top.
+Pure TypeScript + DOM API — no framework. The build bundles the browser client via esbuild, serves it from Node, and bridges browser input/output to a local PTY via `node-pty`. `xterm.js` handles terminal rendering in the browser; remobi layers the mobile controls on top. The docs above walk through the current runtime in more detail, including diagrams for the server, browser, and WebSocket flow.
 
 Key modules:
 

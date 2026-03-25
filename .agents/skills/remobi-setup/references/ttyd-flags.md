@@ -1,8 +1,8 @@
 # Recommended ttyd flags
 
-Reference for ttyd flags that work well with remobi.
+Historical reference for old ttyd-based remobi setups.
 
-> **Note:** `remobi serve` generates these flags automatically from your config. This guide is for manual `ttyd` usage with `remobi build`.
+> **Legacy only:** current remobi releases no longer use `ttyd`, `remobi serve` does not generate ttyd flags, and `remobi build` is deprecated. Use `remobi serve` for supported setups. Keep this page only for understanding or migrating old pre-runtime installs.
 
 ## Essential flags
 
