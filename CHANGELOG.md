@@ -1,3 +1,15 @@
+# [1.0.0-dev.1](https://github.com/connorads/remobi/compare/v0.5.1-dev.2...v1.0.0-dev.1) (2026-03-27)
+
+
+### chore
+
+* mark built-in runtime migration as breaking ([20d466b](https://github.com/connorads/remobi/commit/20d466b68d861c697b90b51524f7a2956ca33e50))
+
+
+### BREAKING CHANGES
+
+* remobi replaces the ttyd-based runtime with the built-in terminal runtime.
+
 ## [0.5.1-dev.2](https://github.com/connorads/remobi/compare/v0.5.1-dev.1...v0.5.1-dev.2) (2026-03-24)
 
 
