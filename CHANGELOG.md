@@ -1,3 +1,24 @@
+# [1.0.0](https://github.com/connorads/remobi/compare/v0.5.0...v1.0.0) (2026-03-27)
+
+
+### Bug Fixes
+
+* guard handleClientMessage against resize on exited PTY ([41043ee](https://github.com/connorads/remobi/commit/41043eee23b86005d180ecae770c1055aaa538de))
+* load Unicode11Addon on headless mirror to align character widths ([54a3ec5](https://github.com/connorads/remobi/commit/54a3ec5b875098758d1a1b3d466f7517e025cc57))
+* remove terminal padding that exposed white document background ([cd92504](https://github.com/connorads/remobi/commit/cd92504c93bbc223979a3c77b60a90b0f10a13da)), closes [#terminal](https://github.com/connorads/remobi/issues/terminal)
+* set document background from theme to eliminate white border ([5c821ca](https://github.com/connorads/remobi/commit/5c821ca9d7e4aaea6ac6531bc93116b24166807e)), closes [#1e1e2e](https://github.com/connorads/remobi/issues/1e1e2e) [#terminal-container](https://github.com/connorads/remobi/issues/terminal-container) [#terminal](https://github.com/connorads/remobi/issues/terminal)
+* strip TMUX env vars via destructuring instead of undefined assignment ([33fa6ec](https://github.com/connorads/remobi/commit/33fa6ec2ee550db3d88e789afd989735918685db))
+
+
+### chore
+
+* mark built-in runtime migration as breaking ([20d466b](https://github.com/connorads/remobi/commit/20d466b68d861c697b90b51524f7a2956ca33e50))
+
+
+### BREAKING CHANGES
+
+* remobi replaces the ttyd-based runtime with the built-in terminal runtime.
+
 # [1.0.0-dev.1](https://github.com/connorads/remobi/compare/v0.5.1-dev.2...v1.0.0-dev.1) (2026-03-27)
 
 
