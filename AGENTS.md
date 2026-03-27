@@ -53,7 +53,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 
 - Format: `type(scope): description`
 - Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`, `style`, `build`, `revert`
-- Breaking changes: `!` after type/scope or `BREAKING CHANGE:` in footer
+- Breaking changes: include a `BREAKING CHANGE:` footer. `!` after type/scope is optional shorthand only and must be paired with the footer because semantic-release major detection relies on the footer.
 
 **Choosing the right type matters** — it controls whether semantic-release publishes to npm:
 
@@ -61,7 +61,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 |------|---------|-------------|
 | `fix` | patch | Bug fix **visible to package consumers** (runtime behaviour, CLI output, published types) |
 | `feat` | minor | New feature visible to consumers |
-| `fix!`/`feat!` | major | Breaking change to public API |
+| `BREAKING CHANGE:` footer | major | Breaking change to public API; `!` is optional shorthand but not sufficient on its own in this repo |
 | `ci` | none | CI/CD workflow changes (GitHub Actions, release config) |
 | `chore` | none | Tooling, deps, repo hygiene — anything not shipped to consumers |
 | `docs` | none | Documentation only |

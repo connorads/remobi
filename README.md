@@ -62,7 +62,7 @@ Open `http://localhost:7681` on the same machine to verify it works. For phone a
 - `dev` publishes prereleases to npm `dev`
 - merge `dev` into `main` to promote an experimental line to stable
 
-If an experimental change is breaking for consumers, mark it with `feat!:` or `BREAKING CHANGE:` so semantic-release computes the right next version on both channels.
+If an experimental change is breaking for consumers, include a `BREAKING CHANGE:` footer so semantic-release computes the right next version on both channels. `!` in the header is optional shorthand only; on its own it does not trigger a major release in this repo.
 
 ## Set up with AI
 
