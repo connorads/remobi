@@ -166,13 +166,19 @@ export default {
 
 Place at `~/.config/remobi/remobi.config.ts` (XDG location) unless the user prefers elsewhere.
 
-After writing, validate by starting remobi:
+After writing, validate by starting remobi. remobi auto-discovers config from the current directory first, then `~/.config/remobi/`, so `--config` is only needed when you want to force a specific file:
 
 ```bash
-remobi serve --config ~/.config/remobi/remobi.config.ts --port 18765 -- /bin/true
+remobi serve --port 18765 -- /bin/true
 ```
 
-A zero exit means the config loaded and the command started cleanly. Fix any errors and re-validate until clean.
+A zero exit means the config loaded and the command started cleanly. If the user stored config somewhere custom, validate that path explicitly instead:
+
+```bash
+remobi serve --config /path/to/remobi.config.ts --port 18765 -- /bin/true
+```
+
+Fix any errors and re-validate until clean.
 
 See [Config reference](#config-reference) below for the full schema, allowed keys, action types, and escape codes.
 
@@ -587,11 +593,18 @@ Requires matching tmux bindings (see `references/tmux-basics.md` popup section).
 ## Validation
 
 ```bash
-remobi serve --config ~/.config/remobi/remobi.config.ts --port 18765 -- /bin/true
-remobi serve --config ./remobi.config.ts --port 18765 -- /bin/true
+remobi serve --port 18765 -- /bin/true
 ```
 
-A zero exit means the config is valid. Any error output means fix the reported paths before proceeding.
+A zero exit means the config is valid when the file is in the normal search path (current directory or `~/.config/remobi/`).
+
+For a custom location, validate explicitly:
+
+```bash
+remobi serve --config /path/to/remobi.config.ts --port 18765 -- /bin/true
+```
+
+Any error output means fix the reported paths before proceeding.
 
 ### Common validation errors
 
