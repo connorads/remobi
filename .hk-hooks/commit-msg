@@ -1,2 +1,5 @@
 #!/bin/sh
-exec hk run commit-msg "$@"
+set -eu
+
+hk run commit-msg "$@"
+pnpm exec tsx scripts/check-breaking-footer.ts "$1"

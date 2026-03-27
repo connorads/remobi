@@ -1,71 +1,13 @@
 import { describe, expect, test } from 'vitest'
-import { defaultConfig } from '../src/config'
 import {
-	buildProxyRequestHeaders,
 	buildSecurityHeaders,
-	buildTtydArgs,
+	describeCommandForLogs,
 	isAllowedOrigin,
 	isLoopbackHost,
-	randomInternalPort,
+	parseHostHeader,
+	resolveRequestAuthority,
 	withSecurityHeaders,
 } from '../src/serve'
-
-describe('randomInternalPort', () => {
-	test('returns a number in the IANA ephemeral range (49152–65535)', () => {
-		for (let i = 0; i < 50; i++) {
-			const port = randomInternalPort()
-			expect(port).toBeGreaterThanOrEqual(49152)
-			expect(port).toBeLessThanOrEqual(65535)
-		}
-	})
-
-	test('returns an integer', () => {
-		const port = randomInternalPort()
-		expect(Number.isInteger(port)).toBe(true)
-	})
-})
-
-describe('buildTtydArgs', () => {
-	test('includes --writable and binds to 127.0.0.1', () => {
-		const args = buildTtydArgs(defaultConfig, 19500, ['tmux'])
-		expect(args).toContain('--writable')
-		expect(args).toContain('-i')
-		expect(args).toContain('127.0.0.1')
-	})
-
-	test('sets the internal port', () => {
-		const args = buildTtydArgs(defaultConfig, 19123, ['tmux'])
-		const portIdx = args.indexOf('--port')
-		expect(portIdx).toBeGreaterThan(-1)
-		expect(args[portIdx + 1]).toBe('19123')
-	})
-
-	test('includes theme as JSON', () => {
-		const args = buildTtydArgs(defaultConfig, 19500, ['tmux'])
-		const themeArg = args.find((a) => a.startsWith('theme='))
-		expect(themeArg).toBeDefined()
-		expect(themeArg).toContain(defaultConfig.theme.background)
-	})
-
-	test('includes font family', () => {
-		const args = buildTtydArgs(defaultConfig, 19500, ['tmux'])
-		const fontArg = args.find((a) => a.startsWith('fontFamily='))
-		expect(fontArg).toBeDefined()
-		expect(fontArg).toContain(defaultConfig.font.family)
-	})
-
-	test('appends the command at the end', () => {
-		const command = ['tmux', 'new-session', '-A', '-s', 'main']
-		const args = buildTtydArgs(defaultConfig, 19500, command)
-		const tail = args.slice(-command.length)
-		expect(tail).toEqual(command)
-	})
-
-	test('includes disableLeaveAlert', () => {
-		const args = buildTtydArgs(defaultConfig, 19500, ['tmux'])
-		expect(args).toContain('disableLeaveAlert=true')
-	})
-})
 
 describe('isLoopbackHost', () => {
 	test('accepts loopback hosts', () => {
@@ -84,6 +26,9 @@ describe('isAllowedOrigin', () => {
 	test('allows matching origin and host', () => {
 		expect(isAllowedOrigin('https://term.example.ts.net', 'term.example.ts.net')).toBe(true)
 		expect(isAllowedOrigin('http://localhost:7681', 'localhost:7681')).toBe(true)
+		expect(isAllowedOrigin('https://[fd7a:115c:a1e0::1]:8443', '[fd7a:115c:a1e0::1]:8443')).toBe(
+			true,
+		)
 	})
 
 	test('rejects mismatched or invalid origins', () => {
@@ -104,42 +49,58 @@ describe('isAllowedOrigin', () => {
 	})
 })
 
-describe('buildProxyRequestHeaders', () => {
-	test('strips hop-by-hop and origin headers before proxying to ttyd', () => {
-		const source = new Headers({
-			host: 'public.example',
-			origin: 'https://public.example',
-			connection: 'keep-alive',
-			'content-length': '42',
-			authorization: 'Bearer test',
-			'content-type': 'application/json',
-		})
+describe('parseHostHeader', () => {
+	test('accepts plain hosts and host:port authorities', () => {
+		expect(parseHostHeader('term.example.ts.net')).toBe('term.example.ts.net')
+		expect(parseHostHeader('localhost:7681')).toBe('localhost:7681')
+		expect(parseHostHeader('[::1]:7681')).toBe('[::1]:7681')
+	})
 
-		const headers = buildProxyRequestHeaders(source)
+	test('rejects malformed host headers', () => {
+		expect(parseHostHeader(undefined)).toBeNull()
+		expect(parseHostHeader('')).toBeNull()
+		expect(parseHostHeader('bad host')).toBeNull()
+		expect(parseHostHeader('evil.example/path')).toBeNull()
+		expect(parseHostHeader('::1:7681')).toBeNull()
+		expect(parseHostHeader('localhost:not-a-port')).toBeNull()
+	})
+})
 
-		expect(headers.has('host')).toBe(false)
-		expect(headers.has('origin')).toBe(false)
-		expect(headers.has('connection')).toBe(false)
-		expect(headers.has('content-length')).toBe(false)
-		expect(headers.get('authorization')).toBe('Bearer test')
-		expect(headers.get('content-type')).toBe('application/json')
+describe('resolveRequestAuthority', () => {
+	test('prefers the request host over the backend listen address', () => {
+		expect(resolveRequestAuthority('127.0.0.1:19000', '127.0.0.1', 17685)).toBe('127.0.0.1:19000')
+	})
+
+	test('falls back to the listen host when the request host is missing or invalid', () => {
+		expect(resolveRequestAuthority(undefined, '127.0.0.1', 17685)).toBe('127.0.0.1:17685')
+		expect(resolveRequestAuthority('bad host', '127.0.0.1', 17685)).toBe('127.0.0.1:17685')
+		expect(resolveRequestAuthority(undefined, '::1', 17685)).toBe('[::1]:17685')
 	})
 })
 
 describe('buildSecurityHeaders', () => {
-	test('scopes connect-src to the specific host:port', () => {
-		const headers = buildSecurityHeaders('192.168.1.10', 7681)
+	test('scopes connect-src to the browser-facing request host:port', () => {
+		const headers = buildSecurityHeaders('127.0.0.1:19000', '127.0.0.1', 17685, 'nonce-123')
+		const csp = headers['content-security-policy']
+		expect(csp).toContain('ws://127.0.0.1:19000')
+		expect(csp).toContain('wss://127.0.0.1:19000')
+		expect(csp).toContain("script-src 'self' 'nonce-nonce-123'")
+		expect(csp).toContain("style-src 'self' 'unsafe-inline' https:")
+		expect(csp).not.toMatch(/\bws:\b(?!\/\/)/)
+		expect(csp).not.toMatch(/\bwss:\b(?!\/\/)/)
+	})
+
+	test('falls back to the listen host:port when the request host is invalid', () => {
+		const headers = buildSecurityHeaders('bad host', '192.168.1.10', 7681, 'nonce-123')
 		const csp = headers['content-security-policy']
 		expect(csp).toContain('ws://192.168.1.10:7681')
 		expect(csp).toContain('wss://192.168.1.10:7681')
-		expect(csp).not.toMatch(/\bws:\b(?!\/\/)/)
-		expect(csp).not.toMatch(/\bwss:\b(?!\/\/)/)
 	})
 })
 
 describe('withSecurityHeaders', () => {
 	test('adds hardening headers without dropping existing ones', async () => {
-		const securityHeaders = buildSecurityHeaders('127.0.0.1', 7681)
+		const securityHeaders = buildSecurityHeaders('127.0.0.1:7681', '127.0.0.1', 7681, 'nonce-123')
 		const response = withSecurityHeaders(
 			new Response('ok', {
 				headers: { 'content-type': 'text/plain' },
@@ -156,9 +117,19 @@ describe('withSecurityHeaders', () => {
 		expect(response.headers.get('permissions-policy')).toContain('camera=()')
 		expect(response.headers.get('content-security-policy')).toContain("frame-ancestors 'none'")
 		expect(response.headers.get('content-security-policy')).toContain(
-			"script-src 'self' 'unsafe-inline'",
+			"script-src 'self' 'nonce-nonce-123'",
 		)
 		expect(response.headers.get('content-security-policy')).toContain('ws://127.0.0.1:7681')
 		expect(await response.text()).toBe('ok')
+	})
+})
+
+describe('describeCommandForLogs', () => {
+	test('omits argv contents from log output', () => {
+		expect(describeCommandForLogs(['bash', '-lc', 'echo secret-token'])).toBe('bash (2 args)')
+	})
+
+	test('handles single-word commands', () => {
+		expect(describeCommandForLogs(['tmux'])).toBe('tmux')
 	})
 })

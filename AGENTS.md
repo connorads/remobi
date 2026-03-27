@@ -4,19 +4,21 @@ Monitor and control your coding agents from your phone. Touch controls for tmux 
 
 ## Architecture
 
-Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm distribution. Produces a single `index.html` for ttyd's `--index` flag via esbuild.
+Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm distribution. Bundles a browser client via esbuild and serves it from Node.
 
 ## Stack
 
 - **Node 22+** — runtime
 - **pnpm** — package manager
-- **esbuild** — browser bundle (overlay JS)
+- **esbuild** — browser client bundle
 - **tsdown** — transpile TS → JS for npm publish
 - **vitest** — test runner
 - **TypeScript (strict)** — no `any`, discriminated unions for actions
 - **Biome** — lint + format
 - **happy-dom** — DOM testing
 - **Hono** — HTTP + WebSocket server (`remobi serve`)
+- **node-pty** — PTY bridge for `remobi serve`
+- **xterm.js** — browser terminal rendering
 
 ## Key Commands
 
@@ -26,7 +28,7 @@ pnpm test              # Run all tests
 pnpm run test:pw       # Playwright e2e tests (chromium + webkit)
 pnpm run check         # Biome lint + format check
 pnpm run check:fix     # Auto-fix lint + format
-pnpm run build         # Build dist/index.html (dev-time, uses tsx)
+pnpm run build         # Deprecated legacy command
 pnpm run build:dist    # Transpile for publishing (tsdown)
 ```
 
@@ -51,7 +53,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 
 - Format: `type(scope): description`
 - Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`, `style`, `build`, `revert`
-- Breaking changes: `!` after type/scope or `BREAKING CHANGE:` in footer
+- Breaking changes: include a `BREAKING CHANGE:` footer. `!` after type/scope is optional shorthand only and must be paired with the footer because semantic-release major detection relies on the footer.
 
 **Choosing the right type matters** — it controls whether semantic-release publishes to npm:
 
@@ -59,7 +61,7 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 |------|---------|-------------|
 | `fix` | patch | Bug fix **visible to package consumers** (runtime behaviour, CLI output, published types) |
 | `feat` | minor | New feature visible to consumers |
-| `fix!`/`feat!` | major | Breaking change to public API |
+| `BREAKING CHANGE:` footer | major | Breaking change to public API; `!` is optional shorthand but not sufficient on its own in this repo |
 | `ci` | none | CI/CD workflow changes (GitHub Actions, release config) |
 | `chore` | none | Tooling, deps, repo hygiene — anything not shipped to consumers |
 | `docs` | none | Documentation only |
@@ -96,17 +98,20 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - `src/reconnect.ts` — connection loss overlay
 - `src/overlay-entry.ts` — IIFE entry point for browser bundle
 - `styles/base.css` — all CSS
-- `cli.ts` — CLI: build, inject, init, serve, --version
-- `build.ts` — build pipeline: bundle → inject → output
+- `cli.ts` — CLI: serve, init, deprecated build/inject, --version
+- `build.ts` — browser client bundling + HTML rendering
 
 ## Publishing
 
 - Transpiles to JS via tsdown: `bin` → `dist/cli.mjs`, `exports` → `dist/*.mjs` + `dist/*.d.mts`
 - `files` array controls what's published: `dist/`, `styles/`, `src/pwa/icons/`, `README.md`, `CHANGELOG.md`, `LICENSE`
 - CI: `.github/workflows/ci.yml` — pnpm test + biome check
-- Release: `release` job in `.github/workflows/ci.yml` — semantic-release on push to main, gated on `check` job
+- Release: `release` job in `.github/workflows/ci.yml` — semantic-release on push to `main` and `dev`, gated on `check` job
   - Versioning, changelog, npm publish, and GitHub Release are all automated
   - `npx semantic-release --dry-run` for local verification
+  - Stable channel: `main` → npm `latest`
+  - Prerelease channel: `dev` → npm `dev` + GitHub prereleases
+  - Promote experimental releases by merging `dev` into `main`
   - Release triggers: `feat:` → minor, `fix:` → patch, `BREAKING CHANGE` → major
   - No release: `chore:`, `docs:`, `refactor:`, `test:`, `ci:`
 - See **Local Development** above for running from source

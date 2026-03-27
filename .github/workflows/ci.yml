@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   check:
@@ -12,13 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v3
+      # node-pty stable does not ship Linux prebuilds, so CI must support source builds.
+      - name: Verify native build prerequisites
+        run: |
+          python3 --version
+          node-gyp --version
       - run: pnpm install
       - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm test
       - run: pnpm run build:dist
       - run: pnpm run test:pw
-      - name: Validate build pipeline (inject mode, no ttyd needed)
-        run: echo '<html><head></head><body></body></html>' | npx tsx cli.ts inject > /dev/null
       - run: pnpm run check
       - run: pnpm run lint:ox
       - run: pnpm run lint:typos
@@ -27,7 +30,7 @@ jobs:
       - run: pnpm exec tsc --noEmit
 
   release:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
     needs: check
     runs-on: ubuntu-latest
     permissions:
@@ -40,6 +43,10 @@ jobs:
         with:
           fetch-depth: 0
       - uses: jdx/mise-action@v3
+      - name: Verify native build prerequisites
+        run: |
+          python3 --version
+          node-gyp --version
       - run: pnpm install
       - run: npx semantic-release
         env:

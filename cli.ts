@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { build, injectFromStdin } from './build'
 import { parseCliArgs } from './src/cli/args'
 import { defaultConfig, defineConfig, mergeConfig } from './src/config'
 import {
@@ -13,7 +12,6 @@ import {
 } from './src/config-validate'
 import { serve } from './src/serve'
 import type { RemobiConfig, RemobiConfigOverrides } from './src/types'
-import { readStdin } from './src/util/node-compat'
 
 // Walk up from module location to find project root — works from both source and dist/
 function findProjectRoot(): string {
@@ -56,19 +54,18 @@ function resolveVersion(): string {
 const VERSION: string = resolveVersion()
 
 function usage(): void {
-	console.log(`remobi v${VERSION} — mobile-friendly terminal overlay for ttyd + tmux
+	console.log(`remobi v${VERSION} — mobile terminal overlay for tmux
 
 Usage:
   remobi serve [--config <path>] [--port <n>] [--host <addr>] [--no-sleep] [-- <command...>]
-    Build overlay in memory, manage ttyd, serve with PWA support.
+    Start remobi with a built-in web terminal, PWA support, and the configured command.
     Default host: 127.0.0.1. Default port: 7681. Default command: tmux new-session -A -s main
 
   remobi build [--config <path>] [--output <path>] [--dry-run]
-    Build patched index.html for ttyd --index flag.
-    Starts temp ttyd, fetches base HTML, injects overlay.
+    Deprecated. remobi no longer patches ttyd HTML.
 
   remobi inject [--config <path>] [--dry-run]
-    Pipe mode: reads ttyd HTML from stdin, outputs patched HTML to stdout.
+    Deprecated. remobi no longer patches ttyd HTML.
 
   remobi init
     Scaffold a remobi.config.ts with defaults.
@@ -80,21 +77,18 @@ Usage:
     Show this help.
 
 Flags:
-  -c, --config <path>  Use a specific config file (build/inject/serve)
-  -o, --output <path>  Build output path (build only)
+  -c, --config <path>  Use a specific config file (serve/build/inject)
+  -o, --output <path>  Deprecated build output path flag
   -p, --port <n>       Port to serve on (serve only, default 7681)
       --host <addr>    Host/interface to bind (serve only, default 127.0.0.1)
-  -n, --dry-run        Validate + print plan only (build/inject)
+  -n, --dry-run        Deprecated build/inject dry-run flag
       --no-sleep       Prevent macOS sleep while serving (caffeinate -s, serve only)
 
 Examples:
   remobi serve
   remobi serve --no-sleep
   remobi serve --host 0.0.0.0 --port 8080
-  remobi serve --port 8080 -- tmux new -As dev
-  remobi build -c ./remobi.config.ts -o ./dist/index.html
-  remobi build --dry-run
-  curl -s http://127.0.0.1:7681/ | remobi inject --dry-run`)
+  remobi serve --port 8080 -- tmux new -As dev`)
 }
 
 interface LoadedConfig {
@@ -112,14 +106,14 @@ function extractDefaultExport(value: unknown): unknown | undefined {
 	return value.default
 }
 
-function ensureInjectInputMode(context: string): void {
-	if (process.stdin.isTTY) {
-		throw new Error(`${context} expects piped ttyd HTML on stdin`)
-	}
-}
-
 function throwConfigValidationError(source: string, error: ConfigValidationError): never {
 	throw new Error(`Config validation failed for ${source}\n${error.message}`)
+}
+
+function throwDeprecatedCommand(command: 'build' | 'inject'): never {
+	throw new Error(
+		`remobi ${command} is deprecated and no longer supported.\nremobi now ships its own terminal runtime and no longer patches ttyd HTML.\nUse \`remobi serve\` instead.`,
+	)
 }
 
 /** Convert a config path to its .local sibling, e.g. remobi.config.ts → remobi.config.local.ts */
@@ -231,7 +225,7 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
-	const { command, configPath, outputPath, dryRun, port, host, noSleep, command_ } = parsed.value
+	const { command, configPath, port, host, noSleep, command_ } = parsed.value
 
 	switch (command) {
 		case 'serve': {
@@ -248,46 +242,11 @@ async function main(): Promise<void> {
 		}
 
 		case 'build': {
-			const loaded = await loadConfig(configPath)
-			const targetPath = outputPath
-				? resolve(process.cwd(), outputPath)
-				: resolve(process.cwd(), 'dist/index.html')
-
-			if (dryRun) {
-				console.log('Dry run: build')
-				console.log(`- config: ${loaded.source}`)
-				console.log(`- output: ${targetPath}`)
-				console.log('- action: would bundle overlay, fetch ttyd base HTML, inject, and write file')
-				break
-			}
-
-			// Ensure output directory exists
-			mkdirSync(dirname(targetPath), { recursive: true })
-
-			await build(loaded.config, targetPath, VERSION)
-			console.log(`Built: ${targetPath}`)
-			break
+			return throwDeprecatedCommand('build')
 		}
 
 		case 'inject': {
-			const loaded = await loadConfig(configPath)
-			if (dryRun) {
-				ensureInjectInputMode('remobi inject --dry-run')
-				const dryRunStdin = await readStdin()
-				if (dryRunStdin.trim().length === 0) {
-					throw new Error('remobi inject --dry-run expects piped ttyd HTML on stdin')
-				}
-				console.log('Dry run: inject')
-				console.log(`- config: ${loaded.source}`)
-				console.log('- stdin: piped input detected')
-				console.log('- action: would read stdin HTML, inject overlay, and write to stdout')
-				break
-			}
-
-			ensureInjectInputMode('remobi inject')
-			const result = await injectFromStdin(loaded.config, VERSION)
-			process.stdout.write(result)
-			break
+			return throwDeprecatedCommand('inject')
 		}
 
 		case 'init': {

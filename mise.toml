@@ -2,6 +2,8 @@
 node = "22"
 npm = "latest"
 pnpm = "latest"
+python = "3"
 typos = "latest"
 hk = "latest"
+"npm:node-gyp" = "latest"
 ttyd = "1.7.7"

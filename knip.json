@@ -1,6 +1,6 @@
 {
 	"$schema": "https://unpkg.com/knip@latest/schema.json",
-	"entry": ["build.ts", "src/overlay-entry.ts"],
+	"entry": ["src/client-entry.ts", "src/overlay-entry.ts"],
 	"project": ["src/**/*.ts"],
 	"ignoreBinaries": ["typos"]
 }

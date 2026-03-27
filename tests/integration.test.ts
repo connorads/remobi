@@ -232,11 +232,11 @@ describe('help overlay integration', () => {
 
 describe('build output', () => {
 	test('inline script contains no HTML-breaking < chars', async () => {
-		const { injectOverlay } = await import('../build')
+		const { renderClientHtml } = await import('../build')
 		const js = 'var x = "\\x1b[<64;1;1M"; var y = "</script>"'
-		const result = injectOverlay('<html><head></head><body></body></html>', js, '', defaultConfig)
+		const result = renderClientHtml(js, '', defaultConfig, 'test-nonce')
 
-		const scriptMatch = result.match(/<script type="module">([\s\S]*?)<\/script>/)
+		const scriptMatch = result.match(/<script nonce="test-nonce">([\s\S]*?)<\/script>/)
 		const scriptContent = scriptMatch?.[1] ?? ''
 		// No < followed by a letter or / inside the script (would break HTML parsing)
 		const dangerousLt = scriptContent.match(/<(?=[a-zA-Z/])/g)
@@ -244,34 +244,33 @@ describe('build output', () => {
 	})
 
 	test('JS containing $& is not corrupted by replacement patterns', async () => {
-		const { injectOverlay } = await import('../build')
+		const { renderClientHtml } = await import('../build')
 		const js = 'String.fromCharCode($&31)'
-		const result = injectOverlay('<html><head></head><body></body></html>', js, '', defaultConfig)
+		const result = renderClientHtml(js, '', defaultConfig, 'test-nonce')
 
 		expect(result).toContain('String.fromCharCode($&31)')
-		expect(result).not.toContain('String.fromCharCode(</head>31)')
 	})
 
-	test('injectOverlay produces valid HTML with overlay', async () => {
-		const { injectOverlay } = await import('../build')
-		const baseHtml = '<html><head></head><body></body></html>'
+	test('renderClientHtml produces valid HTML with terminal shell', async () => {
+		const { renderClientHtml } = await import('../build')
 		const js = 'console.log("test")'
 		const css = 'body { color: red; }'
 
-		const result = injectOverlay(baseHtml, js, css, defaultConfig)
+		const result = renderClientHtml(js, css, defaultConfig, 'test-nonce')
 
 		expect(result).toContain('<style>')
-		expect(result).toContain('<script type="module">')
+		expect(result).toContain('<script nonce="test-nonce">')
 		expect(result).toContain('viewport')
 		expect(result).toContain('jetbrainsmono-nfm.css')
-		expect(result).toContain('</head>')
+		expect(result).toContain('<link rel="stylesheet"')
+		expect(result).toContain('id="terminal-container"')
+		expect(result).toContain('id="terminal"')
 	})
 
-	test('injectOverlay includes PWA tags when pwa.enabled', async () => {
-		const { injectOverlay } = await import('../build')
-		const baseHtml = '<html><head></head><body></body></html>'
+	test('renderClientHtml includes PWA tags when pwa.enabled', async () => {
+		const { renderClientHtml } = await import('../build')
 
-		const result = injectOverlay(baseHtml, '', '', defaultConfig)
+		const result = renderClientHtml('', '', defaultConfig, 'test-nonce')
 
 		expect(result).toContain('rel="manifest"')
 		expect(result).toContain('href="/manifest.json"')
@@ -279,13 +278,12 @@ describe('build output', () => {
 		expect(result).toContain('theme-color')
 	})
 
-	test('injectOverlay omits PWA tags when pwa.enabled is false', async () => {
-		const { injectOverlay } = await import('../build')
+	test('renderClientHtml omits PWA tags when pwa.enabled is false', async () => {
+		const { renderClientHtml } = await import('../build')
 		const { defineConfig } = await import('../src/config')
-		const baseHtml = '<html><head></head><body></body></html>'
 		const config = defineConfig({ pwa: { enabled: false } })
 
-		const result = injectOverlay(baseHtml, '', '', config)
+		const result = renderClientHtml('', '', config, 'test-nonce')
 
 		expect(result).not.toContain('rel="manifest"')
 		expect(result).not.toContain('apple-touch-icon')

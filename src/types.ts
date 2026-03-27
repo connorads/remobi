@@ -194,7 +194,7 @@ export interface XTerminal {
 	}
 	options: {
 		fontSize: number
-		theme?: Record<string, string>
+		theme?: Partial<TermTheme>
 		fontFamily?: string
 	}
 	input(data: string, wasUserInput: boolean): void
@@ -208,5 +208,7 @@ declare global {
 		term?: XTerminal
 		/** WebSocket instances captured by the reconnect interceptor script */
 		__remobiSockets?: WebSocket[]
+		/** Trigger a terminal fit + resize cycle after layout changes */
+		__remobiResize?: () => void
 	}
 }

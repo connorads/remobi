@@ -3,14 +3,6 @@ import type { Readable } from 'node:stream'
 
 export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
-export async function readStdin(): Promise<string> {
-	const chunks: Buffer[] = []
-	for await (const chunk of process.stdin) {
-		chunks.push(Buffer.from(chunk))
-	}
-	return Buffer.concat(chunks).toString('utf-8')
-}
-
 export interface SpawnedProcess {
 	readonly pid: number | undefined
 	readonly stdout: Readable | null
@@ -24,6 +16,7 @@ export function spawnProcess(
 	cmd: readonly string[],
 	opts?: {
 		cwd?: string
+		env?: NodeJS.ProcessEnv
 		stdin?: 'ignore' | 'pipe'
 		stdout?: 'ignore' | 'pipe'
 		stderr?: 'ignore' | 'pipe'
@@ -34,6 +27,7 @@ export function spawnProcess(
 
 	const proc = nodeSpawn(command, args, {
 		cwd: opts?.cwd,
+		env: opts?.env,
 		stdio: [opts?.stdin ?? 'ignore', opts?.stdout ?? 'ignore', opts?.stderr ?? 'ignore'],
 	})
 
