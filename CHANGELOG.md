@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/connorads/remobi/compare/v1.0.0...v1.0.1) (2026-03-27)
+
+
+### Bug Fixes
+
+* **setup:** clarify config auto-discovery validation ([99267f3](https://github.com/connorads/remobi/commit/99267f3f1fd84002cff187517f0b4c20863f0664))
+
 # [1.0.0](https://github.com/connorads/remobi/compare/v0.5.0...v1.0.0) (2026-03-27)
 
 
