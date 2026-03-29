@@ -303,6 +303,11 @@ async function main(): Promise<void> {
   //   initData: '\\x02z',        // send on load when viewport < widthThreshold (auto-zoom pane)
   //   widthThreshold: 768,       // px — default matches phone/tablet breakpoint
   // },
+  //
+  // postSpawnCommand: [           // run after PTY spawns (fire-and-forget, failures silent)
+  //   'tmux', 'if-shell', '-F', '-t', 'main',
+  //   '#{==:#{window_zoomed_flag},0}', 'resize-pane -Z',
+  // ],
   // floatingButtons: [
   //   // Always-visible top-left buttons (touch devices only)
   //   { position: 'top-left', buttons: [{ id: 'zoom', label: 'Zoom', description: 'Toggle pane zoom', action: { type: 'send', data: '\\x02z' } }] },

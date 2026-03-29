@@ -136,6 +136,34 @@ describe('assertValidConfigOverrides', () => {
 		expect(() => assertValidConfigOverrides({ mobile: { widthThreshold: 480 } })).not.toThrow()
 	})
 
+	test('accepts postSpawnCommand as string array', () => {
+		expect(() =>
+			assertValidConfigOverrides({
+				postSpawnCommand: [
+					'tmux',
+					'if-shell',
+					'-F',
+					'-t',
+					'main',
+					'#{==:#{window_zoomed_flag},0}',
+					'resize-pane -Z',
+				],
+			}),
+		).not.toThrow()
+	})
+
+	test('accepts postSpawnCommand as null', () => {
+		expect(() => assertValidConfigOverrides({ postSpawnCommand: null })).not.toThrow()
+	})
+
+	test('rejects non-array/non-null postSpawnCommand', () => {
+		const message = getValidationMessage(
+			{ postSpawnCommand: 'tmux zoom' },
+			assertValidConfigOverrides,
+		)
+		expect(message).toContain('config.postSpawnCommand')
+	})
+
 	test('rejects non-string/non-null mobile initData', () => {
 		const message = getValidationMessage({ mobile: { initData: 42 } }, assertValidConfigOverrides)
 		expect(message).toContain('config.mobile.initData')

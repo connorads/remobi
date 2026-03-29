@@ -233,6 +233,7 @@ export const defaultConfig: RemobiConfig = {
 	floatingButtons: [],
 	pwa: defaultPwa,
 	reconnect: { enabled: true },
+	postSpawnCommand: null,
 }
 
 /** Deep merge two objects, with `override` taking precedence */

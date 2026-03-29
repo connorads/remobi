@@ -301,6 +301,7 @@ export const remobiConfigOverridesSchema = v.strictObject({
 	floatingButtons: v.optional(v.array(floatingButtonGroupSchema)),
 	pwa: v.optional(pwaOverridesSchema),
 	reconnect: v.optional(reconnectOverridesSchema),
+	postSpawnCommand: v.optional(v.nullable(v.array(v.string()))),
 })
 
 /** Schema for fully resolved config (all required fields, plain button arrays) */
@@ -320,4 +321,5 @@ export const remobiConfigResolvedSchema = v.strictObject({
 	floatingButtons: v.array(floatingButtonGroupSchema),
 	pwa: pwaResolvedSchema,
 	reconnect: reconnectResolvedSchema,
+	postSpawnCommand: v.nullable(v.array(v.string())),
 })

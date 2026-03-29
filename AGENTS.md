@@ -6,6 +6,15 @@ Monitor and control your coding agents from your phone. Touch controls for tmux 
 
 Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm distribution. Bundles a browser client via esbuild and serves it from Node.
 
+### Terminal agnosticism
+
+The core (session, protocol, client bridge) is terminal-agnostic — a pure PTY bridge with no tmux logic. tmux knowledge lives in two places:
+
+- **Config defaults** (`config.ts`) — default buttons, gestures, and `DEFAULT_COMMAND` all send tmux sequences, but are user-replaceable via `defineConfig()`
+- **Env cleanup** (`session.ts`) — strips `TMUX`/`TMUX_PANE` to prevent nested-tmux behaviour
+
+Terminal-specific features use generic config (`postSpawnCommand`) executed by `serve.ts`, not baked into session or protocol code.
+
 ## Stack
 
 - **Node 22+** — runtime

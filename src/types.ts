@@ -148,6 +148,8 @@ export interface RemobiConfig {
 	readonly floatingButtons: readonly FloatingButtonGroup[]
 	readonly pwa: PwaConfig
 	readonly reconnect: ReconnectConfig
+	/** Command to run after PTY spawns, null = disabled. Runs fire-and-forget, failures are silent. */
+	readonly postSpawnCommand: readonly string[] | null
 }
 
 /** Deep partial — allows overriding any nested subset of config */
@@ -167,7 +169,7 @@ export type ButtonArrayInput<T extends { readonly id: string }> =
 /** Config overrides shape that supports ButtonArrayInput for button arrays */
 export type RemobiConfigOverrides = Omit<
 	DeepPartial<RemobiConfig>,
-	'toolbar' | 'drawer' | 'floatingButtons'
+	'toolbar' | 'drawer' | 'floatingButtons' | 'postSpawnCommand'
 > & {
 	readonly toolbar?: {
 		readonly row1?: ButtonArrayInput<ControlButton>
@@ -177,6 +179,7 @@ export type RemobiConfigOverrides = Omit<
 		readonly buttons?: ButtonArrayInput<ControlButton>
 	}
 	readonly floatingButtons?: readonly FloatingButtonGroup[]
+	readonly postSpawnCommand?: readonly string[] | null
 }
 
 /**

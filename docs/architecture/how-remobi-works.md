@@ -88,3 +88,7 @@ That gives remobi two useful properties:
 
 - opening the same session from another device does not start a second shell
 - reconnecting clients can rebuild the visible terminal without the PTY needing to replay history itself
+
+## Terminal agnosticism
+
+The PTY bridge is terminal-agnostic. `SharedTerminalSession`, the WebSocket protocol, and the browser client have no knowledge of tmux. tmux awareness lives only in config defaults (buttons, gestures, `DEFAULT_COMMAND`) and generic config like `postSpawnCommand`. This separation means remobi works with any command — `bash`, `zsh`, `fish`, `python` — not just tmux.

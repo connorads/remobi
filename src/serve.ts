@@ -487,6 +487,12 @@ export async function serve(
 		console.log(`remobi: starting command ${describeCommandForLogs(command)}...`)
 		session = new SharedTerminalSession(command)
 		caffeinateProc = noSleep ? spawnCaffeinate(session.pid) : null
+		if (config.postSpawnCommand) {
+			void spawnProcess(config.postSpawnCommand, {
+				stdout: 'ignore',
+				stderr: 'ignore',
+			}).exited.catch(() => {})
+		}
 	} catch (error) {
 		server.close()
 		throw error

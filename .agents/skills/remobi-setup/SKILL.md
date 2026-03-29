@@ -274,7 +274,7 @@ Tell the user:
 Exactly these — validation rejects anything else:
 
 ```
-name  theme  font  toolbar  drawer  gestures  mobile  floatingButtons  pwa  reconnect
+name  theme  font  toolbar  drawer  gestures  mobile  floatingButtons  pwa  reconnect  postSpawnCommand
 ```
 
 ### ButtonAction union
@@ -513,9 +513,10 @@ export default {
 ```typescript
 export default {
   name: 'agents',
-  mobile: {
-    initData: '\x02z',    // zoom focused pane on mobile load
-  },
+  postSpawnCommand: [     // idempotent zoom — only zooms if not already zoomed
+    'tmux', 'if-shell', '-F', '-t', 'main',
+    '#{==:#{window_zoomed_flag},0}', 'resize-pane -Z',
+  ],
   floatingButtons: [
     {
       position: 'top-left',
@@ -586,7 +587,8 @@ Requires matching tmux bindings (see `references/tmux-basics.md` popup section).
 - **Non-`send` actions must not have `data` or `keyLabel`** — validator rejects them.
 - **`floatingButtons` is an array of groups** — wrap buttons in `{ position, buttons }`.
 - **`toolbar` has `row1` and `row2`** — there is no `row3` or flat `buttons` key on toolbar.
-- **`mobile.initData`** is `string | null` — set to `null` to disable, not `false` or `''`.
+- **`postSpawnCommand`** is `string[] | null` — command to run after PTY spawns (fire-and-forget, failures silent). For idempotent tmux zoom, use `['tmux', 'if-shell', '-F', '-t', '<session>', '#{==:#{window_zoomed_flag},0}', 'resize-pane -Z']`. Preferred over `mobile.initData: '\x02z'` which toggles (unzooms if already zoomed).
+- **`mobile.initData`** is `string | null` — set to `null` to disable, not `false` or `''`. For zoom, prefer `postSpawnCommand` instead.
 - **`reconnect`** has only `enabled: boolean` — defaults to `true`. Set `{ enabled: false }` to disable.
 - **`gestures.scroll` is an object, not a string** — use `{ strategy: 'wheel' }` or `{ strategy: 'keys' }`, never a bare `'wheel'` / `'keys'` string.
 
