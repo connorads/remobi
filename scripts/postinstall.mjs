@@ -1,3 +1,6 @@
+// Workaround for microsoft/node-pty#850 — spawn-helper prebuild ships without
+// execute permission on macOS, causing "posix_spawnp failed" at runtime.
+// Remove this script once node-pty >=1.2.0 stable is released and we upgrade.
 import { chmodSync, existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
