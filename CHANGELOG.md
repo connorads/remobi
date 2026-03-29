@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/connorads/remobi/compare/v1.0.1...v1.0.2) (2026-03-29)
+
+
+### Bug Fixes
+
+* posix_spawnp failed on macos ([#22](https://github.com/connorads/remobi/issues/22)) ([b971db1](https://github.com/connorads/remobi/commit/b971db17ef37933183811a3e90aeafa4b22da472))
+
 ## [1.0.1](https://github.com/connorads/remobi/compare/v1.0.0...v1.0.1) (2026-03-27)
 
 
