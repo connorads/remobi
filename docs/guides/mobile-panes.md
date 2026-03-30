@@ -1,1 +1,0 @@
-../../.agents/skills/remobi-setup/references/mobile-panes.md

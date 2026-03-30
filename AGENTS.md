@@ -131,3 +131,4 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - Keyboard state preserved: capture `isKeyboardOpen()` before action, use `conditionalFocus()` after
 - Tests use happy-dom for DOM environment (e2e/CLI tests use node environment)
 - Agent skill: `.agents/skills/remobi-setup/SKILL.md` provides AI agents with onboarding and config guidance. When config shape, CLI commands, action types, or validation rules change, update the skill to stay in sync.
+- Agent onboarding: when helping a user set up remobi (not develop it), read `.agents/skills/remobi-setup/SKILL.md` and follow its workflow. Critical: `set -g mouse on` must be enabled in the user's tmux config for touch scroll to work — the skill covers this but agents skipping it is the most common setup failure.

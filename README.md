@@ -48,13 +48,27 @@ Your coding agent handles the rest. It installs remobi, inspects your tmux confi
 # 1. Install
 npm install -g remobi
 
-# 2. Start (spawns your command, serves remobi on 127.0.0.1:7681)
+# 2. Enable mouse mode in tmux (required for touch scroll and tap-to-focus)
+#    Add to ~/.config/tmux/tmux.conf or ~/.tmux.conf:
+#    set -g mouse on
+
+# 3. Start (spawns your command, serves remobi on 127.0.0.1:7681)
 remobi serve
 ```
 
+**Essential tmux settings for mobile** — add to your `tmux.conf` if not already present:
+
+| Setting | Command | Why |
+|---------|---------|-----|
+| Mouse mode | `set -g mouse on` | Enables touch scroll, tap-to-focus, drag resize. **The single highest-value setting for mobile use.** |
+| Status position | `set -g status-position top` | Keeps status bar away from remobi's touch toolbar at the bottom |
+| Renumber windows | `set -g renumber-windows on` | Keeps window list tidy after closing windows |
+
+See [Mobile-friendly tmux config](.agents/skills/remobi-setup/references/mobile-tmux.md) for responsive status bars, popup sizing, and more.
+
 For local development, see the [Development](#development) section below.
 
-Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](docs/guides/tailscale-serve.md).
+Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](.agents/skills/remobi-setup/references/tailscale-serve.md).
 
 ## Release channels
 
@@ -66,17 +80,27 @@ If an experimental change is breaking for consumers, include a `BREAKING CHANGE:
 
 ## Set up with AI
 
-Install the remobi skill:
+The setup skill checks your environment, inspects your tmux config, generates a `remobi.config.ts`, and suggests tmux mobile optimisations — one conversation. Three ways to use it, from simplest to most manual:
+
+**Option 1: One-liner** — installs the skill and launches an interactive session with your coding agent:
+
+```bash
+/bin/bash -c "$(curl -fsSL http://remobi.app/install.sh)"
+```
+
+**Option 2: Install the skill** — if you prefer to start the conversation yourself:
 
 ```bash
 npx skills add connorads/remobi
 ```
 
-Then tell your coding agent:
+Then tell your coding agent: "Use the remobi-setup skill to onboard me."
 
-> Use the remobi-setup skill to onboard me.
+**Option 3: Already in a session?** — if an agent is already looking at this repo (or you don't want to install a skill), tell it:
 
-The agent will check your environment, inspect your tmux config, ask what you want, and generate everything — remobi config, tmux mobile tweaks, deployment setup. Full guided experience in one conversation.
+> Read `.agents/skills/remobi-setup/SKILL.md` in this repo and follow it to onboard me.
+
+The skill file contains the full setup workflow. The agent can read it directly — no installation needed.
 
 ## Security model
 
@@ -234,13 +258,13 @@ hooks.on('beforeSendData', (ctx) => {
 init(undefined, hooks)
 ```
 
-## Deployment guides
+## Guides
 
-- [Tailscale Serve](docs/guides/tailscale-serve.md) — expose over your tailnet with HTTPS
-- [Keeping your Mac awake](docs/guides/keep-awake.md) — prevent sleep during remote sessions
-- [ttyd flags](docs/guides/ttyd-flags.md) — legacy notes for old ttyd-based setups
-- [Mobile pane navigation](docs/guides/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
-- [Mobile-friendly tmux config](docs/guides/mobile-tmux.md) — responsive status bar, popup sizing, binding ergonomics
+- [Mobile-friendly tmux config](.agents/skills/remobi-setup/references/mobile-tmux.md) — responsive status bar, popup sizing, binding ergonomics
+- [Mobile pane navigation](.agents/skills/remobi-setup/references/mobile-panes.md) — zoom-aware swipe, auto-zoom on load, floating buttons
+- [Tailscale Serve](.agents/skills/remobi-setup/references/tailscale-serve.md) — expose over your tailnet with HTTPS
+- [Keeping your Mac awake](.agents/skills/remobi-setup/references/keep-awake.md) — prevent sleep during remote sessions
+- [ttyd flags](.agents/skills/remobi-setup/references/ttyd-flags.md) — legacy notes for old ttyd-based setups
 
 ## Architecture docs
 
@@ -317,7 +341,7 @@ pnpm run check       # biome lint + format
 ## FAQ
 
 **Is this secure?**
-remobi doesn't handle auth — it's a UI overlay. Use a tunnel or VPN you trust. We recommend [Tailscale](docs/guides/tailscale-serve.md) (deployment guide included) — your session never leaves your tailnet. Cloudflare Tunnel and ngrok also work. Security is your responsibility.
+remobi doesn't handle auth — it's a UI overlay. Use a tunnel or VPN you trust. We recommend [Tailscale](.agents/skills/remobi-setup/references/tailscale-serve.md) (deployment guide included) — your session never leaves your tailnet. Cloudflare Tunnel and ngrok also work. Security is your responsibility.
 
 **Why not Termux / Termius / SSH apps?**
 They work. But you're managing SSH keys, losing your tmux setup, and fighting a UI that wasn't built for touch. remobi keeps your exact workflow — same panes, same windows, same bindings — and adds touch controls on top.

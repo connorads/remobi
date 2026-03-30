@@ -1,1 +1,0 @@
-../../.agents/skills/remobi-setup/references/tailscale-serve.md
