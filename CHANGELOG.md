@@ -1,3 +1,11 @@
+## [1.0.3](https://github.com/connorads/remobi/compare/v1.0.2...v1.0.3) (2026-04-01)
+
+
+### Bug Fixes
+
+* **cli:** scaffold portable configs and support base paths ([816dcb6](https://github.com/connorads/remobi/commit/816dcb6fbde3104fc3c77d7a9f697a82912b2787))
+* **serve:** canonicalise prefixed app entry ([d03168b](https://github.com/connorads/remobi/commit/d03168bfe1a5020ec70d6a22a318a3aa8fec0ac2))
+
 ## [1.0.2](https://github.com/connorads/remobi/compare/v1.0.1...v1.0.2) (2026-03-29)
 
 
