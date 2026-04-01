@@ -1,3 +1,5 @@
+import { normalizeBasePath } from '../base-path'
+
 type CliCommand = 'build' | 'inject' | 'init' | 'serve' | 'help' | 'version'
 
 interface ParsedCliArgs {
@@ -7,6 +9,7 @@ interface ParsedCliArgs {
 	readonly dryRun: boolean
 	readonly port?: number
 	readonly host?: string
+	readonly basePath?: string
 	readonly noSleep: boolean
 	readonly command_: readonly string[]
 }
@@ -29,6 +32,7 @@ interface ParseState {
 	dryRun: boolean
 	port?: number
 	host?: string
+	basePath?: string
 	noSleep: boolean
 }
 
@@ -98,6 +102,19 @@ const flagDefs: readonly FlagDef[] = [
 		takesValue: true,
 		apply(value, state) {
 			state.host = value
+			return undefined
+		},
+	},
+	{
+		names: ['--base-path'],
+		validCommands: ['serve'],
+		takesValue: true,
+		apply(value, state) {
+			const normalized = normalizeBasePath(value ?? '')
+			if (normalized === null) {
+				return `Invalid base path: ${value}`
+			}
+			state.basePath = normalized
 			return undefined
 		},
 	},
@@ -212,6 +229,7 @@ export function parseCliArgs(args: readonly string[]): ParseCliResult {
 			dryRun: state.dryRun,
 			port: state.port,
 			host: state.host,
+			basePath: state.basePath,
 			noSleep: state.noSleep,
 			command_: trailingCommand,
 		},

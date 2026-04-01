@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -28,9 +28,9 @@ function createTempDir(): string {
 	return dir
 }
 
-async function runCli(args: readonly string[]): Promise<CliResult> {
+async function runCli(args: readonly string[], cwd: string = repoRoot): Promise<CliResult> {
 	const proc = spawnProcess(['tsx', join(repoRoot, 'cli.ts'), ...args], {
-		cwd: repoRoot,
+		cwd,
 		stdin: 'ignore',
 		stdout: 'pipe',
 		stderr: 'pipe',
@@ -104,6 +104,20 @@ async function waitForHttp(url: string, timeoutMs = 10_000): Promise<string> {
 }
 
 describe('CLI command validation', () => {
+	test('init scaffolds a plain default export without remobi imports', async () => {
+		const dir = createTempDir()
+
+		const result = await runCli(['init'], dir)
+
+		expect(result.exitCode).toBe(0)
+		expect(result.stderr).toBe('')
+		const configPath = join(dir, 'remobi.config.ts')
+		expect(result.stdout).toContain(`Created: ${configPath}`)
+		const scaffold = readFileSync(configPath, 'utf8')
+		expect(scaffold).toContain('export default {')
+		expect(scaffold).not.toContain("from 'remobi'")
+		expect(scaffold).not.toContain('defineConfig(')
+	})
 	test('serve fails fast with nested validation errors', async () => {
 		const dir = createTempDir()
 		const configPath = writeConfig(

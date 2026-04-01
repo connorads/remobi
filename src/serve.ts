@@ -7,6 +7,7 @@ import { Hono } from 'hono'
 import type { WSContext } from 'hono/ws'
 import type WebSocket from 'ws'
 import { bundleClientAssets, renderClientHtml } from '../build'
+import { documentRoute, joinBasePath } from './base-path'
 import { manifestToJson } from './pwa/manifest'
 import type { SessionClient, SharedTerminalSession } from './session'
 import {
@@ -263,6 +264,14 @@ function createScriptNonce(): string {
 	return randomBytes(16).toString('hex')
 }
 
+function routeVariants(basePath: string, path: string): readonly string[] {
+	if (basePath === '/') {
+		return [path]
+	}
+
+	return Array.from(new Set([path, joinBasePath(basePath, path)]))
+}
+
 /** Log the executable without leaking full argv, which may contain secrets or tokens. */
 export function describeCommandForLogs(command: readonly string[]): string {
 	const [file, ...args] = command
@@ -283,18 +292,19 @@ export async function serve(
 	noSleep = false,
 	host: string = DEFAULT_HOST,
 	version = 'unknown',
+	basePath = '/',
 ): Promise<void> {
 	const { SharedTerminalSession } = await import('./session')
 
 	console.log('remobi: building client...')
 	const scriptNonce = createScriptNonce()
-	const { js, css } = await bundleClientAssets(config, version)
-	const html = renderClientHtml(js, css, config, scriptNonce)
+	const { js, css } = await bundleClientAssets(config, version, basePath)
+	const html = renderClientHtml(js, css, config, scriptNonce, basePath)
 	console.log('remobi: client ready')
 	let session: SharedTerminalSession | null = null
 	let caffeinateProc: SpawnedProcess | null = null
 
-	const manifestJson = config.pwa.enabled ? manifestToJson(config.name, config.pwa) : null
+	const manifestJson = config.pwa.enabled ? manifestToJson(config.name, config.pwa, basePath) : null
 	const icon180 = readIcon('icon-180.png')
 	const icon192 = readIcon('icon-192.png')
 	const icon512 = readIcon('icon-512.png')
@@ -309,138 +319,160 @@ export async function serve(
 	const { injectWebSocket, upgradeWebSocket, wss } = createNodeWebSocket({ app })
 	wss.options.maxPayload = MAX_CLIENT_MESSAGE_BYTES
 
-	app.use('/ws', async (c, next) => {
-		const securityHeaders = securityHeadersForRequest(c.req.header('host'))
-		if (!isAllowedOrigin(c.req.header('origin'), c.req.header('host'))) {
-			return withSecurityHeaders(c.text('Forbidden', 403), securityHeaders)
-		}
-		await next()
-	})
+	const websocketRoutes = routeVariants(basePath, '/ws')
+	for (const route of websocketRoutes) {
+		app.use(route, async (c, next) => {
+			const securityHeaders = securityHeadersForRequest(c.req.header('host'))
+			if (!isAllowedOrigin(c.req.header('origin'), c.req.header('host'))) {
+				return withSecurityHeaders(c.text('Forbidden', 403), securityHeaders)
+			}
+			await next()
+		})
 
-	app.get(
-		'/ws',
-		upgradeWebSocket(() => ({
-			onOpen(_event: Event, ws: WSContext<WebSocket>) {
-				const raw = ws.raw
-				if (!raw) return
-				if (session === null) {
-					raw.close()
-					return
-				}
-
-				const client: SessionClient = {
-					send(message) {
-						if (raw.readyState !== 1) {
-							return
-						}
-
-						try {
-							raw.send(serialiseServerMessage(message))
-						} catch {
-							// The browser may disconnect while PTY output is still being fanned out.
-						}
-					},
-					close() {
-						if (raw.readyState >= 2) {
-							return
-						}
-
+		app.get(
+			route,
+			upgradeWebSocket(() => ({
+				onOpen(_event: Event, ws: WSContext<WebSocket>) {
+					const raw = ws.raw
+					if (!raw) return
+					if (session === null) {
 						raw.close()
-					},
-				}
+						return
+					}
 
-				connections.set(raw, client)
-				void session.addClient(client).catch((error: unknown) => {
-					client.send({
-						type: 'error',
-						message:
-							error instanceof Error ? error.message : 'failed to attach to terminal session',
+					const client: SessionClient = {
+						send(message) {
+							if (raw.readyState !== 1) {
+								return
+							}
+
+							try {
+								raw.send(serialiseServerMessage(message))
+							} catch {
+								// The browser may disconnect while PTY output is still being fanned out.
+							}
+						},
+						close() {
+							if (raw.readyState >= 2) {
+								return
+							}
+
+							raw.close()
+						},
+					}
+
+					connections.set(raw, client)
+					void session.addClient(client).catch((error: unknown) => {
+						client.send({
+							type: 'error',
+							message:
+								error instanceof Error ? error.message : 'failed to attach to terminal session',
+						})
+						raw.close()
 					})
-					raw.close()
-				})
-			},
-			onMessage(event: MessageEvent, ws: WSContext<WebSocket>) {
-				const raw = ws.raw
-				if (!raw) return
-				const client = connections.get(raw)
+				},
+				onMessage(event: MessageEvent, ws: WSContext<WebSocket>) {
+					const raw = ws.raw
+					if (!raw) return
+					const client = connections.get(raw)
 
-				if (typeof event.data !== 'string') {
-					closeForProtocolViolation(raw, client, 'text websocket messages only')
-					return
-				}
+					if (typeof event.data !== 'string') {
+						closeForProtocolViolation(raw, client, 'text websocket messages only')
+						return
+					}
 
-				if (!client) return
+					if (!client) return
 
-				const message = parseClientMessage(event.data)
-				if (!message) {
-					closeForProtocolViolation(raw, client, 'invalid client message')
-					return
-				}
+					const message = parseClientMessage(event.data)
+					if (!message) {
+						closeForProtocolViolation(raw, client, 'invalid client message')
+						return
+					}
 
-				if (session === null) {
-					raw.close()
-					return
-				}
+					if (session === null) {
+						raw.close()
+						return
+					}
 
-				session.handleClientMessage(client, message)
-			},
-			onClose(_event: CloseEvent, ws: WSContext<WebSocket>) {
-				const raw = ws.raw
-				if (!raw) return
-				const client = connections.get(raw)
-				if (!client) return
-				session?.removeClient(client)
-				connections.delete(raw)
-			},
-		})),
-	)
+					session.handleClientMessage(client, message)
+				},
+				onClose(_event: CloseEvent, ws: WSContext<WebSocket>) {
+					const raw = ws.raw
+					if (!raw) return
+					const client = connections.get(raw)
+					if (!client) return
+					session?.removeClient(client)
+					connections.delete(raw)
+				},
+			})),
+		)
+	}
 
 	app.get('/', (c) =>
 		withSecurityHeaders(c.html(html), securityHeadersForRequest(c.req.header('host'))),
 	)
 
+	const canonicalDocumentRoute = documentRoute(basePath)
+	if (canonicalDocumentRoute !== '/') {
+		app.get(basePath, (c) =>
+			withSecurityHeaders(c.html(html), securityHeadersForRequest(c.req.header('host'))),
+		)
+
+		app.get(canonicalDocumentRoute, (c) =>
+			withSecurityHeaders(c.html(html), securityHeadersForRequest(c.req.header('host'))),
+		)
+	}
+
 	if (manifestJson !== null) {
-		app.get('/manifest.json', (c) => {
-			/* oxlint-disable typescript/consistent-type-assertions -- JSON.parse returns unknown, safe for manifest */
-			return withSecurityHeaders(
-				c.json(JSON.parse(manifestJson) as Record<string, unknown>),
-				securityHeadersForRequest(c.req.header('host')),
-			)
-			/* oxlint-enable typescript/consistent-type-assertions */
-		})
+		for (const route of routeVariants(basePath, '/manifest.json')) {
+			app.get(route, (c) => {
+				/* oxlint-disable typescript/consistent-type-assertions -- JSON.parse returns unknown, safe for manifest */
+				return withSecurityHeaders(
+					c.json(JSON.parse(manifestJson) as Record<string, unknown>),
+					securityHeadersForRequest(c.req.header('host')),
+				)
+				/* oxlint-enable typescript/consistent-type-assertions */
+			})
+		}
 	}
 
 	if (icon180) {
-		app.get('/apple-touch-icon.png', (c) =>
-			withSecurityHeaders(
-				new Response(Uint8Array.from(icon180), {
-					headers: { 'content-type': 'image/png' },
-				}),
-				securityHeadersForRequest(c.req.header('host')),
-			),
-		)
+		for (const route of routeVariants(basePath, '/apple-touch-icon.png')) {
+			app.get(route, (c) =>
+				withSecurityHeaders(
+					new Response(Uint8Array.from(icon180), {
+						headers: { 'content-type': 'image/png' },
+					}),
+					securityHeadersForRequest(c.req.header('host')),
+				),
+			)
+		}
 	}
 
 	if (icon192) {
-		app.get('/icon-192.png', (c) =>
-			withSecurityHeaders(
-				new Response(Uint8Array.from(icon192), {
-					headers: { 'content-type': 'image/png' },
-				}),
-				securityHeadersForRequest(c.req.header('host')),
-			),
-		)
+		for (const route of routeVariants(basePath, '/icon-192.png')) {
+			app.get(route, (c) =>
+				withSecurityHeaders(
+					new Response(Uint8Array.from(icon192), {
+						headers: { 'content-type': 'image/png' },
+					}),
+					securityHeadersForRequest(c.req.header('host')),
+				),
+			)
+		}
 	}
 
 	if (icon512) {
-		app.get('/icon-512.png', (c) =>
-			withSecurityHeaders(
-				new Response(Uint8Array.from(icon512), {
-					headers: { 'content-type': 'image/png' },
-				}),
-				securityHeadersForRequest(c.req.header('host')),
-			),
-		)
+		for (const route of routeVariants(basePath, '/icon-512.png')) {
+			app.get(route, (c) =>
+				withSecurityHeaders(
+					new Response(Uint8Array.from(icon512), {
+						headers: { 'content-type': 'image/png' },
+					}),
+					securityHeadersForRequest(c.req.header('host')),
+				),
+			)
+		}
 	}
 
 	const server = honoServe({ fetch: app.fetch, port, hostname: host })

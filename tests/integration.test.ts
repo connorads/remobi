@@ -278,6 +278,14 @@ describe('build output', () => {
 		expect(result).toContain('theme-color')
 	})
 
+	test('renderClientHtml injects prefixed PWA and websocket bootstrap URLs', async () => {
+		const { renderClientHtml } = await import('../build')
+		const result = renderClientHtml('', '', defaultConfig, 'test-nonce', '/proxy')
+
+		expect(result).toContain('href="/proxy/manifest.json"')
+		expect(result).toContain('href="/proxy/apple-touch-icon.png"')
+	})
+
 	test('renderClientHtml omits PWA tags when pwa.enabled is false', async () => {
 		const { renderClientHtml } = await import('../build')
 		const { defineConfig } = await import('../src/config')

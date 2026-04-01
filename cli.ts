@@ -57,7 +57,7 @@ function usage(): void {
 	console.log(`remobi v${VERSION} — mobile terminal overlay for tmux
 
 Usage:
-  remobi serve [--config <path>] [--port <n>] [--host <addr>] [--no-sleep] [-- <command...>]
+  remobi serve [--config <path>] [--port <n>] [--host <addr>] [--base-path <path>] [--no-sleep] [-- <command...>]
     Start remobi with a built-in web terminal, PWA support, and the configured command.
     Default host: 127.0.0.1. Default port: 7681. Default command: tmux new-session -A -s main
 
@@ -81,6 +81,7 @@ Flags:
   -o, --output <path>  Deprecated build output path flag
   -p, --port <n>       Port to serve on (serve only, default 7681)
       --host <addr>    Host/interface to bind (serve only, default 127.0.0.1)
+      --base-path <p>  Mount remobi under a URL prefix such as /random-token
   -n, --dry-run        Deprecated build/inject dry-run flag
       --no-sleep       Prevent macOS sleep while serving (caffeinate -s, serve only)
 
@@ -88,6 +89,7 @@ Examples:
   remobi serve
   remobi serve --no-sleep
   remobi serve --host 0.0.0.0 --port 8080
+  remobi serve --base-path /random-token
   remobi serve --port 8080 -- tmux new -As dev`)
 }
 
@@ -225,7 +227,7 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
-	const { command, configPath, port, host, noSleep, command_ } = parsed.value
+	const { command, configPath, port, host, basePath, noSleep, command_ } = parsed.value
 
 	switch (command) {
 		case 'serve': {
@@ -237,6 +239,7 @@ async function main(): Promise<void> {
 				noSleep,
 				host,
 				VERSION,
+				basePath,
 			)
 			break
 		}
@@ -255,9 +258,7 @@ async function main(): Promise<void> {
 				console.error('remobi.config.ts already exists')
 				process.exit(1)
 			}
-			const template = `import { defineConfig } from 'remobi'
-
-export default defineConfig({
+			const template = `export default {
   // name: 'remobi',              // app name (tab title, PWA home screen label)
   // theme: 'catppuccin-mocha',
   // font: {
@@ -314,7 +315,7 @@ export default defineConfig({
   // reconnect: {
   //   enabled: true,              // show overlay + auto-reload on connection loss (default true)
   // },
-})
+}
 `
 			writeFileSync(targetPath, template)
 			console.log(`Created: ${targetPath}`)

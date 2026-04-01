@@ -73,6 +73,14 @@ describe('parseCliArgs', () => {
 		}
 	})
 
+	test('parses serve with --base-path flag', () => {
+		const result = parseCliArgs(['serve', '--base-path', '/random-token'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.basePath).toBe('/random-token')
+		}
+	})
+
 	test('parses serve with -p short flag', () => {
 		const result = parseCliArgs(['serve', '-p', '9000'])
 		expect(result.ok).toBe(true)
@@ -131,6 +139,14 @@ describe('parseCliArgs', () => {
 		expect(result.ok).toBe(false)
 		if (!result.ok) {
 			expect(result.error).toContain('Missing value for --host')
+		}
+	})
+
+	test('rejects missing --base-path value', () => {
+		const result = parseCliArgs(['serve', '--base-path'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain('Missing value for --base-path')
 		}
 	})
 
@@ -311,6 +327,38 @@ describe('parseCliArgs', () => {
 		}
 	})
 
+	test('rejects --base-path outside serve command', () => {
+		const result = parseCliArgs(['build', '--base-path', '/proxy'])
+		expect(result.ok).toBe(false)
+		if (!result.ok) {
+			expect(result.error).toContain("only valid for 'serve'")
+		}
+	})
+
+	test('rejects invalid --base-path values', () => {
+		for (const value of ['', 'proxy', '/proxy?x=1', '/proxy#frag']) {
+			const result = parseCliArgs(['serve', '--base-path', value])
+			expect(result.ok).toBe(false)
+			if (!result.ok) {
+				expect(result.error).toContain('Invalid base path')
+			}
+		}
+	})
+
+	test('normalises root and trailing slash for --base-path', () => {
+		const root = parseCliArgs(['serve', '--base-path', '/'])
+		expect(root.ok).toBe(true)
+		if (root.ok) {
+			expect(root.value.basePath).toBe('/')
+		}
+
+		const nested = parseCliArgs(['serve', '--base-path', '/proxy/'])
+		expect(nested.ok).toBe(true)
+		if (nested.ok) {
+			expect(nested.value.basePath).toBe('/proxy')
+		}
+	})
+
 	test('empty trailing command after --', () => {
 		const result = parseCliArgs(['serve', '--'])
 		expect(result.ok).toBe(true)
@@ -320,12 +368,22 @@ describe('parseCliArgs', () => {
 	})
 
 	test('flags in different order', () => {
-		const result = parseCliArgs(['serve', '--no-sleep', '--port', '8080', '--config', './c.ts'])
+		const result = parseCliArgs([
+			'serve',
+			'--no-sleep',
+			'--port',
+			'8080',
+			'--config',
+			'./c.ts',
+			'--base-path',
+			'/proxy',
+		])
 		expect(result.ok).toBe(true)
 		if (result.ok) {
 			expect(result.value.noSleep).toBe(true)
 			expect(result.value.port).toBe(8080)
 			expect(result.value.configPath).toBe('./c.ts')
+			expect(result.value.basePath).toBe('/proxy')
 		}
 	})
 
@@ -346,6 +404,14 @@ describe('parseCliArgs', () => {
 			expect(result.value.noSleep).toBe(true)
 			expect(result.value.port).toBe(8080)
 			expect(result.value.command_).toEqual(['tmux', 'new', '-As', 'dev'])
+		}
+	})
+
+	test('duplicate --base-path flags use last value', () => {
+		const result = parseCliArgs(['serve', '--base-path', '/one', '--base-path', '/two/'])
+		expect(result.ok).toBe(true)
+		if (result.ok) {
+			expect(result.value.basePath).toBe('/two')
 		}
 	})
 })

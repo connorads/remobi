@@ -1,3 +1,4 @@
+import { documentRoute, joinBasePath } from '../base-path'
 import type { PwaConfig } from '../types'
 
 interface WebAppManifest {
@@ -16,22 +17,27 @@ interface WebAppManifest {
 }
 
 /** Generate a web app manifest object from pwa config */
-export function generateManifest(name: string, pwa: PwaConfig): WebAppManifest {
+export function generateManifest(name: string, pwa: PwaConfig, basePath = '/'): WebAppManifest {
 	return {
 		name,
 		short_name: pwa.shortName ?? name,
-		start_url: '/',
+		start_url: documentRoute(basePath),
 		display: 'standalone',
 		background_color: pwa.themeColor,
 		theme_color: pwa.themeColor,
 		icons: [
-			{ src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-			{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+			{
+				src: joinBasePath(basePath, '/icon-192.png'),
+				sizes: '192x192',
+				type: 'image/png',
+				purpose: 'any maskable',
+			},
+			{ src: joinBasePath(basePath, '/icon-512.png'), sizes: '512x512', type: 'image/png' },
 		],
 	}
 }
 
 /** Serialise manifest to JSON string */
-export function manifestToJson(name: string, pwa: PwaConfig): string {
-	return JSON.stringify(generateManifest(name, pwa), null, 2)
+export function manifestToJson(name: string, pwa: PwaConfig, basePath = '/'): string {
+	return JSON.stringify(generateManifest(name, pwa, basePath), null, 2)
 }

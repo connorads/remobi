@@ -50,11 +50,12 @@ function readPrebuiltAsset(filename: string): string | null {
 export async function bundleClientAssets(
 	config: RemobiConfig,
 	version: string,
+	basePath = '/',
 ): Promise<{ js: string; css: string }> {
 	const prebuiltJs = readPrebuiltAsset('client.iife.js')
 	const prebuiltCss = readPrebuiltAsset('client.css')
 	if (prebuiltJs !== null && prebuiltCss !== null) {
-		const js = `globalThis.__remobiVersion=${JSON.stringify(version)};globalThis.__remobiConfig=${JSON.stringify(config)};${prebuiltJs}`
+		const js = `globalThis.__remobiVersion=${JSON.stringify(version)};globalThis.__remobiConfig=${JSON.stringify(config)};globalThis.__remobiBasePath=${JSON.stringify(basePath)};${prebuiltJs}`
 		return { js, css: prebuiltCss }
 	}
 
@@ -78,7 +79,7 @@ export async function bundleClientAssets(
 		throw new Error('remobi client build produced incomplete output')
 	}
 
-	const js = `globalThis.__remobiVersion=${JSON.stringify(version)};globalThis.__remobiConfig=${JSON.stringify(config)};${jsOutput.text}`
+	const js = `globalThis.__remobiVersion=${JSON.stringify(version)};globalThis.__remobiConfig=${JSON.stringify(config)};globalThis.__remobiBasePath=${JSON.stringify(basePath)};${jsOutput.text}`
 	return { js, css: cssOutput.text }
 }
 
@@ -87,10 +88,14 @@ export function renderClientHtml(
 	css: string,
 	config: RemobiConfig,
 	scriptNonce: string,
+	basePath = '/',
 ): string {
 	const viewport =
 		'<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">'
-	const pwaHtml = config.pwa.enabled ? `${generatePwaHtml(config.name, config.pwa)}\n` : ''
+	const pwaHtml = config.pwa.enabled
+		? `${generatePwaHtml(config.name, config.pwa, basePath)}
+`
+		: ''
 	const fontLink = `<link rel="stylesheet" href="${escapeAttr(config.font.cdnUrl)}">`
 	const safeJs = js.replace(/<(?=\/script)/gi, '\\x3c')
 

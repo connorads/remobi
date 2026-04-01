@@ -4,6 +4,7 @@ import { WebLinksAddon } from '@xterm/addon-web-links'
 import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import '../styles/base.css'
+import { joinBasePath } from './base-path'
 import { createHookRegistry, init } from './index'
 import { parseServerMessage, serialiseClientMessage } from './session-protocol'
 import type { ClientMessage } from './session-protocol'
@@ -13,10 +14,12 @@ import { onTap } from './util/tap'
 
 declare const __remobiConfig: RemobiConfig
 declare const __remobiVersion: string | undefined
+declare const __remobiBasePath: string | undefined
 
 function createSocketUrl(): string {
 	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-	return `${protocol}//${window.location.host}/ws`
+	const socketPath = joinBasePath(__remobiBasePath ?? '/', '/ws')
+	return `${protocol}//${window.location.host}${socketPath}`
 }
 
 function attachOptionalAddons(term: Terminal): FitAddon {

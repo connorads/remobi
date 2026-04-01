@@ -68,7 +68,7 @@ See [Mobile-friendly tmux config](.agents/skills/remobi-setup/references/mobile-
 
 For local development, see the [Development](#development) section below.
 
-Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](.agents/skills/remobi-setup/references/tailscale-serve.md).
+Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](.agents/skills/remobi-setup/references/tailscale-serve.md). If your proxy mounts remobi under a URL prefix, start remobi with `--base-path /that-prefix` so the HTML, PWA links, and WebSocket all use the same external path.
 
 ## Release channels
 
@@ -117,10 +117,11 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 ## CLI reference
 
 ```text
-remobi serve [--config <path>] [--port <n>] [--host <addr>] [-- <command...>]
+remobi serve [--config <path>] [--port <n>] [--host <addr>] [--base-path <path>] [-- <command...>]
   Start remobi with its built-in web terminal and PWA support.
   Default host: 127.0.0.1. Default port: 7681. Default command: tmux new-session -A -s main
   Example: remobi serve --host 0.0.0.0 --port 8080
+  Example: remobi serve --base-path /random-token
   Example: remobi serve --port 8080 -- tmux new -As dev
 
 remobi build [--config <path>] [--output <path>] [--dry-run]
@@ -150,9 +151,7 @@ When `--config` is not specified, remobi searches:
 Create `remobi.config.ts` (or run `remobi init`):
 
 ```typescript
-import { defineConfig } from 'remobi/config'
-
-export default defineConfig({
+export default {
   font: {
     family: 'JetBrainsMono NFM, monospace',
     mobileSizeDefault: 16,
@@ -208,10 +207,10 @@ export default defineConfig({
       ],
     },
   ],
-})
+}
 ```
 
-All fields are optional — defaults are filled in via `defineConfig()`.
+All fields are optional — the CLI fills in defaults internally when it loads the config.
 
 Shipped tmux drawer defaults stick to stock tmux bindings (`c`, `%`, `"`, `s`, `w`, `[`, `?`, `x`, `z`) rather than personal popup workflows.
 

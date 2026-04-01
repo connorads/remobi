@@ -1,3 +1,4 @@
+import { joinBasePath } from '../base-path'
 import type { PwaConfig } from '../types'
 import { ICON_SVG, svgToDataUri } from './icon'
 
@@ -11,14 +12,14 @@ export function escapeAttr(value: string): string {
 }
 
 /** Generate PWA HTML to inject into </head> */
-export function generatePwaHtml(name: string, pwa: PwaConfig): string {
+export function generatePwaHtml(name: string, pwa: PwaConfig, basePath = '/'): string {
 	const svgDataUri = svgToDataUri(ICON_SVG)
 	return [
-		`<link rel="manifest" href="/manifest.json">`,
+		`<link rel="manifest" href="${escapeAttr(joinBasePath(basePath, '/manifest.json'))}">`,
 		`<meta name="theme-color" content="${escapeAttr(pwa.themeColor)}">`,
-		`<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">`,
+		'<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">',
 		`<meta name="apple-mobile-web-app-title" content="${escapeAttr(name)}">`,
-		`<link rel="apple-touch-icon" href="/apple-touch-icon.png">`,
+		`<link rel="apple-touch-icon" href="${escapeAttr(joinBasePath(basePath, '/apple-touch-icon.png'))}">`,
 		`<link rel="icon" type="image/svg+xml" href="${svgDataUri}">`,
 	].join('\n')
 }
