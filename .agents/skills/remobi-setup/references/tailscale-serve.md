@@ -26,7 +26,7 @@ By default `remobi serve` binds to `127.0.0.1`, so it is not exposed on your LAN
 tailscale serve --bg 7681
 ```
 
-Your terminal is now available at `https://<your-machine>.<tailnet>.ts.net`.
+Your terminal is now available at `https://<your-machine>.<tailnet>.ts.net`. If you publish remobi behind a path prefix instead of the root, start remobi with `--base-path /that-prefix` so the WebSocket and PWA URLs stay aligned with the external URL.
 
 On mobile, tap **Add to Home Screen** for a standalone app experience with the remobi icon.
 

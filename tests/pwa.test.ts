@@ -70,6 +70,15 @@ describe('generateManifest', () => {
 		}
 	})
 
+	test('prefixes start_url, scope, and icon paths when mounted under a subpath', () => {
+		const manifest = generateManifest('remobi', defaultPwa, '/proxy')
+		expect(manifest.start_url).toBe('/proxy/')
+		expect(manifest.scope).toBe('/proxy/')
+		for (const icon of manifest.icons) {
+			expect(icon.src.startsWith('/proxy/')).toBe(true)
+		}
+	})
+
 	test('custom name is reflected', () => {
 		const manifest = generateManifest('My Terminal', { ...defaultPwa, shortName: 'Term' })
 		expect(manifest.name).toBe('My Terminal')
@@ -99,6 +108,7 @@ describe('manifestToJson', () => {
 		const manifest = generateManifest('remobi', defaultPwa)
 		expect(parsed.name).toBe(manifest.name)
 		expect(parsed.display).toBe(manifest.display)
+		expect(parsed.scope).toBe(manifest.scope)
 	})
 })
 
@@ -107,6 +117,12 @@ describe('generatePwaHtml', () => {
 		const html = generatePwaHtml('remobi', defaultPwa)
 		expect(html).toContain('rel="manifest"')
 		expect(html).toContain('href="/manifest.json"')
+	})
+
+	test('prefixes asset links when mounted under a subpath', () => {
+		const html = generatePwaHtml('remobi', defaultPwa, '/proxy')
+		expect(html).toContain('href="/proxy/manifest.json"')
+		expect(html).toContain('href="/proxy/apple-touch-icon.png"')
 	})
 
 	test('includes theme-color meta', () => {

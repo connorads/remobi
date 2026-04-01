@@ -7,7 +7,7 @@ import { Hono } from 'hono'
 import type { WSContext } from 'hono/ws'
 import type WebSocket from 'ws'
 import { bundleClientAssets, renderClientHtml } from '../build'
-import { documentRoute, joinBasePath } from './base-path'
+import { bareDocumentRoute, documentRoute, joinBasePath } from './base-path'
 import { manifestToJson } from './pwa/manifest'
 import type { SessionClient, SharedTerminalSession } from './session'
 import {
@@ -414,13 +414,17 @@ export async function serve(
 
 	const canonicalDocumentRoute = documentRoute(basePath)
 	if (canonicalDocumentRoute !== '/') {
-		app.get(basePath, (c) =>
-			withSecurityHeaders(c.html(html), securityHeadersForRequest(c.req.header('host'))),
-		)
-
 		app.get(canonicalDocumentRoute, (c) =>
 			withSecurityHeaders(c.html(html), securityHeadersForRequest(c.req.header('host'))),
 		)
+
+		const bareRoute = bareDocumentRoute(basePath)
+		if (bareRoute) {
+			app.get(bareRoute, (c) => {
+				const securityHeaders = securityHeadersForRequest(c.req.header('host'))
+				return withSecurityHeaders(c.redirect(canonicalDocumentRoute, 308), securityHeaders)
+			})
+		}
 	}
 
 	if (manifestJson !== null) {

@@ -63,17 +63,39 @@ async function waitForHttp(url: string, timeoutMs = 10_000): Promise<void> {
 	throw new Error(`timed out waiting for ${url}`)
 }
 
+function rewriteProxyPath(requestUrl: string | undefined, basePath: string): string | null {
+	const path = requestUrl ?? '/'
+	if (basePath === '/') {
+		return path
+	}
+	if (path === basePath || path === `${basePath}/`) {
+		return path
+	}
+	if (!path.startsWith(`${basePath}/`)) {
+		return null
+	}
+	return path
+}
+
 async function createReverseProxy(
 	backendPort: number,
 	proxyPort: number,
+	basePath = '/',
 ): Promise<{ close(): Promise<void> }> {
 	const sockets = new Set<Socket>()
 	const server = createServer((request, response) => {
+		const upstreamPath = rewriteProxyPath(request.url, basePath)
+		if (upstreamPath === null) {
+			response.statusCode = 404
+			response.end('not found')
+			return
+		}
+
 		const upstream = httpRequest(
 			{
 				hostname: '127.0.0.1',
 				port: backendPort,
-				path: request.url ?? '/',
+				path: upstreamPath,
 				method: request.method,
 				headers: request.headers,
 			},
@@ -98,6 +120,12 @@ async function createReverseProxy(
 	})
 
 	server.on('upgrade', (request, socket, head) => {
+		const upstreamPath = rewriteProxyPath(request.url, basePath)
+		if (upstreamPath === null) {
+			socket.destroy()
+			return
+		}
+
 		const upstreamSocket = connect(backendPort, '127.0.0.1', () => {
 			const headerLines = Object.entries(request.headers).flatMap(([name, value]) => {
 				if (typeof value === 'string') {
@@ -109,7 +137,7 @@ async function createReverseProxy(
 				return []
 			})
 			const handshake = [
-				`${request.method ?? 'GET'} ${request.url ?? '/ws'} HTTP/${request.httpVersion}`,
+				`${request.method ?? 'GET'} ${upstreamPath} HTTP/${request.httpVersion}`,
 				...headerLines,
 				'',
 				'',
@@ -153,9 +181,12 @@ async function createReverseProxy(
 	}
 }
 
-test('reverse-proxied access uses request-scoped CSP and a live websocket', async ({ page }) => {
+test('reverse-proxied subpath access uses request-scoped CSP and a live websocket', async ({
+	page,
+}) => {
 	const backendPort = await reservePort()
 	const proxyPort = await reservePort()
+	const basePath = '/random-token'
 	const home = mkdtempSync(join(tmpdir(), 'remobi-playwright-home-'))
 	tempDirs.push(home)
 
@@ -168,6 +199,8 @@ test('reverse-proxied access uses request-scoped CSP and a live websocket', asyn
 			'serve',
 			'--port',
 			String(backendPort),
+			'--base-path',
+			basePath,
 			'--',
 			'bash',
 			'--norc',
@@ -186,7 +219,7 @@ test('reverse-proxied access uses request-scoped CSP and a live websocket', asyn
 		exited = true
 	})
 
-	const proxy = await createReverseProxy(backendPort, proxyPort)
+	const proxy = await createReverseProxy(backendPort, proxyPort, basePath)
 	const consoleErrors: string[] = []
 	page.on('console', (message) => {
 		if (message.type() === 'error') {
@@ -196,11 +229,12 @@ test('reverse-proxied access uses request-scoped CSP and a live websocket', asyn
 
 	try {
 		await waitForHttp(`http://127.0.0.1:${backendPort}`)
-		await waitForHttp(`http://127.0.0.1:${proxyPort}`)
+		await waitForHttp(`http://127.0.0.1:${proxyPort}${basePath}`)
 
-		const response = await page.goto(`http://127.0.0.1:${proxyPort}`)
+		const response = await page.goto(`http://127.0.0.1:${proxyPort}${basePath}`)
 		expect(response).not.toBeNull()
 		const csp = response?.headers()['content-security-policy'] ?? ''
+		expect(page.url()).toBe(`http://127.0.0.1:${proxyPort}${basePath}/`)
 		expect(csp).toContain(`ws://127.0.0.1:${proxyPort}`)
 		expect(csp).toContain(`wss://127.0.0.1:${proxyPort}`)
 		expect(csp).not.toContain(`ws://127.0.0.1:${backendPort}`)

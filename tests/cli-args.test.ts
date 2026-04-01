@@ -336,7 +336,7 @@ describe('parseCliArgs', () => {
 	})
 
 	test('rejects invalid --base-path values', () => {
-		for (const value of ['', 'proxy', '/proxy?x=1', '/proxy#frag']) {
+		for (const value of ['', 'proxy', '//proxy', '/proxy//nested', '/proxy?x=1', '/proxy#frag']) {
 			const result = parseCliArgs(['serve', '--base-path', value])
 			expect(result.ok).toBe(false)
 			if (!result.ok) {

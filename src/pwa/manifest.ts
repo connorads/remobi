@@ -5,6 +5,7 @@ interface WebAppManifest {
 	readonly name: string
 	readonly short_name: string
 	readonly start_url: string
+	readonly scope: string
 	readonly display: string
 	readonly background_color: string
 	readonly theme_color: string
@@ -22,6 +23,7 @@ export function generateManifest(name: string, pwa: PwaConfig, basePath = '/'): 
 		name,
 		short_name: pwa.shortName ?? name,
 		start_url: documentRoute(basePath),
+		scope: documentRoute(basePath),
 		display: 'standalone',
 		background_color: pwa.themeColor,
 		theme_color: pwa.themeColor,

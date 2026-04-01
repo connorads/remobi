@@ -1,6 +1,6 @@
 # Networking and WebSocket flow
 
-This page explains how a browser reaches remobi, how the `/ws` transport works, and how the shared terminal session stays in sync across clients.
+This page explains how a browser reaches remobi, how the WebSocket transport works, and how the shared terminal session stays in sync across clients.
 
 For the high-level runtime layout, see [How remobi works](how-remobi-works.md).
 
@@ -18,6 +18,8 @@ The browser talks to two server entry points:
 - `GET /` for the HTML document with inline JS, CSS, config, and CSP nonce
 - `GET /ws` for the terminal WebSocket
 
+When `remobi serve --base-path /prefix` is used, remobi also serves the same HTML, WebSocket, manifest, and icon routes under `/prefix/...`. Root routes stay available for direct local access.
+
 ## Browser-to-session sequence
 
 ```mermaid
@@ -27,9 +29,9 @@ sequenceDiagram
     participant Session as SharedTerminalSession
     participant PTY as node-pty command
 
-    Browser->>Server: GET /
+    Browser->>Server: GET / or /prefix
     Server-->>Browser: HTML + inline config + client bundle
-    Browser->>Server: GET /ws (upgrade)
+    Browser->>Server: GET /ws or /prefix/ws (upgrade)
     Server->>Server: Validate Origin against Host
     Server->>Session: addClient(client)
     Note over Session,Browser: live output may race with snapshot
@@ -90,14 +92,14 @@ That is why the browser client has both snapshot handling and pending-output buf
 
 The current server behaviour matters for docs because remobi is usually deployed behind another network layer:
 
-- `/ws` upgrades are gated by an Origin check against the request Host header
+- `/ws` upgrades, including prefixed variants such as `/prefix/ws`, are gated by an Origin check against the request Host header
 - when no Origin is sent, loopback hosts are the only implicit allow case
 - CSP `connect-src` is scoped to the request authority, including explicit `ws://` and `wss://` entries for Safari compatibility
 - security headers are applied to both HTML and WebSocket-adjacent responses
 
 ## Client-side connection behaviour
 
-The browser opens exactly one terminal socket to `${location.host}/ws`.
+The browser opens exactly one terminal socket to `${location.host}${basePath}/ws`, where `basePath` is `/` by default and can be overridden with `--base-path`.
 
 - before the socket opens, outbound messages are queued locally
 - on open, the client sends a resize based on the fitted terminal size, then flushes queued messages

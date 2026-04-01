@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { documentRoute, joinBasePath, normalizeBasePath } from '../src/base-path'
+import { bareDocumentRoute, documentRoute, joinBasePath, normalizeBasePath } from '../src/base-path'
 
 describe('normalizeBasePath', () => {
 	test('accepts root and trims trailing slash for nested paths', () => {
@@ -8,8 +8,10 @@ describe('normalizeBasePath', () => {
 		expect(normalizeBasePath('/proxy/nested/')).toBe('/proxy/nested')
 	})
 
-	test('rejects relative paths and URL suffixes', () => {
+	test('rejects relative paths, repeated slashes, and URL suffixes', () => {
 		expect(normalizeBasePath('proxy')).toBeNull()
+		expect(normalizeBasePath('//proxy')).toBeNull()
+		expect(normalizeBasePath('/proxy//nested')).toBeNull()
 		expect(normalizeBasePath('/proxy?x=1')).toBeNull()
 		expect(normalizeBasePath('/proxy#frag')).toBeNull()
 	})
@@ -31,5 +33,10 @@ describe('document routes', () => {
 	test('uses trailing slash as the canonical document route', () => {
 		expect(documentRoute('/')).toBe('/')
 		expect(documentRoute('/proxy')).toBe('/proxy/')
+	})
+
+	test('exposes the bare route only for nested base paths', () => {
+		expect(bareDocumentRoute('/')).toBeNull()
+		expect(bareDocumentRoute('/proxy')).toBe('/proxy')
 	})
 })

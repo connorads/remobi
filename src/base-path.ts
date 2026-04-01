@@ -16,6 +16,10 @@ export function normalizeBasePath(value: string): string | null {
 		return '/'
 	}
 
+	if (trimmed.includes('//')) {
+		return null
+	}
+
 	return trimmed
 }
 
@@ -33,4 +37,8 @@ export function joinBasePath(basePath: string, path: string): string {
 
 export function documentRoute(basePath: string): string {
 	return basePath === '/' ? '/' : `${basePath}/`
+}
+
+export function bareDocumentRoute(basePath: string): string | null {
+	return basePath === '/' ? null : basePath
 }
