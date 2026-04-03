@@ -151,6 +151,34 @@ const fontResolvedSchema = v.strictObject({
 
 // --- Gestures ---
 
+const twoFingerSwipeOverridesSchema = v.strictObject({
+	enabled: v.optional(v.boolean()),
+	threshold: v.optional(finiteNumber),
+	maxDuration: v.optional(finiteNumber),
+	up: v.optional(v.string()),
+	down: v.optional(v.string()),
+	left: v.optional(v.string()),
+	right: v.optional(v.string()),
+	upLabel: v.optional(v.string()),
+	downLabel: v.optional(v.string()),
+	leftLabel: v.optional(v.string()),
+	rightLabel: v.optional(v.string()),
+})
+
+const twoFingerSwipeResolvedSchema = v.strictObject({
+	enabled: v.boolean(),
+	threshold: finiteNumber,
+	maxDuration: finiteNumber,
+	up: v.string(),
+	down: v.string(),
+	left: v.string(),
+	right: v.string(),
+	upLabel: v.string(),
+	downLabel: v.string(),
+	leftLabel: v.string(),
+	rightLabel: v.string(),
+})
+
 const swipeOverridesSchema = v.strictObject({
 	enabled: v.optional(v.boolean()),
 	threshold: v.optional(finiteNumber),
@@ -159,6 +187,7 @@ const swipeOverridesSchema = v.strictObject({
 	right: v.optional(v.string()),
 	leftLabel: v.optional(v.string()),
 	rightLabel: v.optional(v.string()),
+	twoFinger: v.optional(twoFingerSwipeOverridesSchema),
 })
 
 const swipeResolvedSchema = v.strictObject({
@@ -169,6 +198,7 @@ const swipeResolvedSchema = v.strictObject({
 	right: v.string(),
 	leftLabel: v.string(),
 	rightLabel: v.string(),
+	twoFinger: twoFingerSwipeResolvedSchema,
 })
 
 const pinchOverridesSchema = v.strictObject({

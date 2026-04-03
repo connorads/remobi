@@ -32,6 +32,13 @@ function renderGestures(config: RemobiConfig): DocumentFragment {
 		table.appendChild(row('Swipe left', config.gestures.swipe.leftLabel))
 	}
 
+	if (config.gestures.swipe.twoFinger.enabled) {
+		table.appendChild(row('Two-finger swipe up', config.gestures.swipe.twoFinger.upLabel))
+		table.appendChild(row('Two-finger swipe down', config.gestures.swipe.twoFinger.downLabel))
+		table.appendChild(row('Two-finger swipe left', config.gestures.swipe.twoFinger.leftLabel))
+		table.appendChild(row('Two-finger swipe right', config.gestures.swipe.twoFinger.rightLabel))
+	}
+
 	if (config.gestures.pinch.enabled) {
 		table.appendChild(row('Pinch in/out', 'Decrease/increase font size'))
 	}

@@ -10,7 +10,7 @@ import {
 	terminalGrid,
 	touchToCell,
 } from '../src/gestures/scroll'
-import { isValidSwipe } from '../src/gestures/swipe'
+import { isValidSwipe, isValidTwoFingerSwipe } from '../src/gestures/swipe'
 import { mockTerminal } from './fixtures'
 
 describe('isValidSwipe', () => {
@@ -60,6 +60,82 @@ describe('isValidSwipe', () => {
 		}
 		expect(isValidSwipe(150, 10, 200, strict)).toBeNull()
 		expect(isValidSwipe(250, 10, 200, strict)).toBe('right')
+	})
+})
+
+describe('isValidTwoFingerSwipe', () => {
+	const config = {
+		enabled: true,
+		threshold: 80,
+		maxDuration: 400,
+		up: 'pane-up',
+		down: 'pane-down',
+		left: 'pane-left',
+		right: 'pane-right',
+		upLabel: 'Select pane above',
+		downLabel: 'Select pane below',
+		leftLabel: 'Select pane left',
+		rightLabel: 'Select pane right',
+	}
+
+	test('detects right swipe', () => {
+		expect(isValidTwoFingerSwipe(100, 10, 200, config)).toBe('right')
+	})
+
+	test('detects left swipe', () => {
+		expect(isValidTwoFingerSwipe(-100, 10, 200, config)).toBe('left')
+	})
+
+	test('detects down swipe', () => {
+		expect(isValidTwoFingerSwipe(10, 100, 200, config)).toBe('down')
+	})
+
+	test('detects up swipe', () => {
+		expect(isValidTwoFingerSwipe(10, -100, 200, config)).toBe('up')
+	})
+
+	test('rejects swipe below threshold', () => {
+		expect(isValidTwoFingerSwipe(50, 10, 200, config)).toBeNull()
+	})
+
+	test('rejects swipe exceeding maxDuration', () => {
+		expect(isValidTwoFingerSwipe(100, 10, 500, config)).toBeNull()
+	})
+
+	test('rejects diagonal swipe (ambiguous direction)', () => {
+		// 100 vs 80 — neither axis is > 2x the other
+		expect(isValidTwoFingerSwipe(100, 80, 200, config)).toBeNull()
+	})
+
+	test('accepts swipe at exact threshold boundary', () => {
+		// 81 > 80 threshold, dominant axis clearly horizontal (10 * 2 = 20 < 81)
+		expect(isValidTwoFingerSwipe(81, 10, 200, config)).toBe('right')
+	})
+
+	test('rejects at exact maxDuration boundary', () => {
+		// dt === maxDuration → rejected (must be strictly less)
+		expect(isValidTwoFingerSwipe(100, 10, 400, config)).toBe('right')
+	})
+
+	test('rejects when dt exceeds maxDuration', () => {
+		expect(isValidTwoFingerSwipe(100, 10, 401, config)).toBeNull()
+	})
+
+	test('handles zero movement', () => {
+		expect(isValidTwoFingerSwipe(0, 0, 200, config)).toBeNull()
+	})
+
+	test('respects custom threshold', () => {
+		const strict = { ...config, threshold: 200 }
+		expect(isValidTwoFingerSwipe(150, 10, 200, strict)).toBeNull()
+		expect(isValidTwoFingerSwipe(250, 10, 200, strict)).toBe('right')
+	})
+
+	test('vertical swipe requires dominant vertical axis', () => {
+		// dy=100, dx=40: 100 > 40*2=80 → vertical wins
+		expect(isValidTwoFingerSwipe(40, -100, 200, config)).toBe('up')
+		// dy=100, dx=60: 100 > 60*2=120 → false, diagonal reject
+		expect(isValidTwoFingerSwipe(60, -100, 200, config)).toBeNull()
 	})
 })
 

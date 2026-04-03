@@ -17,6 +17,14 @@ const defaultFont: RemobiConfig['font'] = {
 	sizeRange: [8, 32],
 }
 
+/**
+ * Zoom-aware tmux pane select: unzooms, selects, re-zooms if zoomed;
+ * plain select-pane otherwise. Sent as a tmux command-line string.
+ */
+function zoomAwarePaneSelect(direction: 'U' | 'D' | 'L' | 'R'): string {
+	return `\x02:if -F '#{window_zoomed_flag}' 'resize-pane -Z; select-pane -${direction}; resize-pane -Z' 'select-pane -${direction}'\r`
+}
+
 /** Default gesture configuration */
 const defaultGestures: RemobiConfig['gestures'] = {
 	swipe: {
@@ -27,6 +35,19 @@ const defaultGestures: RemobiConfig['gestures'] = {
 		right: '\x02p',
 		leftLabel: 'Next tmux window',
 		rightLabel: 'Previous tmux window',
+		twoFinger: {
+			enabled: false,
+			threshold: 80,
+			maxDuration: 400,
+			up: zoomAwarePaneSelect('U'),
+			down: zoomAwarePaneSelect('D'),
+			left: zoomAwarePaneSelect('L'),
+			right: zoomAwarePaneSelect('R'),
+			upLabel: 'Select pane above',
+			downLabel: 'Select pane below',
+			leftLabel: 'Select pane left',
+			rightLabel: 'Select pane right',
+		},
 	},
 	pinch: { enabled: false },
 	scroll: { enabled: true, sensitivity: 40, strategy: 'wheel', wheelIntervalMs: 24 },

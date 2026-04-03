@@ -48,6 +48,21 @@ export interface FontConfig {
 	readonly sizeRange: readonly [min: number, max: number]
 }
 
+/** Two-finger swipe configuration for directional pane navigation */
+export interface TwoFingerSwipeConfig {
+	readonly enabled: boolean
+	readonly threshold: number
+	readonly maxDuration: number
+	readonly up: string
+	readonly down: string
+	readonly left: string
+	readonly right: string
+	readonly upLabel: string
+	readonly downLabel: string
+	readonly leftLabel: string
+	readonly rightLabel: string
+}
+
 /** Swipe gesture configuration */
 export interface SwipeConfig {
 	readonly enabled: boolean
@@ -57,6 +72,7 @@ export interface SwipeConfig {
 	readonly right: string
 	readonly leftLabel: string
 	readonly rightLabel: string
+	readonly twoFinger: TwoFingerSwipeConfig
 }
 
 /** Pinch gesture configuration */

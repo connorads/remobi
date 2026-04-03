@@ -161,10 +161,10 @@ export function init(
 
 				// Gestures
 				const gestureLock = createGestureLock()
-				if (config.gestures.swipe.enabled) {
-					const indicator = attachSwipeGestures(term, config.gestures.swipe, drawer.isOpen)
-					document.body.appendChild(indicator)
-				}
+				// Swipe gestures — handler checks enabled flags internally per finger count
+				document.body.appendChild(
+					attachSwipeGestures(term, config.gestures.swipe, drawer.isOpen, gestureLock),
+				)
 				if (config.gestures.pinch.enabled) {
 					attachPinchGestures(term, config.font, gestureLock)
 				}
