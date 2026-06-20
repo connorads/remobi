@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -23,7 +23,9 @@ afterEach(() => {
 })
 
 function createTempDir(): string {
-	const dir = mkdtempSync(join(tmpdir(), 'remobi-cli-validation-'))
+	// realpathSync resolves the macOS /private symlink so the path matches the child's
+	// process.cwd() that the CLI echoes back in `Created: <path>`.
+	const dir = realpathSync(mkdtempSync(join(tmpdir(), 'remobi-cli-validation-')))
 	tempDirs.push(dir)
 	return dir
 }
