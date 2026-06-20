@@ -17,7 +17,9 @@
 		"noUncheckedIndexedAccess": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"exactOptionalPropertyTypes": false
+		"exactOptionalPropertyTypes": false,
+		"erasableSyntaxOnly": true,
+		"isolatedModules": true
 	},
 	"include": ["src/**/*.ts", "cli.ts", "build.ts", "tests/**/*.ts", "remobi.config.ts"],
 	"exclude": ["node_modules", "dist"]
