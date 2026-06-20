@@ -3,6 +3,7 @@ import { Unicode11Addon } from '@xterm/addon-unicode11'
 import XtermHeadless from '@xterm/headless'
 import { type IPty, spawn } from 'node-pty'
 import type { ClientMessage, ServerMessage } from './session-protocol'
+import { ensureNodePtySpawnHelperExecutable } from './util/spawn-helper'
 
 const DEFAULT_COLS = 80
 const DEFAULT_ROWS = 24
@@ -51,6 +52,10 @@ export class SharedTerminalSession {
 
 	constructor(command: readonly string[]) {
 		const { file, args } = normaliseCommand(command)
+
+		// node-pty's macOS prebuild ships its spawn-helper without the execute bit; repair it
+		// here so installs that skip lifecycle scripts (ignore-scripts) still spawn a PTY.
+		ensureNodePtySpawnHelperExecutable()
 
 		this.pty = spawn(file, args, {
 			name: 'xterm-256color',
