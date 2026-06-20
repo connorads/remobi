@@ -48,6 +48,6 @@ jobs:
           python3 --version
           node-gyp --version
       - run: pnpm install
-      - run: npx semantic-release
+      - run: pnpm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
