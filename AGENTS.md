@@ -72,7 +72,11 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 
 ## Module Layout
 
-- `src/index.ts` — entry: waitForTerm then init overlay
+Browser overlay (bundled to the client via esbuild):
+
+- `src/client-entry.ts` — IIFE entry point esbuild bundles into the served client (wires xterm + WebSocket to the overlay)
+- `src/overlay-entry.ts` — alternate IIFE entry that re-exports `init`/`createHookRegistry` from `index` (embedding/coverage entry, not the bundle entry)
+- `src/index.ts` — overlay bootstrap: waitForTerm then init overlay
 - `src/config.ts` — defaults, defineConfig, deepMerge
 - `src/types.ts` — all shared types
 - `src/toolbar/` — toolbar DOM + button definitions
@@ -82,24 +86,37 @@ Commits must follow [Conventional Commits](https://www.conventionalcommits.org/)
 - `src/controls/` — font size, help overlay, combo picker, floating buttons, scroll buttons
 - `src/theme/` — catppuccin-mocha + apply
 - `src/viewport/` — height management, landscape detection
+- `src/startup-resize.ts` — schedules the initial terminal resize on load (rAF + fonts-ready)
+- `src/reconnect.ts` — connection loss overlay + auto-reload
 - `src/util/dom.ts` — element creation helpers
 - `src/util/terminal.ts` — sendData, resizeTerm, waitForTerm
 - `src/util/haptic.ts` — vibration feedback
 - `src/util/keyboard.ts` — isKeyboardOpen, conditionalFocus
 - `src/util/tap.ts` — onTap: touch + click handler for iOS Safari compatibility
-- `src/util/node-compat.ts` — sleep, readStdin, spawnProcess, collectStream
 - `src/actions/registry.ts` — action dispatch + clipboard
 - `src/hooks/registry.ts` — lifecycle hook system
 - `src/config-schema.ts` — Valibot validation schemas
 - `src/config-resolve.ts` — button array resolution
 - `src/config-validate.ts` — config assertions
-- `src/cli/args.ts` — CLI argument parsing
 - `src/pwa/` — PWA manifest, meta-tags, icons
-- `src/reconnect.ts` — connection loss overlay
-- `src/overlay-entry.ts` — IIFE entry point for browser bundle
+
+Server runtime (`remobi serve`, Node):
+
+- `src/serve.ts` — Hono HTTP + WS server: routes, CSP/origin/host-header checks, icon serving, caffeinate, shutdown
+- `src/session.ts` — SharedTerminalSession: node-pty spawn, xterm headless mirror, multi-client broadcast + snapshot
+- `src/session-protocol.ts` — client/server message types, parse/serialise, input + resize bounds
+- `src/base-path.ts` — URL prefix mounting (`--base-path`), shared by server routes and client
+- `src/util/node-compat.ts` — sleep, spawnProcess, collectStream
+- `src/util/spawn-helper.ts` — restore node-pty's macOS spawn-helper execute bit at runtime
+
+CLI + build:
+
+- `cli.ts` — CLI: serve, init, deprecated build/inject, --version; config loading (cwd → XDG) + .local overrides
+- `src/cli/args.ts` — CLI argument parsing
+- `build.ts` — source-runtime overlay bundling (esbuild) + HTML rendering; reads prebuilt `dist/` assets for published installs
+- `scripts/build-overlay.ts` — writes the prebuilt `dist/client.iife.js` + `dist/client.css` for publish (`build:overlay`)
+- `src/release/commit-message.ts` — conventional-commit parsing (release classification, breaking-footer check)
 - `styles/base.css` — all CSS
-- `cli.ts` — CLI: serve, init, deprecated build/inject, --version
-- `build.ts` — browser client bundling + HTML rendering
 
 ## Publishing
 
