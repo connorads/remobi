@@ -19,7 +19,7 @@ jobs:
           node-gyp --version
       - run: pnpm install
       - run: pnpm exec playwright install --with-deps chromium webkit
-      - run: pnpm test
+      - run: pnpm run test:coverage
       - run: pnpm run build:dist
       - run: pnpm run test:pw
       - run: pnpm run check
