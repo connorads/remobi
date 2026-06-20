@@ -1,0 +1,5 @@
+# pnpm 11 reads build-script allow-lists here, not from package.json's `pnpm` field.
+onlyBuiltDependencies:
+  - "@biomejs/biome"
+  - esbuild
+  - node-pty
