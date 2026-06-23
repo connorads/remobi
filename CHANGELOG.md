@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/connorads/remobi/compare/v1.0.3...v1.0.4) (2026-06-23)
+
+
+### Bug Fixes
+
+* **serve:** chmod node-pty spawn-helper at runtime instead of via postinstall ([1043e8d](https://github.com/connorads/remobi/commit/1043e8de29f9feebcdee4e0742630015bb65753a))
+
 ## [1.0.3](https://github.com/connorads/remobi/compare/v1.0.2...v1.0.3) (2026-04-01)
 
 
