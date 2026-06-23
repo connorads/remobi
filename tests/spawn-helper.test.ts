@@ -6,6 +6,7 @@ import { afterEach, describe, expect, test } from 'vitest'
 import {
 	ensureExecutable,
 	ensureNodePtySpawnHelperExecutable,
+	ensureSpawnHelperExecutableForPlatform,
 	resolveSpawnHelperPath,
 } from '../src/util/spawn-helper'
 
@@ -76,26 +77,30 @@ describe('resolveSpawnHelperPath', () => {
 	})
 })
 
+describe('ensureSpawnHelperExecutableForPlatform', () => {
+	test('repairs a resolved macOS spawn-helper without touching node_modules', () => {
+		const path = tempFile(0o644)
+
+		ensureSpawnHelperExecutableForPlatform('darwin', path)
+
+		expect(isExecutable(path)).toBe(true)
+	})
+
+	test('leaves non-macOS helpers unchanged', () => {
+		const path = tempFile(0o644)
+
+		ensureSpawnHelperExecutableForPlatform('linux', path)
+
+		expect(isExecutable(path)).toBe(false)
+	})
+
+	test('ignores an unresolved helper path', () => {
+		expect(() => ensureSpawnHelperExecutableForPlatform('darwin', null)).not.toThrow()
+	})
+})
+
 describe('ensureNodePtySpawnHelperExecutable', () => {
 	test('does not throw on any platform', () => {
 		expect(() => ensureNodePtySpawnHelperExecutable()).not.toThrow()
 	})
-
-	// node-pty only ships a macOS prebuild that lacks the execute bit (microsoft/node-pty#850).
-	test.runIf(process.platform === 'darwin')(
-		'repairs a clobbered macOS spawn-helper so a PTY can spawn',
-		() => {
-			const helper = resolveSpawnHelperPath()
-			expect(helper).not.toBe(null)
-			if (!helper) return
-
-			// Simulate the broken prebuild / ignore-scripts install state.
-			chmodSync(helper, 0o644)
-			expect(isExecutable(helper)).toBe(false)
-
-			ensureNodePtySpawnHelperExecutable()
-
-			expect(isExecutable(helper)).toBe(true)
-		},
-	)
 })

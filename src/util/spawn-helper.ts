@@ -31,13 +31,20 @@ export function ensureExecutable(path: string): void {
 	}
 }
 
+/** Restore a resolved spawn-helper when the current platform needs node-pty's macOS workaround. */
+export function ensureSpawnHelperExecutableForPlatform(
+	platform: NodeJS.Platform,
+	helper: string | null,
+): void {
+	if (platform !== 'darwin' || helper === null) return
+	ensureExecutable(helper)
+}
+
 /** Restore the execute bit on node-pty's macOS spawn-helper (microsoft/node-pty#850).
  * node-pty's darwin prebuild ships without +x, and consumers who install with `ignore-scripts`
  * skip lifecycle scripts, so doing this at spawn time keeps remobi working regardless of the
  * install posture — without shipping a published postinstall script of our own.
  * Remove once node-pty ships a fixed prebuild (>=1.2.0) and we upgrade. */
 export function ensureNodePtySpawnHelperExecutable(): void {
-	if (process.platform !== 'darwin') return
-	const helper = resolveSpawnHelperPath()
-	if (helper) ensureExecutable(helper)
+	ensureSpawnHelperExecutableForPlatform(process.platform, resolveSpawnHelperPath())
 }
