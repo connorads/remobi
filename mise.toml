@@ -1,7 +1,7 @@
 [tools]
 node = "22"
 npm = "latest"
-pnpm = "latest"
+pnpm = "11"
 python = "3"
 typos = "latest"
 hk = "latest"
