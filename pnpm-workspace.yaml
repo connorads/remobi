@@ -1,5 +1,7 @@
 # pnpm 11 reads build-script allow-lists here, not from package.json's `pnpm` field.
-onlyBuiltDependencies:
-  - "@biomejs/biome"
-  - esbuild
-  - node-pty
+# v11 removed `onlyBuiltDependencies` in favour of the `allowBuilds` map; strictDepBuilds
+# defaults to true, so any unreviewed build script fails `pnpm install` with a non-zero exit.
+allowBuilds:
+  "@biomejs/biome": true
+  esbuild: true
+  node-pty: true
