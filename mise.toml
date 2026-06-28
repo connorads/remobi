@@ -1,7 +1,8 @@
 [tools]
 node = "22"
 # Node 22 bundles npm 10.x; npm OIDC trusted publishing requires npm >=11.5.1.
-npm = "11"
+# npm:npm backend avoids aqua:npm/cli's `npm view npm/cli` hit (EALLOWGIT under allow-git=none).
+"npm:npm" = "11"
 pnpm = "11"
 python = "3"
 typos = "latest"
