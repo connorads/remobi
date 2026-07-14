@@ -6,13 +6,14 @@ description: >
   workflow, generates a validated remobi.config.ts, suggests tmux mobile
   optimisations, and walks through deployment. Use this skill whenever someone
   asks to set up remobi, configure remobi, onboard with remobi, generate a
-  remobi config, make tmux mobile-friendly, or deploy remobi with Tailscale.
-  Also use when the user says "onboard me" or "set up my phone terminal".
+  remobi config, make tmux mobile-friendly, use remobi with herdr, or deploy
+  remobi with Tailscale. Also use when the user says "onboard me" or "set up
+  my phone terminal".
 ---
 
 # remobi-setup
 
-Interactive onboarding skill for [remobi](https://github.com/connorads/remobi) — monitor and control tmux from your phone.
+Interactive onboarding skill for [remobi](https://github.com/connorads/remobi) — monitor and control tmux (or herdr) from your phone.
 
 This skill walks the user through setup in one conversation. The guiding principle: **detect everything possible, default everything sensible, ask only what requires human intent.** Most users answer 1-3 questions total.
 
@@ -44,7 +45,8 @@ Run silently, then report what's present vs missing:
 
 ```bash
 node --version          # need >= 22
-tmux -V                 # target multiplexer
+tmux -V                 # default target multiplexer
+which herdr             # alternative multiplexer (see herdr path below)
 which remobi            # npm install -g remobi
 ```
 
@@ -52,6 +54,24 @@ If anything is missing, help install it:
 - **Node**: suggest mise, nvm, or direct install
 - **tmux**: `brew install tmux` or distro package
 - **remobi**: `npm install -g remobi`
+
+#### herdr instead of tmux
+
+[herdr](https://github.com/ogulcancelik/herdr) is an agent multiplexer — a tmux alternative with built-in agent status detection, common among Agent Watchers. If herdr is installed and the user prefers it (or asks for it), take the herdr path:
+
+```bash
+remobi serve -- herdr --session main
+```
+
+`herdr --session <name>` attaches or creates, like `tmux new-session -A`. On the herdr path:
+
+- **Skip the tmux inspection and mouse-mode steps entirely** — herdr captures mouse input by default, so touch scroll and tap-to-focus work with no multiplexer config
+- herdr's default prefix is Ctrl-B (`\x02`), the same as tmux: the Prefix button, swipe gestures (`\x02n`/`\x02p` — next/previous tab), and the `+ Win` (`\x02c`), Zoom (`\x02z`), Kill (`\x02x`), and Help (`\x02?`) buttons work unchanged
+- Replace the drawer buttons herdr doesn't bind — see the [herdr example config](#herdr--agent-multiplexer) and [Composing herdr key sequences](#composing-herdr-key-sequences)
+- herdr has a built-in single-column layout for narrow terminals (`ui.mobile_width_threshold` in herdr's `config.toml`); no status-bar or popup tuning needed
+- Custom keybindings live in `~/.config/herdr/config.toml` under `[keys]` — inspect it if present, and translate any remapped prefix or bindings the same way as a custom tmux prefix
+
+Then continue at Phase 3.
 
 #### Inspect tmux
 
@@ -464,6 +484,20 @@ Ctrl-B + d  ->  '\x02d'   (detach)
 
 For a custom prefix (e.g. Ctrl-A): replace `\x02` with `\x01`.
 
+### Composing herdr key sequences
+
+herdr shares tmux's Ctrl-B prefix, and `\x02c` / `\x02n` / `\x02p` / `\x02z` / `\x02x` / `\x02?` mean the same thing (tabs instead of windows). Bindings that differ from tmux:
+
+```
+Ctrl-B + v  ->  '\x02v'   (split side-by-side)
+Ctrl-B + -  ->  '\x02-'   (split stacked)
+Ctrl-B + w  ->  '\x02w'   (workspace picker)
+Ctrl-B + b  ->  '\x02b'   (toggle agent sidebar)
+Ctrl-B + e  ->  '\x02e'   (edit scrollback)
+Ctrl-B + g  ->  '\x02g'   (goto picker)
+Ctrl-B + q  ->  '\x02q'   (detach)
+```
+
 ## Example configs
 
 ### Minimal — default Ctrl-B prefix, custom name only
@@ -531,6 +565,30 @@ export default {
   ],
 }
 ```
+
+### herdr — agent multiplexer
+
+Keeps the shared-binding defaults, swaps the tmux-only buttons for herdr equivalents:
+
+```typescript
+export default {
+  name: 'herdr',
+  drawer: {
+    buttons: (defaults) => [
+      ...defaults.filter(
+        (b) => !['tmux-split-vertical', 'tmux-split-horizontal', 'tmux-sessions', 'tmux-windows', 'tmux-copy'].includes(b.id),
+      ),
+      { id: 'herdr-split-v', label: 'Split |', description: 'Split pane side-by-side (prefix + v)', action: { type: 'send', data: '\x02v' } },
+      { id: 'herdr-split-h', label: 'Split —', description: 'Split pane stacked (prefix + -)', action: { type: 'send', data: '\x02-' } },
+      { id: 'herdr-workspaces', label: 'Spaces', description: 'Open workspace picker (prefix + w)', action: { type: 'send', data: '\x02w' } },
+      { id: 'herdr-sidebar', label: 'Sidebar', description: 'Toggle agent sidebar (prefix + b)', action: { type: 'send', data: '\x02b' } },
+      { id: 'herdr-scrollback', label: 'Scroll', description: 'Edit scrollback (prefix + e)', action: { type: 'send', data: '\x02e' } },
+    ],
+  },
+}
+```
+
+Start with `remobi serve -- herdr --session main`. `tmux-windows` is filtered out because in herdr `prefix+w` opens the workspace picker — `herdr-workspaces` re-adds the same sequence with an accurate label.
 
 ### Scroll strategy — keys instead of wheel
 
