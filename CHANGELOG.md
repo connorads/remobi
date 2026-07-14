@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/connorads/remobi/compare/v1.1.0...v1.2.0) (2026-07-14)
+
+
+### Features
+
+* **serve:** support zellij as target multiplexer ([3ee6a81](https://github.com/connorads/remobi/commit/3ee6a81551de4ecb02b9ec6a5c384cfae6edeea8)), closes [zellij-org/zellij#4049](https://github.com/zellij-org/zellij/issues/4049)
+
 # [1.1.0](https://github.com/connorads/remobi/compare/v1.0.4...v1.1.0) (2026-07-14)
 
 
