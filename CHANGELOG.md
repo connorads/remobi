@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/connorads/remobi/compare/v1.0.4...v1.1.0) (2026-07-14)
+
+
+### Features
+
+* **serve:** support herdr as target multiplexer ([deb6ab0](https://github.com/connorads/remobi/commit/deb6ab07677a14b72654630342c7955ff68c6145))
+
 ## [1.0.4](https://github.com/connorads/remobi/compare/v1.0.3...v1.0.4) (2026-06-23)
 
 
