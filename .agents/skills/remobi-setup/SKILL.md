@@ -6,14 +6,14 @@ description: >
   workflow, generates a validated remobi.config.ts, suggests tmux mobile
   optimisations, and walks through deployment. Use this skill whenever someone
   asks to set up remobi, configure remobi, onboard with remobi, generate a
-  remobi config, make tmux mobile-friendly, use remobi with herdr, or deploy
-  remobi with Tailscale. Also use when the user says "onboard me" or "set up
-  my phone terminal".
+  remobi config, make tmux mobile-friendly, use remobi with zellij or herdr,
+  or deploy remobi with Tailscale. Also use when the user says "onboard me"
+  or "set up my phone terminal".
 ---
 
 # remobi-setup
 
-Interactive onboarding skill for [remobi](https://github.com/connorads/remobi) — monitor and control tmux (or herdr) from your phone.
+Interactive onboarding skill for [remobi](https://github.com/connorads/remobi) — monitor and control tmux (or zellij, herdr) from your phone.
 
 This skill walks the user through setup in one conversation. The guiding principle: **detect everything possible, default everything sensible, ask only what requires human intent.** Most users answer 1-3 questions total.
 
@@ -46,6 +46,7 @@ Run silently, then report what's present vs missing:
 ```bash
 node --version          # need >= 22
 tmux -V                 # default target multiplexer
+which zellij            # alternative multiplexer (see zellij path below)
 which herdr             # alternative multiplexer (see herdr path below)
 which remobi            # npm install -g remobi
 ```
@@ -54,6 +55,25 @@ If anything is missing, help install it:
 - **Node**: suggest mise, nvm, or direct install
 - **tmux**: `brew install tmux` or distro package
 - **remobi**: `npm install -g remobi`
+
+#### zellij instead of tmux
+
+[zellij](https://github.com/zellij-org/zellij) is a batteries-included tmux alternative with a discoverable, modal UI. If zellij is installed and the user prefers it (or asks for it), take the zellij path:
+
+```bash
+remobi serve -- zellij attach --create main
+```
+
+`zellij attach --create <name>` attaches or creates, like `tmux new-session -A`. On the zellij path:
+
+- **Skip the tmux inspection and mouse-mode steps entirely** — zellij enables mouse mode by default, so touch scroll and tap-to-focus work with no multiplexer config
+- Stock zellij ships a tmux-compat mode on Ctrl-B (`\x02`): the Prefix button, swipe gestures (`\x02n`/`\x02p` — next/previous tab), and the `+ Win` (`\x02c`), Split (`\x02%`/`\x02"`), Zoom (`\x02z`), Copy (`\x02[` — scroll mode), and Kill (`\x02x`) buttons work unchanged
+- Replace the three drawer buttons zellij doesn't bind (`tmux-sessions`, `tmux-windows`, `tmux-help`) — see the [zellij example config](#zellij--modal-tmux-alternative) and [Composing zellij key sequences](#composing-zellij-key-sequences)
+- Custom keybindings live in `~/.config/zellij/config.kdl` under `keybinds` — inspect it if present; if it uses `clear-defaults=true` without a `tmux` mode block, the Ctrl-B compat bindings are gone and the drawer needs zellij-native sequences throughout
+- For small screens, suggest `default_layout "compact"` and `pane_frames false` in `config.kdl` to reclaim rows from zellij's UI chrome
+- If the user also stays attached from their desktop, suggest `mirror_session true` in `config.kdl` so both clients see the same view
+
+Then continue at Phase 3.
 
 #### herdr instead of tmux
 
@@ -484,6 +504,20 @@ Ctrl-B + d  ->  '\x02d'   (detach)
 
 For a custom prefix (e.g. Ctrl-A): replace `\x02` with `\x01`.
 
+### Composing zellij key sequences
+
+Stock zellij's tmux-compat mode means `\x02c` / `\x02n` / `\x02p` / `\x02%` / `\x02"` / `\x02z` / `\x02[` / `\x02x` work as in tmux (tabs instead of windows). zellij-native sequences use its modal shortcuts:
+
+```
+Ctrl-O + w  ->  '\x0fw'   (session manager)
+Ctrl-O + d  ->  '\x0fd'   (detach)
+Ctrl-T + n  ->  '\x14n'   (new tab, native tab mode)
+Ctrl-P + n  ->  '\x10n'   (new pane, native pane mode)
+Ctrl-G      ->  '\x07'    (toggle locked mode — passes Ctrl keys through)
+```
+
+Locked mode deserves a button when the user runs TUIs that want Ctrl shortcuts zellij captures.
+
 ### Composing herdr key sequences
 
 herdr shares tmux's Ctrl-B prefix, and `\x02c` / `\x02n` / `\x02p` / `\x02z` / `\x02x` / `\x02?` mean the same thing (tabs instead of windows). Bindings that differ from tmux:
@@ -565,6 +599,25 @@ export default {
   ],
 }
 ```
+
+### zellij — modal tmux alternative
+
+Keeps the tmux-compat defaults, swaps the three unbound buttons for zellij equivalents:
+
+```typescript
+export default {
+  name: 'zellij',
+  drawer: {
+    buttons: (defaults) => [
+      ...defaults.filter((b) => !['tmux-sessions', 'tmux-windows', 'tmux-help'].includes(b.id)),
+      { id: 'zellij-sessions', label: 'Sessions', description: 'Open session manager (Ctrl-O + w)', action: { type: 'send', data: '\x0fw' } },
+      { id: 'zellij-lock', label: 'Lock', description: 'Toggle locked mode (Ctrl-G)', action: { type: 'send', data: '\x07' } },
+    ],
+  },
+}
+```
+
+Start with `remobi serve -- zellij attach --create main`.
 
 ### herdr — agent multiplexer
 
