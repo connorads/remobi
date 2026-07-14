@@ -1,8 +1,10 @@
 [tools]
-node = "22"
 # Node 22 bundles npm 10.x; npm OIDC trusted publishing requires npm >=11.5.1.
 # npm:npm backend avoids aqua:npm/cli's `npm view npm/cli` hit (EALLOWGIT under allow-git=none).
+# Must be listed BEFORE node: mise builds PATH in [tools] order, and node's own
+# bin dir ships a bundled npm that would otherwise shadow this pin.
 "npm:npm" = "11"
+node = "22"
 pnpm = "11"
 python = "3"
 typos = "latest"
