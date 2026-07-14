@@ -90,7 +90,8 @@ Examples:
   remobi serve --no-sleep
   remobi serve --host 0.0.0.0 --port 8080
   remobi serve --base-path /random-token
-  remobi serve --port 8080 -- tmux new -As dev`)
+  remobi serve --port 8080 -- tmux new -As dev
+  remobi serve -- herdr --session main`)
 }
 
 interface LoadedConfig {

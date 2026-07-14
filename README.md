@@ -40,7 +40,7 @@ Your coding agent handles the rest. It installs remobi, inspects your tmux confi
 ## Requirements
 
 - [Node.js](https://nodejs.org/) ≥ 22
-- [tmux](https://github.com/tmux/tmux) (the target multiplexer)
+- [tmux](https://github.com/tmux/tmux) (the default target multiplexer) — or [herdr](https://github.com/ogulcancelik/herdr), see [Using with herdr](#using-with-herdr)
 
 ## Manual setup
 
@@ -69,6 +69,44 @@ See [Mobile-friendly tmux config](.agents/skills/remobi-setup/references/mobile-
 For local development, see the [Development](#development) section below.
 
 Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](.agents/skills/remobi-setup/references/tailscale-serve.md). If your proxy mounts remobi under a URL prefix, start remobi with `--base-path /that-prefix` so the HTML, PWA links, and WebSocket all use the same external path.
+
+## Using with herdr
+
+[herdr](https://github.com/ogulcancelik/herdr) is an agent multiplexer — a tmux alternative purpose-built for supervising AI coding agents, with per-pane agent status detection. remobi serves it the same way it serves tmux:
+
+```bash
+remobi serve -- herdr --session main
+```
+
+`herdr --session <name>` attaches or creates, like `tmux new-session -A`. Sessions persist across remobi restarts.
+
+herdr needs no extra setup for mobile:
+
+- Mouse capture is on by default, so touch scroll and tap-to-focus just work — no `set -g mouse on` equivalent to remember
+- Its default prefix is `Ctrl-B`, the same as tmux, so remobi's Prefix button and the default swipe gestures (`prefix+n`/`prefix+p` — next/previous tab) work unchanged, as do the New Window (`prefix+c`), Zoom (`prefix+z`), Kill (`prefix+x`), and Help (`prefix+?`) drawer buttons
+- It has a built-in single-column mobile layout for narrow terminals (`ui.mobile_width_threshold` in herdr's config)
+
+Only a few drawer buttons send sequences herdr doesn't bind. A `remobi.config.ts` with herdr equivalents:
+
+```typescript
+export default {
+  name: 'herdr',
+  drawer: {
+    buttons: (defaults) => [
+      ...defaults.filter(
+        (b) => !['tmux-split-vertical', 'tmux-split-horizontal', 'tmux-sessions', 'tmux-windows', 'tmux-copy'].includes(b.id),
+      ),
+      { id: 'herdr-split-v', label: 'Split |', description: 'Split pane side-by-side', action: { type: 'send', data: '\x02v' } },
+      { id: 'herdr-split-h', label: 'Split —', description: 'Split pane stacked', action: { type: 'send', data: '\x02-' } },
+      { id: 'herdr-workspaces', label: 'Spaces', description: 'Workspace picker', action: { type: 'send', data: '\x02w' } },
+      { id: 'herdr-sidebar', label: 'Sidebar', description: 'Toggle agent sidebar', action: { type: 'send', data: '\x02b' } },
+      { id: 'herdr-scrollback', label: 'Scroll', description: 'Edit scrollback', action: { type: 'send', data: '\x02e' } },
+    ],
+  },
+}
+```
+
+`tmux-windows` is filtered out because in herdr `prefix+w` opens the workspace picker — `herdr-workspaces` re-adds the same sequence with an accurate label. For interactive onboarding, point an AI agent at the [remobi-setup skill](.agents/skills/remobi-setup/SKILL.md), which covers the herdr path.
 
 ## Release channels
 

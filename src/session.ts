@@ -32,10 +32,25 @@ function toSignalValue(signal: number | undefined): number | null {
 	return typeof signal === 'number' ? signal : null
 }
 
+// Multiplexer client markers: when present, attach-or-create commands
+// (`tmux new-session -A`, `herdr --session`) treat the launch as nested
+// inside an existing client instead of attaching to the real session.
+const NESTED_MUX_ENV_VARS: ReadonlySet<string> = new Set([
+	'TMUX',
+	'TMUX_PANE',
+	'HERDR_SESSION',
+	'HERDR_SOCKET_PATH',
+	'HERDR_PANE_ID',
+	'HERDR_TAB_ID',
+	'HERDR_WORKSPACE_ID',
+])
+
 export function buildSessionEnv(sourceEnv: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-	// Destructure to exclude TMUX vars — `delete` triggers biome noDelete,
+	// Rebuild without the markers — `delete` triggers biome noDelete,
 	// and `env.X = undefined` coerces to the string "undefined" on process.env
-	const { TMUX: _, TMUX_PANE: __, ...rest } = sourceEnv
+	const rest = Object.fromEntries(
+		Object.entries(sourceEnv).filter(([key]) => !NESTED_MUX_ENV_VARS.has(key)),
+	)
 	return { ...rest, TERM: 'xterm-256color' }
 }
 

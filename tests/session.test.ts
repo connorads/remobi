@@ -40,6 +40,24 @@ describe('SharedTerminalSession', () => {
 		expect('TMUX_PANE' in env).toBe(false)
 	})
 
+	test('buildSessionEnv strips nested herdr variables before launching the command', () => {
+		const env = buildSessionEnv({
+			SHELL: '/bin/zsh',
+			HERDR_SESSION: 'main',
+			HERDR_SOCKET_PATH: '/Users/x/.config/herdr/sessions/main/herdr.sock',
+			HERDR_PANE_ID: 'w1:p1',
+			HERDR_TAB_ID: 'w1:t1',
+			HERDR_WORKSPACE_ID: 'w1',
+		})
+
+		expect(env.SHELL).toBe('/bin/zsh')
+		expect('HERDR_SESSION' in env).toBe(false)
+		expect('HERDR_SOCKET_PATH' in env).toBe(false)
+		expect('HERDR_PANE_ID' in env).toBe(false)
+		expect('HERDR_TAB_ID' in env).toBe(false)
+		expect('HERDR_WORKSPACE_ID' in env).toBe(false)
+	})
+
 	test('closes connected clients when the PTY exits naturally', async () => {
 		const session = new SharedTerminalSession([
 			'bash',
