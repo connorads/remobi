@@ -33,11 +33,15 @@ function toSignalValue(signal: number | undefined): number | null {
 }
 
 // Multiplexer client markers: when present, attach-or-create commands
-// (`tmux new-session -A`, `herdr --session`) treat the launch as nested
-// inside an existing client instead of attaching to the real session.
+// (`tmux new-session -A`, `zellij attach --create`, `herdr --session`)
+// may treat the launch as nested inside an existing client instead of
+// attaching to the real session.
 const NESTED_MUX_ENV_VARS: ReadonlySet<string> = new Set([
 	'TMUX',
 	'TMUX_PANE',
+	'ZELLIJ',
+	'ZELLIJ_PANE_ID',
+	'ZELLIJ_SESSION_NAME',
 	'HERDR_SESSION',
 	'HERDR_SOCKET_PATH',
 	'HERDR_PANE_ID',

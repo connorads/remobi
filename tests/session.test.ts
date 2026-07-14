@@ -40,6 +40,20 @@ describe('SharedTerminalSession', () => {
 		expect('TMUX_PANE' in env).toBe(false)
 	})
 
+	test('buildSessionEnv strips nested zellij variables before launching the command', () => {
+		const env = buildSessionEnv({
+			SHELL: '/bin/zsh',
+			ZELLIJ: '0',
+			ZELLIJ_PANE_ID: '1',
+			ZELLIJ_SESSION_NAME: 'main',
+		})
+
+		expect(env.SHELL).toBe('/bin/zsh')
+		expect('ZELLIJ' in env).toBe(false)
+		expect('ZELLIJ_PANE_ID' in env).toBe(false)
+		expect('ZELLIJ_SESSION_NAME' in env).toBe(false)
+	})
+
 	test('buildSessionEnv strips nested herdr variables before launching the command', () => {
 		const env = buildSessionEnv({
 			SHELL: '/bin/zsh',

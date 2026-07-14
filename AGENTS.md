@@ -1,6 +1,6 @@
 # remobi
 
-Monitor and control your coding agents from your phone. Touch controls for tmux (or [herdr](https://github.com/ogulcancelik/herdr)) over the web. Published on npm as `remobi`.
+Monitor and control your coding agents from your phone. Touch controls for tmux (or [zellij](https://github.com/zellij-org/zellij), [herdr](https://github.com/ogulcancelik/herdr)) over the web. Published on npm as `remobi`.
 
 ## Architecture
 

@@ -91,6 +91,7 @@ Examples:
   remobi serve --host 0.0.0.0 --port 8080
   remobi serve --base-path /random-token
   remobi serve --port 8080 -- tmux new -As dev
+  remobi serve -- zellij attach --create main
   remobi serve -- herdr --session main`)
 }
 

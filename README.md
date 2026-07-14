@@ -40,7 +40,7 @@ Your coding agent handles the rest. It installs remobi, inspects your tmux confi
 ## Requirements
 
 - [Node.js](https://nodejs.org/) ≥ 22
-- [tmux](https://github.com/tmux/tmux) (the default target multiplexer) — or [herdr](https://github.com/ogulcancelik/herdr), see [Using with herdr](#using-with-herdr)
+- [tmux](https://github.com/tmux/tmux) (the default target multiplexer) — or [zellij](https://github.com/zellij-org/zellij) ([Using with zellij](#using-with-zellij)) or [herdr](https://github.com/ogulcancelik/herdr) ([Using with herdr](#using-with-herdr))
 
 ## Manual setup
 
@@ -69,6 +69,39 @@ See [Mobile-friendly tmux config](.agents/skills/remobi-setup/references/mobile-
 For local development, see the [Development](#development) section below.
 
 Open `http://localhost:7681` on the same machine to verify it works. For phone access, put a trusted proxy/tunnel in front of it, for example [Tailscale Serve](.agents/skills/remobi-setup/references/tailscale-serve.md). If your proxy mounts remobi under a URL prefix, start remobi with `--base-path /that-prefix` so the HTML, PWA links, and WebSocket all use the same external path.
+
+## Using with zellij
+
+[zellij](https://github.com/zellij-org/zellij) is a batteries-included tmux alternative with a discoverable, modal UI. remobi serves it the same way it serves tmux:
+
+```bash
+remobi serve -- zellij attach --create main
+```
+
+`zellij attach --create <name>` attaches or creates, like `tmux new-session -A`. Sessions persist across remobi restarts (zellij detaches rather than dying when the client goes away).
+
+zellij needs no extra setup for mobile:
+
+- Mouse mode is on by default, so touch scroll and tap-to-focus just work — no `set -g mouse on` equivalent to remember
+- Stock zellij ships a tmux-compat mode on `Ctrl-B`, so remobi's Prefix button and the default swipe gestures (`prefix+n`/`prefix+p` — next/previous tab) work unchanged, as do the New Window (`prefix+c`), Split (`prefix+%`/`prefix+"`), Zoom (`prefix+z`), Copy/scrollback (`prefix+[`), and Kill (`prefix+x`) drawer buttons
+- Its native modal shortcuts (`Ctrl+t` for tabs, `Ctrl+p` for panes, …) also pass through fine
+
+Only three drawer buttons send sequences zellij doesn't bind. A `remobi.config.ts` with zellij equivalents:
+
+```typescript
+export default {
+  name: 'zellij',
+  drawer: {
+    buttons: (defaults) => [
+      ...defaults.filter((b) => !['tmux-sessions', 'tmux-windows', 'tmux-help'].includes(b.id)),
+      { id: 'zellij-sessions', label: 'Sessions', description: 'Open session manager', action: { type: 'send', data: '\x0fw' } },
+      { id: 'zellij-lock', label: 'Lock', description: 'Toggle locked mode (pass Ctrl keys through)', action: { type: 'send', data: '\x07' } },
+    ],
+  },
+}
+```
+
+`zellij-lock` toggles zellij's locked mode, which passes `Ctrl` keys straight through — handy when a TUI inside the session wants shortcuts zellij would otherwise capture. If you also stay attached from your desktop while remobi is connected, set `mirror_session true` in `~/.config/zellij/config.kdl` so both clients see the same view. For interactive onboarding, point an AI agent at the [remobi-setup skill](.agents/skills/remobi-setup/SKILL.md), which covers the zellij path.
 
 ## Using with herdr
 
