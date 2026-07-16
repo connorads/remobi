@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { SharedTerminalSession, buildSessionEnv } from '../src/session'
 import type { ServerMessage } from '../src/session-protocol'
 import { sleep } from '../src/util/node-compat'
@@ -22,6 +22,43 @@ function createClientRecorder() {
 		getCloseCount() {
 			return closeCount
 		},
+	}
+}
+
+type ClientRecorder = ReturnType<typeof createClientRecorder>
+
+function receivedText(recorder: ClientRecorder): string {
+	return recorder
+		.getMessages()
+		.map((message) => ('data' in message ? message.data : ''))
+		.join('')
+}
+
+// Emit an escape sequence into the PTY, wait until it has demonstrably
+// reached the session (a watcher client sees the marker), then connect a
+// late client and return its snapshot.
+async function lateJoinSnapshot(sequence: string): Promise<string> {
+	const session = new SharedTerminalSession([
+		'bash',
+		'--norc',
+		'--noprofile',
+		'-lc',
+		`printf "${sequence}sequence-applied"; sleep 5`,
+	])
+	try {
+		const watcher = createClientRecorder()
+		await session.addClient(watcher.client)
+		await vi.waitFor(() => {
+			expect(receivedText(watcher)).toContain('sequence-applied')
+		})
+
+		const lateClient = createClientRecorder()
+		await session.addClient(lateClient.client)
+		const snapshot = lateClient.getMessages().find((message) => message.type === 'snapshot')
+		expect(snapshot).toBeDefined()
+		return snapshot?.type === 'snapshot' ? snapshot.data : ''
+	} finally {
+		await session.dispose()
 	}
 }
 
@@ -105,6 +142,24 @@ describe('SharedTerminalSession', () => {
 		// ping should still work — pure WS, no PTY involvement
 		session.handleClientMessage(recorder.client, { type: 'ping' })
 		expect(recorder.getMessages()).toEqual([{ type: 'pong' }])
+	})
+
+	test('snapshot replays SGR mouse encoding for late clients', async () => {
+		expect(await lateJoinSnapshot('\\e[?1002h\\e[?1006h')).toContain('\x1b[?1006h')
+	})
+
+	test('snapshot replays SGR pixels mouse encoding for late clients', async () => {
+		expect(await lateJoinSnapshot('\\e[?1002h\\e[?1016h')).toContain('\x1b[?1016h')
+	})
+
+	test('snapshot omits mouse encoding when no mouse modes were set', async () => {
+		const data = await lateJoinSnapshot('plain-output')
+		expect(data).not.toContain('\x1b[?1006h')
+		expect(data).not.toContain('\x1b[?1016h')
+	})
+
+	test('snapshot omits mouse encoding after the app turns it off again', async () => {
+		expect(await lateJoinSnapshot('\\e[?1006h\\e[?1006l')).not.toContain('\x1b[?1006h')
 	})
 
 	test('late clients receive the final snapshot and exit after the PTY is gone', async () => {

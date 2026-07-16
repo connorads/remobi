@@ -10,6 +10,18 @@ const DEFAULT_ROWS = 24
 const HeadlessTerminal = XtermHeadless.Terminal
 type HeadlessTerminalInstance = InstanceType<typeof HeadlessTerminal>
 
+// Typed view of the xterm internal the snapshot relies on: the serialize
+// addon replays mouse *tracking* modes but the public IModes exposes no
+// mouse *encoding*, so it is read from the parser state instead. All
+// members optional — if the internals move in a future xterm bump, the
+// snapshot degrades to appending nothing rather than crashing. Not
+// consumer-visible: package exports have no "./session" entry.
+declare module '@xterm/headless' {
+	interface Terminal {
+		_core?: { coreMouseService?: { activeEncoding?: string } }
+	}
+}
+
 export interface SessionClient {
 	send(message: ServerMessage): void
 	close(): void
@@ -198,7 +210,22 @@ export class SharedTerminalSession {
 
 	private async snapshot(): Promise<string> {
 		await this.pendingMirrorWrite
-		return this.serializeAddon.serialize()
+		return this.serializeAddon.serialize() + this.serializeMouseEncoding()
+	}
+
+	// Without ?1006h in the snapshot, late-joining browser clients fall back
+	// to legacy X10 encoding and their mouse reports arrive via term.onBinary,
+	// which the client does not forward — taps in mouse-driven apps (e.g.
+	// herdr's tab bar) are silently dropped.
+	private serializeMouseEncoding(): string {
+		switch (this.mirror._core?.coreMouseService?.activeEncoding) {
+			case 'SGR':
+				return '\x1b[?1006h'
+			case 'SGR_PIXELS':
+				return '\x1b[?1016h'
+			default:
+				return ''
+		}
 	}
 
 	private broadcast(message: ServerMessage): void {
