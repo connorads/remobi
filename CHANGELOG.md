@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/connorads/remobi/compare/v1.2.0...v1.2.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* **session:** replay SGR mouse encoding in client snapshots ([72357a0](https://github.com/connorads/remobi/commit/72357a05662231c256097eeb7476d19a94be7a62))
+
 # [1.2.0](https://github.com/connorads/remobi/compare/v1.1.0...v1.2.0) (2026-07-14)
 
 
