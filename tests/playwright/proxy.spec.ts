@@ -1,67 +1,7 @@
-import { mkdtempSync, rmSync } from 'node:fs'
 import { createServer, request as httpRequest } from 'node:http'
-import { type Socket, connect, createServer as createNetServer } from 'node:net'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { type Socket, connect } from 'node:net'
 import { expect, test } from '@playwright/test'
-import { spawnProcess } from '../../src/util/node-compat'
-
-const repoRoot = join(import.meta.dirname, '../..')
-const tempDirs: string[] = []
-
-test.afterEach(() => {
-	while (tempDirs.length > 0) {
-		const dir = tempDirs.pop()
-		if (!dir) continue
-		rmSync(dir, { recursive: true, force: true })
-	}
-})
-
-async function reservePort(): Promise<number> {
-	const server = createNetServer()
-
-	await new Promise<void>((resolve, reject) => {
-		server.once('error', reject)
-		server.listen(0, '127.0.0.1', () => resolve())
-	})
-
-	const address = server.address()
-	if (!address || typeof address === 'string') {
-		server.close()
-		throw new Error('failed to reserve test port')
-	}
-
-	await new Promise<void>((resolve, reject) => {
-		server.close((error) => {
-			if (error) {
-				reject(error)
-				return
-			}
-			resolve()
-		})
-	})
-
-	return address.port
-}
-
-async function waitForHttp(url: string, timeoutMs = 10_000): Promise<void> {
-	const deadline = Date.now() + timeoutMs
-
-	while (Date.now() < deadline) {
-		try {
-			const response = await fetch(url)
-			if (response.ok) {
-				return
-			}
-		} catch {
-			// server not ready yet
-		}
-
-		await new Promise((resolve) => setTimeout(resolve, 100))
-	}
-
-	throw new Error(`timed out waiting for ${url}`)
-}
+import { reservePort, startIsolatedServe, waitForHttp } from './isolated-serve'
 
 function rewriteProxyPath(requestUrl: string | undefined, basePath: string): string | null {
 	const path = requestUrl ?? '/'
@@ -184,42 +124,11 @@ async function createReverseProxy(
 test('reverse-proxied subpath access uses request-scoped CSP and a live websocket', async ({
 	page,
 }) => {
-	const backendPort = await reservePort()
 	const proxyPort = await reservePort()
 	const basePath = '/random-token'
-	const home = mkdtempSync(join(tmpdir(), 'remobi-playwright-home-'))
-	tempDirs.push(home)
+	const backend = await startIsolatedServe({ basePath })
 
-	const proc = spawnProcess(
-		[
-			'pnpm',
-			'exec',
-			'tsx',
-			'cli.ts',
-			'serve',
-			'--port',
-			String(backendPort),
-			'--base-path',
-			basePath,
-			'--',
-			'bash',
-			'--norc',
-			'--noprofile',
-		],
-		{
-			cwd: repoRoot,
-			env: { ...process.env, HOME: home },
-			stdin: 'ignore',
-			stdout: 'pipe',
-			stderr: 'pipe',
-		},
-	)
-	let exited = false
-	void proc.exited.then(() => {
-		exited = true
-	})
-
-	const proxy = await createReverseProxy(backendPort, proxyPort, basePath)
+	const proxy = await createReverseProxy(backend.port, proxyPort, basePath)
 	const consoleErrors: string[] = []
 	page.on('console', (message) => {
 		if (message.type() === 'error') {
@@ -228,7 +137,6 @@ test('reverse-proxied subpath access uses request-scoped CSP and a live websocke
 	})
 
 	try {
-		await waitForHttp(`http://127.0.0.1:${backendPort}`)
 		await waitForHttp(`http://127.0.0.1:${proxyPort}${basePath}`)
 
 		const response = await page.goto(`http://127.0.0.1:${proxyPort}${basePath}`)
@@ -237,7 +145,7 @@ test('reverse-proxied subpath access uses request-scoped CSP and a live websocke
 		expect(page.url()).toBe(`http://127.0.0.1:${proxyPort}${basePath}/`)
 		expect(csp).toContain(`ws://127.0.0.1:${proxyPort}`)
 		expect(csp).toContain(`wss://127.0.0.1:${proxyPort}`)
-		expect(csp).not.toContain(`ws://127.0.0.1:${backendPort}`)
+		expect(csp).not.toContain(`ws://127.0.0.1:${backend.port}`)
 
 		await page.waitForSelector('#terminal .xterm', { timeout: 10_000 })
 		await expect.poll(() => page.evaluate(() => window.__remobiSockets?.[0]?.readyState)).toBe(1)
@@ -250,9 +158,6 @@ test('reverse-proxied subpath access uses request-scoped CSP and a live websocke
 		expect(consoleErrors).toEqual([])
 	} finally {
 		await proxy.close()
-		if (!exited) {
-			proc.kill('SIGINT')
-			await proc.exited
-		}
+		await backend.close()
 	}
 })
