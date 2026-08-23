@@ -1,0 +1,80 @@
+---
+name: gbr
+description: >
+  Pair a phone running Build Remote Agent to this remobi / tmux desktop session.
+  Requires gbr-agent run on the host. Attach via Bot API 127.0.0.1:8788 or gbr-mcp.
+  Use when the user wants a mobile spectator without Tailscale Serve, Cloudflare,
+  ngrok, or publishing remobi beyond 127.0.0.1:7681.
+compatibility: Requires gbr-agent ≥ 0.6.0 on the host. Loopback only. No mailbox keys in this file.
+metadata:
+  version: "0.6.1"
+  product: "Build Remote Agent"
+  website: "https://grokbuildremote.com/"
+---
+
+# Build Remote Agent — pairing device
+
+Companion to remobi, not a replacement. Keep `remobi serve` on `127.0.0.1:7681`.
+The phone spectates (and can veto / inject) through free MIT `gbr-agent`.
+Phone and PC never open ports to each other.
+
+Protocol `gbr/1`. Independent product by Linespotting AB. Not affiliated with xAI or SpaceX.
+
+For remobi onboarding (tmux config, gestures, Tailscale Serve) keep using
+[remobi-setup](../remobi-setup/SKILL.md). Use **this** skill when the user only
+needs a phone spectator without an inbound access layer.
+
+## Pair (unchanged)
+
+1. Phone: [Build Remote Agent](https://grokbuildremote.com/) → Connect.
+2. PC: `gbr-agent pair` — browser QR **and** printed 8-char code.
+3. Phone scans QR **or** types the 8-char code.
+4. PC: `gbr-agent run` (keep it running).
+
+```bash
+curl -fsSL https://grokbuildremote.com/install.sh | bash   # Windows: irm https://grokbuildremote.com/install.ps1 | iex
+gbr-agent version    # need v0.6.0+
+gbr-agent pair && gbr-agent run
+```
+
+Leave remobi bound to loopback:
+
+```bash
+remobi serve          # 127.0.0.1:7681 — do not publish this port
+```
+
+Unpair on the phone before a new mailbox. Force-close is not enough.
+
+## Attach (only these)
+
+| How | Where |
+|-----|--------|
+| Bot API | `http://127.0.0.1:8788` after `gbr-agent run` |
+| MCP | `gbr-mcp` stdio (same JSON as Bot API) |
+
+Phone is spectator + veto, not orchestrator. remobi remains the interactive PWA
+when you *do* want full touch control over Tailscale / Cloudflare / ngrok.
+
+```bash
+curl -sS http://127.0.0.1:8788/health
+curl -sS http://127.0.0.1:8788/v1/sessions
+curl -sS -X POST http://127.0.0.1:8788/v1/inject \
+  -H 'Content-Type: application/json' \
+  -d '{"session_id":"SESSION","text":"hello","submit":true}'
+```
+
+## MCP
+
+```bash
+git clone https://github.com/LinespottingOrg/GrokBuildRemote-Agents.git
+cd GrokBuildRemote-Agents/mcp/gbr-mcp && npm install
+node bin/gbr-mcp.js --diagnose
+```
+
+Remote bots: phone **Settings → Bot API** copies relay URL + mailbox id + key. Never commit the key.
+
+## Loop
+
+diagnose → open/attach → lock → inject → wait idle → harvest excerpt → iterate or close
+
+Docs: https://github.com/LinespottingOrg/GrokBuildRemote-Agents/blob/main/docs/BOT-API.md
