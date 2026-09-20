@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eu
 
-hk run commit-msg "$@"
-pnpm exec tsx scripts/check-breaking-footer.ts "$1"
+export MISE_EXEC_AUTO_INSTALL=false MISE_ACTIVATE_AGGRESSIVE=true
+mise exec -- hk run commit-msg -q "$@"
+exec mise exec -- pnpm exec tsx scripts/check-breaking-footer.ts "$1"

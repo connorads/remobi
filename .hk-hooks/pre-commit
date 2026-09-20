@@ -1,2 +1,7 @@
 #!/bin/sh
-exec hk run pre-commit "$@"
+# Run the repository toolchain without installing tools during a commit.
+if [ "${HK:-1}" = "0" ]; then
+  exit 0
+fi
+export MISE_EXEC_AUTO_INSTALL=false MISE_ACTIVATE_AGGRESSIVE=true
+exec mise exec -- hk run pre-commit -q "$@"

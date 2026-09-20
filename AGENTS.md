@@ -23,7 +23,8 @@ Pure TypeScript + DOM API — no framework. Transpiles to JS via tsdown for npm 
 ## Key Commands
 
 ```bash
-git config core.hooksPath .hk-hooks  # Run once after clone
+mise install hk        # Install the locked hk 2 release
+git config --local core.hooksPath .hk-hooks  # Run once after clone
 pnpm test              # Run all tests
 pnpm run test:pw       # Playwright e2e tests (chromium + webkit)
 pnpm run check         # Biome lint + format check
